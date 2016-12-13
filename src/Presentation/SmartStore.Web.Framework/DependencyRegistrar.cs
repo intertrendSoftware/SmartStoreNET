@@ -64,6 +64,7 @@ using SmartStore.Services.Payments;
 using SmartStore.Services.Pdf;
 using SmartStore.Services.Polls;
 using SmartStore.Services.Search;
+using SmartStore.Services.Search.Modelling;
 using SmartStore.Services.Security;
 using SmartStore.Services.Seo;
 using SmartStore.Services.Shipping;
@@ -260,9 +261,11 @@ namespace SmartStore.Web.Framework
 			builder.RegisterType<FilterService>().As<IFilterService>().InstancePerRequest();
 			builder.RegisterType<CommonServices>().As<ICommonServices>().InstancePerRequest();
 
+			// Search
 			builder.RegisterType<DefaultIndexManager>().As<IIndexManager>().InstancePerRequest();
 			builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().InstancePerRequest();
 			builder.RegisterType<LinqCatalogSearchService>().Named<ICatalogSearchService>("linq").InstancePerRequest();
+			builder.RegisterType<CatalogSearchQueryFactory>().As<ICatalogSearchQueryFactory>().InstancePerRequest();
 		}
 
 		protected override void AttachToComponentRegistration(IComponentRegistry componentRegistry, IComponentRegistration registration)
@@ -594,7 +597,12 @@ namespace SmartStore.Web.Framework
 			builder.RegisterType<BundleBuilder>().As<IBundleBuilder>().InstancePerRequest();
 			builder.RegisterType<FileDownloadManager>().InstancePerRequest();
 
+			// Filter provider
 			builder.RegisterFilterProvider();
+
+			// Model binding
+			builder.RegisterModelBinders(foundAssemblies);
+			builder.RegisterModelBinderProvider();
 
 			// global exception handling
 			if (DataSettings.DatabaseIsInstalled())

@@ -44,6 +44,7 @@ using SmartStore.Web.Framework.UI;
 using SmartStore.Web.Infrastructure.Cache;
 using SmartStore.Web.Models.Common;
 using SmartStore.Services.Seo;
+using SmartStore.Core.Search;
 
 namespace SmartStore.Web.Controllers
 {
@@ -76,6 +77,7 @@ namespace SmartStore.Web.Controllers
 		private readonly Lazy<SecuritySettings> _securitySettings;
 		private readonly Lazy<SocialSettings> _socialSettings;
 		private readonly Lazy<MediaSettings> _mediaSettings;
+		private readonly Lazy<SearchSettings> _searchSettings;
 		private readonly IOrderTotalCalculationService _orderTotalCalculationService;
 		
         private readonly IPriceFormatter _priceFormatter;
@@ -111,6 +113,7 @@ namespace SmartStore.Web.Controllers
 			Lazy<SecuritySettings> securitySettings,
 			Lazy<SocialSettings> socialSettings,
 			Lazy<MediaSettings> mediaSettings,
+			Lazy<SearchSettings> searchSettings,
 			IOrderTotalCalculationService orderTotalCalculationService, 
 			IPriceFormatter priceFormatter,
             ThemeSettings themeSettings, 
@@ -144,6 +147,7 @@ namespace SmartStore.Web.Controllers
 			this._securitySettings = securitySettings;
 			this._socialSettings = socialSettings;
 			this._mediaSettings = mediaSettings;
+			this._searchSettings = searchSettings;
 
             this._orderTotalCalculationService = orderTotalCalculationService;
             this._priceFormatter = priceFormatter;
@@ -327,7 +331,7 @@ namespace SmartStore.Web.Controllers
         }
 
         [ChildActionOnly]
-        public ActionResult Header()
+        public ActionResult Logo()
         {
 			var model = _services.Cache.Get(ModelCacheEventConsumer.SHOPHEADER_MODEL_KEY.FormatWith(_services.StoreContext.CurrentStore.Id), () =>
 			{
@@ -358,7 +362,6 @@ namespace SmartStore.Web.Controllers
                 };
             });
             
-
             return PartialView(model);
         }
 
@@ -511,18 +514,18 @@ namespace SmartStore.Web.Controllers
 
             if (cart.Count > 0)
             {
-                decimal subtotalBase = decimal.Zero;
-                decimal orderSubTotalDiscountAmountBase = decimal.Zero;
-                Discount orderSubTotalAppliedDiscount = null;
-                decimal subTotalWithoutDiscountBase = decimal.Zero;
-                decimal subTotalWithDiscountBase = decimal.Zero;
+				decimal subtotalBase = decimal.Zero;
+				decimal orderSubTotalDiscountAmountBase = decimal.Zero;
+				Discount orderSubTotalAppliedDiscount = null;
+				decimal subTotalWithoutDiscountBase = decimal.Zero;
+				decimal subTotalWithDiscountBase = decimal.Zero;
 
-                _orderTotalCalculationService.GetShoppingCartSubTotal(cart,
-                    out orderSubTotalDiscountAmountBase, out orderSubTotalAppliedDiscount, out subTotalWithoutDiscountBase, out subTotalWithDiscountBase);
+				_orderTotalCalculationService.GetShoppingCartSubTotal(cart,
+					out orderSubTotalDiscountAmountBase, out orderSubTotalAppliedDiscount, out subTotalWithoutDiscountBase, out subTotalWithDiscountBase);
 
-                subtotalBase = subTotalWithoutDiscountBase;
+				subtotalBase = subTotalWithoutDiscountBase;
 				subtotal = _currencyService.Value.ConvertFromPrimaryStoreCurrency(subtotalBase, _services.WorkContext.WorkingCurrency);
-            }
+			}
 
             var model = new ShopBarModel
             {
@@ -1043,7 +1046,7 @@ namespace SmartStore.Web.Controllers
 							StoreId = model.StoreId,
 							Keywords = model.SearchTerm,
 							ProductType = model.ProductTypeId > 0 ? (ProductType?)model.ProductTypeId : null,
-							SearchSku = !_catalogSettings.SuppressSkuSearch,
+							SearchSku = _searchSettings.Value.SearchFields.Contains("sku"),
 							ShowHidden = hasPermission
 						};
 

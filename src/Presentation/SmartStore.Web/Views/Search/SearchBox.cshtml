@@ -1,0 +1,33 @@
+﻿@model SearchBoxModel
+@using SmartStore.Web.Models.Catalog;
+
+@{
+	if (Model.InstantSearchEnabled)
+	{
+		Html.AddScriptParts("~/Themes/Alpha/Scripts/smartstore.instantsearch.js");
+	}
+}
+
+@using (Html.BeginRouteForm("Search", FormMethod.Get, new { @class = "instasearch-form" }))
+{
+	<input type="text"
+			id="instasearch"
+			class="instasearch-term form-control"
+			name="q"
+			value="@Model.CurrentQuery"
+			placeholder="@T("Search.SearchBox.Tooltip")"
+			data-minlength="@(Model.SearchTermMinimumLength.ToString())"
+			data-showthumbs="@(Model.ShowProductImagesInInstantSearch.ToString().ToLower())"
+			data-url="@Url.RouteUrl("InstantSearch")"
+			@(Model.InstantSearchEnabled ? Html.Raw(" autocomplete=\"off\"") : null) />
+
+	<button type="submit" class="btn btn-primary btn-icon instasearch-button" title="@T("Search")">
+		<i class="fa fa-search instasearch-icon"></i>
+	</button>
+
+	<div id="instasearch-drop">
+		<div class="instasearch-drop-body clearfix"></div>
+	</div>
+
+    @Html.Widget("searchbox")
+}

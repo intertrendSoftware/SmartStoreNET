@@ -10,6 +10,8 @@ using SmartStore.Core.Domain.Directory;
 using SmartStore.Core.Domain.Localization;
 using SmartStore.Core.Domain.Security;
 using SmartStore.Core.Domain.Stores;
+using SmartStore.Core.Events;
+using SmartStore.Services.Catalog;
 using SmartStore.Services.Search;
 
 namespace SmartStore.Services.Tests.Search
@@ -17,16 +19,19 @@ namespace SmartStore.Services.Tests.Search
 	[TestFixture]
 	public class LinqCatalogSearchServiceTests
 	{
+		private IProductService _productService;
 		private IRepository<Product> _productRepository;
 		private IRepository<LocalizedProperty> _localizedPropertyRepository;
 		private IRepository<StoreMapping> _storeMappingRepository;
 		private IRepository<AclRecord> _aclRepository;
+		private IEventPublisher _eventPublisher;
 		private LinqCatalogSearchService _linqCatalogSearchService;
 
 		private void InitMocks(List<Product> products)
 		{
 			InitMocks(products, new List<LocalizedProperty>());
 		}
+
 		private void InitMocks(List<Product> products, List<LocalizedProperty> localized)
 		{
 			_productRepository.Expect(x => x.Table).Return(products.AsQueryable());
@@ -62,12 +67,20 @@ namespace SmartStore.Services.Tests.Search
 		[SetUp]
 		public virtual void Setup()
 		{
+			_productService = MockRepository.GenerateMock<IProductService>();
 			_productRepository = MockRepository.GenerateMock<IRepository<Product>>();
 			_localizedPropertyRepository = MockRepository.GenerateMock<IRepository<LocalizedProperty>>();
 			_storeMappingRepository = MockRepository.GenerateMock<IRepository<StoreMapping>>();
 			_aclRepository = MockRepository.GenerateMock<IRepository<AclRecord>>();
+			_eventPublisher = MockRepository.GenerateMock<IEventPublisher>();
 
-			_linqCatalogSearchService = new LinqCatalogSearchService(_productRepository, _localizedPropertyRepository, _storeMappingRepository, _aclRepository);
+			_linqCatalogSearchService = new LinqCatalogSearchService(
+				_productService, 
+				_productRepository, 
+				_localizedPropertyRepository, 
+				_storeMappingRepository, 
+				_aclRepository, 
+				_eventPublisher);
 		}
 
 		[Test]
@@ -129,7 +142,7 @@ namespace SmartStore.Services.Tests.Search
 			var result = Search(new CatalogSearchQuery(new string[] { "name", "shortdescription" }, "cook"));
 
 			Assert.That(result.Hits.Count, Is.EqualTo(0));
-			Assert.That(result.Suggestions.Any(), Is.EqualTo(false));
+			Assert.That(result.SpellCheckerSuggestions.Any(), Is.EqualTo(false));
 		}
 
 		[Test]
@@ -170,10 +183,10 @@ namespace SmartStore.Services.Tests.Search
 
 		#endregion
 
-		#region Suggestions
+		#region Spell Checking
 
 		[Test]
-		public void LinqSearch_can_get_suggestions()
+		public void LinqSearch_can_spellchecking()
 		{
 			var products = new List<Product>
 			{
@@ -186,10 +199,10 @@ namespace SmartStore.Services.Tests.Search
 
 			InitMocks(products);
 
-			var result = Search(new CatalogSearchQuery(new string[] { "name" }, "Smart").WithSuggestions(10).Slice(0, 0).HasStoreId(1));
+			var result = Search(new CatalogSearchQuery(new string[] { "name" }, "Smart").CheckSpelling(10).Slice(0, 0).HasStoreId(1));
 
-			Assert.That(result.Suggestions.Length, Is.EqualTo(2));
-			Assert.That(result.Suggestions[0].IsCaseInsensitiveEqual("Smartphone"));
+			Assert.That(result.SpellCheckerSuggestions.Length, Is.EqualTo(2));
+			Assert.That(result.SpellCheckerSuggestions[0].IsCaseInsensitiveEqual("Smartphone"));
 		}
 
 		#endregion
@@ -500,9 +513,9 @@ namespace SmartStore.Services.Tests.Search
 
 			var eur = new Currency { CurrencyCode = "EUR" };
 
-			Assert.That(Search(new CatalogSearchQuery().WithPrice(eur, 100M, 200M)).Hits.Count(), Is.EqualTo(1));
-			Assert.That(Search(new CatalogSearchQuery().WithPrice(eur, 100M, null)).Hits.Count(), Is.EqualTo(2));
-			Assert.That(Search(new CatalogSearchQuery().WithPrice(eur, null, 100M)).Hits.Count(), Is.EqualTo(3));
+			Assert.That(Search(new CatalogSearchQuery().PriceBetween(100M, 200M, eur)).Hits.Count(), Is.EqualTo(1));
+			Assert.That(Search(new CatalogSearchQuery().PriceBetween(100M, null, eur)).Hits.Count(), Is.EqualTo(2));
+			Assert.That(Search(new CatalogSearchQuery().PriceBetween(null, 100M, eur)).Hits.Count(), Is.EqualTo(3));
 		}
 
 		[Test]
@@ -520,9 +533,9 @@ namespace SmartStore.Services.Tests.Search
 
 			InitMocks(products);
 
-			Assert.That(Search(new CatalogSearchQuery().WithCreatedUtc(new DateTime(2016, 1, 1), new DateTime(2016, 3, 1))).Hits.Count(), Is.EqualTo(2));
-			Assert.That(Search(new CatalogSearchQuery().WithCreatedUtc(new DateTime(2016, 4, 1), null)).Hits.Count(), Is.EqualTo(3));
-			Assert.That(Search(new CatalogSearchQuery().WithCreatedUtc(null, new DateTime(2016, 7, 1))).Hits.Count(), Is.EqualTo(5));
+			Assert.That(Search(new CatalogSearchQuery().CreatedBetween(new DateTime(2016, 1, 1), new DateTime(2016, 3, 1))).Hits.Count(), Is.EqualTo(2));
+			Assert.That(Search(new CatalogSearchQuery().CreatedBetween(new DateTime(2016, 4, 1), null)).Hits.Count(), Is.EqualTo(3));
+			Assert.That(Search(new CatalogSearchQuery().CreatedBetween(null, new DateTime(2016, 7, 1))).Hits.Count(), Is.EqualTo(5));
 		}
 
 		#endregion

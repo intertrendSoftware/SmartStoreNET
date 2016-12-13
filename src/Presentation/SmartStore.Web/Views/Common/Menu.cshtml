@@ -2,33 +2,37 @@
 @using SmartStore.Web.Models.Common;
 
 @{
-    string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { ReturnUrl = Request.RawUrl });
+	string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { ReturnUrl = Request.RawUrl });
 }
 
 @Html.Widget("header_menu_before")
 
 <nav class="menubar">
     <nav class="menubar-group pull-left m-l-0">
-        @Html.Action("LanguageSelector", "Common")
-        @Html.Action("CurrencySelector", "Common")
+        @{ 
+			Html.RenderAction("LanguageSelector", "Common");
+			Html.RenderAction("CurrencySelector", "Common");
+        }
     </nav>
     <nav class="menubar-group">
 
-        <a class="menubar-link" href="@Url.RouteUrl("ProductSearch")">@T("Search")</a>
+        <a class="menubar-link" href="@Url.RouteUrl("Search")">@T("Search")</a>
 
         @if (Model.HasContactUsPage)
-        {
+		{
             <a class="menubar-link" href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a>
-        }
+		}
 
         <div class="dropdown service-links">
             <a class="menubar-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">
-                @T("Menu.ServiceMenu")
+				<span>@T("Menu.ServiceMenu")</span>
                 <i class="fa fa-caret-down"></i>
             </a>
 
             <div class="dropdown-menu" aria-labelledby="dLabel">
-                @Html.Action("ServiceMenu", "Common", new { area = "" })
+                @{
+					Html.RenderAction("ServiceMenu", "Common", new { area = "" });
+                } 
             </div>
         </div>
 
@@ -41,7 +45,8 @@
         @if (!Model.DisplayAdminLink && Model.DisplayLoginLink)
         {
             <a class="menubar-link" href="@Url.RouteUrl("Login", new { ReturnUrl = Request.RawUrl })" rel="nofollow">
-                <i class="fa fa-user"></i>&nbsp;&nbsp;@T("Account.Login")
+                <i class="fa fa-user"></i>
+				<span>@T("Account.Login")</span>
             </a>
         }
 
@@ -49,7 +54,7 @@
         {
             <a class="menubar-link" href="@Url.RouteUrl("Logout")" title="@T("Account.ImpersonatedAs.Finish.Hint")" rel="nofollow">
                 <i class="fa fa-sign-out"></i>
-                @Model.CustomerEmailUsername
+				<span>@Model.CustomerEmailUsername</span>
             </a>
         }
     </nav>
@@ -79,22 +84,22 @@
         <div class="dropdown">
             <a class="menubar-link" @(Model.IsAuthenticated ? "data-toggle=dropdown" : "") aria-haspopup="true" aria-expanded="false" href="@accountUrl" rel="nofollow">
 
-                <i class="fa fa-user"></i>&nbsp;&nbsp;
+                <i class="fa fa-user"></i>
 
                 @if (Model.IsAuthenticated)
                 {
-                    @T("Account.MyAccount")
+					<span>@T("Account.MyAccount")</span>
                     <i class="fa fa-caret-down"></i>
                 }
                 else
                 {
-                    @T("Account.Login")
+                    <span>@T("Account.Login")</span>
                 }
             </a>
 
             @if (Model.IsAuthenticated)
-            {
-                @Html.Action("AccountDropdown", "Common")
+			{
+				Html.RenderAction("AccountDropdown", "Common");
             }
         </div>
 
@@ -104,8 +109,8 @@
     {
         <nav class="menubar-group menubar-group--special">
             <a class="menubar-link" href="@Url.Content("~/admin")" target="_admin" rel="nofollow">
-                <i class="fa fa-cog"></i>&nbsp;&nbsp;
-                @T("Account.Administration")
+                <i class="fa fa-cog"></i>
+				<span>@T("Account.Administration")</span>  
             </a>
         </nav>
     }
@@ -147,7 +152,7 @@
         </li>
     }
     <li class="list-inline-item">
-        <a href="@Url.RouteUrl("ProductSearch")">@T("Search")</a>
+        <a href="@Url.RouteUrl("Search")">@T("Search")</a>
     </li>
 	@if (Model.HasContactUsPage)
 	{

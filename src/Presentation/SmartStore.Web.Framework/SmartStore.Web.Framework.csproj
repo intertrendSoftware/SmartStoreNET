@@ -255,7 +255,6 @@
     <Compile Include="Extensions\NameValueCollectionExtensions.cs" />
     <Compile Include="Filters\HandleInstallFilter.cs" />
     <Compile Include="Extensions\PostedFileResult.cs" />
-    <Compile Include="Extensions\RouteExtensions.cs" />
     <Compile Include="Extensions\TelerikExtensions.cs" />
     <Compile Include="Localization\ErrorMessageProvider.cs" />
     <Compile Include="Filters\CompressAttribute.cs" />
@@ -280,6 +279,7 @@
     <Compile Include="Theming\InheritedVirtualThemeFile.cs" />
     <Compile Include="Theming\TwoLevelViewLocationCache.cs" />
     <Compile Include="Theming\WebViewPage.cs" />
+    <Compile Include="UI\Components\ViewBasedComponentRenderer.cs" />
     <Compile Include="UI\Components\Menu\AdminMenuProvider.cs" />
     <Compile Include="UI\Components\Menu\MenuPublisher.cs" />
     <Compile Include="UI\HtmlAttribute.cs" />

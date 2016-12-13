@@ -1,15 +1,15 @@
 ﻿@model ProductsByTagModel
-@using SmartStore.Core;
+
 @using SmartStore.Core.Infrastructure;
 @using SmartStore.Web.Models.Catalog;
 @using SmartStore.Web;
 @using SmartStore.Web.Models.Catalog;
-@using SmartStore.Web;
+
 @using SmartStore.Web.Framework.UI;
 @using SmartStore.Core.Domain.Seo;
 
 @{
-    Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
+    Layout = "_ColumnsTwo";
 
     //title
     Html.AddTitleParts(string.Format(T("PageTitle.ProductsByTag").Text, Model.TagName));
@@ -24,57 +24,23 @@
 	}
 }
 
-@functions{
-    private bool ShowListOptions() {
-        return Model.Products.Count > 0 &&
-               (Model.PagingFilteringContext.AllowProductViewModeChanging ||
-               Model.PagingFilteringContext.AllowProductSorting ||
-               Model.PagingFilteringContext.AllowCustomersToSelectPageSize);
-    }
-}
-
 <div class="page product-tag-page">
     <div class="page-title">
-        <h1>@String.Format(T("Products.Tags.ProductsTaggedWith").Text, Model.TagName)</h1>
+        <h1 class="h3">@T("Products.Tags.ProductsTaggedWith", "<small class='search-term'>" + Model.TagName + "</small>")</h1>	
     </div>
+
     <div class="page-body">
         @Html.Widget("productsbytag_top")
 
-        @if (ShowListOptions()) {
-            @Html.Partial("_ProductListOptions", Model.PagingFilteringContext)
-        }
+		<div class="product-list-container">
+			@if (Model.Products != null && Model.Products.Items.Count > 0)
+			{
+				Html.RenderPartial("Product.List", Model.Products);
+			}
+		</div>
 
-        @Html.Widget("productsbytag_before_product_list")
-
-        @if (Model.Products.Count > 0)
-        {
-            if (Model.PagingFilteringContext.ViewMode == "list")
-            {
-                @*list mode*@
-                <div class="product-list">
-                    @foreach (var product in Model.Products)
-                    {
-                        <article class="item-box details card p-a-1">
-                            @Html.Partial("_ProductBoxList", product)
-                        </article>
-                    }
-                </div>
-            }
-            else
-            {
-                @*grid mode*@
-                <div class="card-deck card-cols-sm-1 card-cols-md-2 card-cols-lg-3 product-grid">
-                    @foreach (var product in Model.Products)
-                    {
-                        <article class="card card-block card-shadow text-xs-center">
-                            @Html.Partial("_ProductBox", product)
-                        </article>
-                    }
-                </div>
-            }
-        }
-
-        @Html.SmartStore().Pager(Model.PagingFilteringContext).Name("pagination-bottom").QueryParam("pagenumber")
+		@* TODO: (mc) find more intelligent way of rendering RecentlyViewedProductsBlock globally *@
+		@{ Html.RenderAction("RecentlyViewedProductsBlock", "Catalog", new { area = "" }); }
 
         @Html.Widget("productsbytag_bottom")
     </div>

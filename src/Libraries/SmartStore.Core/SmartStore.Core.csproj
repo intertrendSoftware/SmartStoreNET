@@ -199,6 +199,7 @@
     <Compile Include="Data\Hooks\IDbHookHandler.cs" />
     <Compile Include="Data\IDbContextExtensions.cs" />
     <Compile Include="Data\ITransaction.cs" />
+    <Compile Include="Domain\Catalog\IPagingOptions.cs" />
     <Compile Include="Domain\Catalog\PriceDisplayType.cs" />
     <Compile Include="Domain\Customers\CustomerNumberVisibility.cs" />
     <Compile Include="Domain\Customers\CustomerNumberMethod.cs" />
@@ -226,6 +227,7 @@
     <Compile Include="Extensions\DecimalExtensions.cs" />
     <Compile Include="Data\IQueryableExtensions.cs" />
     <Compile Include="Extensions\RegexExtensions.cs" />
+    <Compile Include="Extensions\RouteExtensions.cs" />
     <Compile Include="Extensions\XPathExtensions.cs" />
     <Compile Include="Fakes\FakeController.cs" />
     <Compile Include="IActivatable.cs" />
@@ -278,7 +280,6 @@
     <Compile Include="Domain\Catalog\ProductBundleItem.cs" />
     <Compile Include="Domain\Catalog\ProductType.cs" />
     <Compile Include="Domain\Catalog\ProductVariantAttributeValueType.cs" />
-    <Compile Include="Domain\Cms\ContentSliderSettings.cs" />
     <Compile Include="Domain\Common\CompanyInformationSettings.cs" />
     <Compile Include="Domain\Common\ContactDataSettings.cs" />
     <Compile Include="Domain\Common\BankConnectionSettings.cs" />
@@ -420,6 +421,7 @@
     <Compile Include="Search\Facets\FacetDescriptor.cs" />
     <Compile Include="Search\Facets\FacetValue.cs" />
     <Compile Include="Search\Filter\CombinedSearchFilter.cs" />
+    <Compile Include="Search\Filter\SearchFilterDescriptor.cs" />
     <Compile Include="Search\Filter\RangeSearchFilter.cs" />
     <Compile Include="Search\Filter\SearchFilterBase.cs" />
     <Compile Include="Search\IIndexDocument.cs" />
@@ -437,6 +439,7 @@
     <Compile Include="Search\NullIndexStore.cs" />
     <Compile Include="Search\Filter\SearchFilter.cs" />
     <Compile Include="Search\SearchQuery.cs" />
+    <Compile Include="Search\SearchSettings.cs" />
     <Compile Include="Search\SearchSort.cs" />
     <Compile Include="Security\SmartStorePrincipal.cs" />
     <Compile Include="Themes\DefaultThemeRegistry.cs" />

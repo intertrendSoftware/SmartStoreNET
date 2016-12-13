@@ -1,17 +1,13 @@
 ﻿@model CheckoutShippingMethodModel
-@using SmartStore.Core.Domain.Orders;
 @using SmartStore.Web.Models.Checkout;
-@using SmartStore.Web.Models.Common;
-@{
-    Layout = "~/Views/Shared/_Checkout.cshtml";
 
-    //title
+@{
+    Layout = "_Checkout";
     Html.AddTitleParts(T("PageTitle.Checkout").Text);
-      
 }
 
 @section orderProgress{
-    @Html.Action("CheckoutProgress", "Checkout", new { step = CheckoutProgressStep.Shipping })
+    @{ Html.RenderAction("CheckoutProgress", "Checkout", new { step = CheckoutProgressStep.Shipping }); }
 }
 
 <div class="page shipping-method-page">
@@ -90,8 +86,8 @@
                 <input type="submit" name="nextstep" id="nextstep" style="display:none" />
 
                 <button class="btn btn-warning pull-right shipping-method-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
-                    @T("Checkout.NextButton")
-                    &nbsp;<i class="fa fa-caret-right"></i>
+					<span>@T("Checkout.NextButton")</span>
+                    <i class="fa fa-caret-right"></i>
                 </button>
             </div>
 			

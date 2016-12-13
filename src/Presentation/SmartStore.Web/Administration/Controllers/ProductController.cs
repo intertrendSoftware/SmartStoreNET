@@ -22,6 +22,7 @@ using SmartStore.Core.Domain.Orders;
 using SmartStore.Core.Domain.Seo;
 using SmartStore.Core.Events;
 using SmartStore.Core.Logging;
+using SmartStore.Core.Search;
 using SmartStore.Services;
 using SmartStore.Services.Catalog;
 using SmartStore.Services.Common;
@@ -92,6 +93,7 @@ namespace SmartStore.Admin.Controllers
         private readonly ICommonServices _services;
 		private readonly SeoSettings _seoSettings;
 		private readonly MediaSettings _mediaSettings;
+		private readonly SearchSettings _searchSettings;
 
 		#endregion
 
@@ -139,7 +141,8 @@ namespace SmartStore.Admin.Controllers
 			IGenericAttributeService genericAttributeService,
             ICommonServices services,
 			SeoSettings seoSettings,
-			MediaSettings mediaSettings)
+			MediaSettings mediaSettings,
+			SearchSettings searchSettings)
 		{
             this._productService = productService;
             this._productTemplateService = productTemplateService;
@@ -183,6 +186,7 @@ namespace SmartStore.Admin.Controllers
             this._services = services;
 			this._seoSettings = seoSettings;
 			this._mediaSettings = mediaSettings;
+			this._searchSettings = searchSettings;
 		}
 
         #endregion
@@ -832,7 +836,7 @@ namespace SmartStore.Admin.Controllers
             {
 				if (defaultPicture != null)
 				{
-					model.PictureThumbnailUrl = Url.Action("Picture", "Media", new { id = defaultPicture.Id, size = _mediaSettings.ProductThumbPictureSize });
+					model.PictureThumbnailUrl = Url.Action("Picture", "Media", new { id = defaultPicture.Id, size = _mediaSettings.CartThumbPictureSize });
 				}
 				else
 				{
@@ -923,9 +927,9 @@ namespace SmartStore.Admin.Controllers
 					ManufacturerId = model.SearchManufacturerId,
 					StoreId = model.SearchStoreId,
 					Keywords = model.SearchProductName,
-					SearchSku = !_catalogSettings.SuppressSkuSearch,
+					SearchSku = _searchSettings.SearchFields.Contains("sku"),
 					LanguageId = _workContext.WorkingLanguage.Id,
-					OrderBy = ProductSortingEnum.Position,
+					OrderBy = ProductSortingEnum.Relevance,
 					PageIndex = command.Page - 1,
 					PageSize = command.PageSize,
 					ShowHidden = true,
@@ -958,7 +962,7 @@ namespace SmartStore.Admin.Controllers
 
 				var products = _productService.SearchProducts(searchContext);
 
-				var pictureMap = _pictureService.GetPicturesByProductIds(products.Select(x => x.Id).ToArray(), 1);
+				var pictureMap = _pictureService.GetPicturesByProductIds(products.Select(x => x.Id).ToArray(), 1, true);
 
 				gridModel.Data = products.Select(x =>
 				{
@@ -1830,7 +1834,7 @@ namespace SmartStore.Admin.Controllers
 			{
 				var searchContext = new ProductSearchContext
 				{
-					OrderBy = ProductSortingEnum.Position,
+					OrderBy = ProductSortingEnum.Relevance,
 					ParentGroupedProductId = productId,
 					PageSize = int.MaxValue,
 					ShowHidden = true
@@ -2616,7 +2620,7 @@ namespace SmartStore.Admin.Controllers
 					StoreId = model.SearchStoreId,
 					ManufacturerId = model.SearchManufacturerId,
 					Keywords = model.SearchProductName,
-					SearchSku = !_catalogSettings.SuppressSkuSearch,
+					SearchSku = _searchSettings.SearchFields.Contains("sku"),
 					PageIndex = command.Page - 1,
 					PageSize = command.PageSize,
 					ShowHidden = true,

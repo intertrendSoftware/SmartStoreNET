@@ -226,7 +226,8 @@ namespace SmartStore.Web.Controllers
                 return new PictureModel
                 {
                     PictureId = picture != null ? picture.Id : 0,
-                    ImageUrl = _pictureService.GetPictureUrl(picture, pictureSize, !_catalogSettings.HideProductDefaultPictures),
+					Size = pictureSize,
+					ImageUrl = _pictureService.GetPictureUrl(picture, pictureSize, !_catalogSettings.HideProductDefaultPictures),
                     Title = string.Format(_localizationService.GetResource("Media.Product.ImageLinkTitleFormat"), productName),
                     AlternateText = string.Format(_localizationService.GetResource("Media.Product.ImageAlternateTextFormat"), productName),
                 };
@@ -2239,23 +2240,6 @@ namespace SmartStore.Web.Controllers
 
             model.IgnoredProductsCount = Math.Max(0, cart.Count - _shoppingCartSettings.MiniShoppingCartProductNumber);
             model.ThumbSize = _mediaSettings.MiniCartThumbPictureSize;
-
-            return PartialView(model);
-        }
-
-        public ActionResult OffCanvasCompare()
-        {
-            var model = new CompareProductsModel
-            {
-                IncludeShortDescriptionInCompareProducts = _catalogSettings.IncludeShortDescriptionInCompareProducts,
-                IncludeFullDescriptionInCompareProducts = _catalogSettings.IncludeFullDescriptionInCompareProducts,
-            };
-
-            var products = _compareProductsService.GetComparedProducts();
-
-            _helper.PrepareProductOverviewModels(products, prepareSpecificationAttributes: true, isCompareList: true)
-                .ToList()
-                .ForEach(model.Products.Add);
 
             return PartialView(model);
         }

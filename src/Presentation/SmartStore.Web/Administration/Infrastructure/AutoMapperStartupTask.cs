@@ -4,7 +4,6 @@ using AutoMapper;
 using SmartStore.Admin.Models.Blogs;
 using SmartStore.Admin.Models.Catalog;
 using SmartStore.Admin.Models.Common;
-using SmartStore.Admin.Models.ContentSlider;
 using SmartStore.Admin.Models.Customers;
 using SmartStore.Admin.Models.Directory;
 using SmartStore.Admin.Models.Discounts;
@@ -357,23 +356,6 @@ namespace SmartStore.Admin.Infrastructure
             Mapper.CreateMap<QuantityUnitModel, QuantityUnit>()
 				.ForMember(dest => dest.DisplayLocale, mo => mo.Ignore());
 
-            // ContentSlider slides
-            Mapper.CreateMap<ContentSliderSettings, ContentSliderSettingsModel>()
-                .ForMember(dest => dest.Id, mo => mo.Ignore())
-				.ForMember(dest => dest.AvailableStores, mo => mo.Ignore())
-				.ForMember(dest => dest.SearchStoreId, mo => mo.Ignore());
-            Mapper.CreateMap<ContentSliderSettingsModel, ContentSliderSettings>();
-
-			Mapper.CreateMap<ContentSliderSlideSettings, ContentSliderSlideModel>()
-				.ForMember(dest => dest.Id, mo => mo.Ignore())
-				.ForMember(dest => dest.SlideIndex, mo => mo.Ignore())
-				.ForMember(dest => dest.AvailableStores, mo => mo.Ignore());
-            Mapper.CreateMap<ContentSliderSlideModel, ContentSliderSlideSettings>();
-
-            Mapper.CreateMap<ContentSliderButtonSettings, ContentSliderButtonModel>()
-                .ForMember(dest => dest.Id, mo => mo.Ignore());
-            Mapper.CreateMap<ContentSliderButtonModel, ContentSliderButtonSettings>();
-
             // attribute combinations
             Mapper.CreateMap<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>()
                 .ForMember(dest => dest.AssignablePictures, mo => mo.Ignore())
@@ -639,15 +621,11 @@ namespace SmartStore.Admin.Infrastructure
             Mapper.CreateMap<CatalogSettingsModel, CatalogSettings>()
                 .ForMember(dest => dest.PageShareCode, mo => mo.Ignore())
                 .ForMember(dest => dest.DefaultProductRatingValue, mo => mo.Ignore())
-                .ForMember(dest => dest.ProductSearchTermMinimumLength, mo => mo.Ignore())
                 .ForMember(dest => dest.UseSmallProductBoxOnHomePage, mo => mo.Ignore())
-                .ForMember(dest => dest.DefaultCategoryPageSizeOptions, mo => mo.Ignore())
-                .ForMember(dest => dest.DefaultManufacturerPageSizeOptions, mo => mo.Ignore())
                 .ForMember(dest => dest.MaximumBackInStockSubscriptions, mo => mo.Ignore())
                 .ForMember(dest => dest.DisplayTierPricesWithDiscounts, mo => mo.Ignore())
                 .ForMember(dest => dest.FileUploadMaximumSizeBytes, mo => mo.Ignore())
                 .ForMember(dest => dest.FileUploadAllowedExtensions, mo => mo.Ignore())
-                .ForMember(dest => dest.ProductSearchPageSize, mo => mo.Ignore())
 				.ForMember(dest => dest.MostRecentlyUsedCategoriesMaxSize, mo => mo.Ignore())
 				.ForMember(dest => dest.MostRecentlyUsedManufacturersMaxSize, mo => mo.Ignore());
             Mapper.CreateMap<RewardPointsSettings, RewardPointsSettingsModel>()

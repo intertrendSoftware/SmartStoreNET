@@ -959,11 +959,37 @@ namespace SmartStore
 			return s.Replace("'", "");
 		}
 
+		[DebuggerStepThrough]
+		public static string HighlightKeywords(this string input, string keywords, string preMatch = "<strong>", string postMatch = "</strong>")
+		{
+			Guard.NotNull(preMatch, nameof(preMatch));
+			Guard.NotNull(postMatch, nameof(postMatch));
+
+			if (input.IsEmpty() || keywords.IsEmpty())
+			{
+				return input;
+			}
+
+			var pattern = String.Join("|", keywords.Trim().Split(' ', '-')
+				.Select(x => x.Trim())
+				.Where(x => x.HasValue())
+				.Select(x => Regex.Escape(x))
+				.Distinct());
+
+			if (pattern.HasValue())
+			{
+				var rg = new Regex(pattern, RegexOptions.IgnoreCase);
+				input = rg.Replace(input, m => preMatch + m.Value + postMatch);
+			}
+
+			return input;
+		}
+
 		#endregion
 
-        #region Helper
+		#region Helper
 
-        private static void EncodeJsChar(TextWriter writer, char c, char delimiter)
+		private static void EncodeJsChar(TextWriter writer, char c, char delimiter)
         {
             switch (c)
             {

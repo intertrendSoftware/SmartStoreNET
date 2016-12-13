@@ -5,9 +5,10 @@ namespace SmartStore.Core.Search
 {
 	public interface ISearchQuery
 	{
-		// Language
+		// Language & STore
 		int? LanguageId { get; }
 		string LanguageSeoCode { get; }
+		int? StoreId { get; }
 
 		// Search term
 		string[] Fields { get; }
@@ -26,9 +27,21 @@ namespace SmartStore.Core.Search
 		int Skip { get; }
 		int Take { get; }
 
-		int NumberOfSuggestions { get; }
-
 		// Sorting
 		ICollection<SearchSort> Sorting { get; }
+
+		/// <summary>
+		/// Maximum number of suggestions returned from spell checker
+		/// </summary>
+		int SpellCheckerMaxSuggestions { get; }
+
+		/// <summary>
+		/// Defines how many characters must be in the query before suggestions are provided
+		/// </summary>
+		int SpellCheckerMinQueryLength { get; }
+
+		// Misc
+		string Origin { get; }
+		IDictionary<string, object> CustomData { get; }
 	}
 }
