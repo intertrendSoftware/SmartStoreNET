@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using SmartStore.Core;
-using SmartStore.Core.Data;
 using SmartStore.Core.Domain.Catalog;
 using SmartStore.Core.Domain.Customers;
 using SmartStore.Core.Domain.Media;
 using SmartStore.Core.Search;
-using SmartStore.Services.Catalog;
 using SmartStore.Services.Common;
-using SmartStore.Services.Directory;
 using SmartStore.Services.Search;
 using SmartStore.Services.Search.Modelling;
 using SmartStore.Web.Framework.Controllers;
@@ -26,8 +22,6 @@ namespace SmartStore.Web.Controllers
 		private readonly MediaSettings _mediaSettings;
 		private readonly SearchSettings _searchSettings;
 		private readonly ICatalogSearchService _catalogSearchService;
-		private readonly ICurrencyService _currencyService;
-		private readonly IManufacturerService _manufacturerService;
 		private readonly IGenericAttributeService _genericAttributeService;
 		private readonly CatalogHelper _catalogHelper;
 		private readonly ICatalogSearchQueryFactory _queryFactory;
@@ -38,8 +32,6 @@ namespace SmartStore.Web.Controllers
 			CatalogSettings catalogSettings,
 			MediaSettings mediaSettings,
 			SearchSettings searchSettings,
-			ICurrencyService currencyService,
-			IManufacturerService manufacturerService,
 			IGenericAttributeService genericAttributeService,
 			CatalogHelper catalogHelper)
 		{
@@ -48,15 +40,9 @@ namespace SmartStore.Web.Controllers
 			_catalogSettings = catalogSettings;
 			_mediaSettings = mediaSettings;
 			_searchSettings = searchSettings;
-			_currencyService = currencyService;
-			_manufacturerService = manufacturerService;
 			_genericAttributeService = genericAttributeService;
 			_catalogHelper = catalogHelper;
-
-			QuerySettings = DbQuerySettings.Default;
 		}
-
-		public DbQuerySettings QuerySettings { get; set; }
 
 		[ChildActionOnly]
 		public ActionResult SearchBox()
@@ -81,8 +67,12 @@ namespace SmartStore.Web.Controllers
 				return Content(string.Empty);
 
 			// Overwrite search fields
-			var searchFields = new List<string> { "name" };
-			searchFields.AddRange(_searchSettings.SearchFields);
+			var searchFields = new List<string> { "name", "shortdescription", "tagname" };
+
+			if (_searchSettings.SearchFields.Contains("sku"))
+			{
+				searchFields.Add("sku");
+			}
 
 			query.Fields = searchFields.ToArray();
 
@@ -115,6 +105,10 @@ namespace SmartStore.Web.Controllers
 
 			// Add spell checker suggestions (if any)
 			AddSpellCheckerSuggestionsToModel(result.SpellCheckerSuggestions, model);
+
+			// Add top hits (if any)
+			AddTopHitsToModel(result.TopCategories, model, "TopCategories", T("Search.TopCategories"), x => new { q = model.Term, c = x.EntityId });
+			AddTopHitsToModel(result.TopManufacturers, model, "TopManufacturers", T("Search.TopManufacturers"), x => new { q = model.Term, m = x.EntityId });
 
 			return PartialView(model);
 		}
@@ -177,6 +171,10 @@ namespace SmartStore.Web.Controllers
 			// Add spell checker suggestions (if any)
 			AddSpellCheckerSuggestionsToModel(result.SpellCheckerSuggestions, model);
 
+			// Add top hits (if any)
+			AddTopHitsToModel(result.TopCategories, model, "TopCategories", T("Search.TopCategories"), x => new { q = model.Term, c = x.EntityId });
+			AddTopHitsToModel(result.TopManufacturers, model, "TopManufacturers", T("Search.TopManufacturers"), x => new { q = model.Term, m = x.EntityId });
+
 			return View(model);
 		}
 
@@ -197,6 +195,46 @@ namespace SmartStore.Web.Controllers
 				Label = x,
 				Url = Url.RouteUrl("Search", new { q = x })
 			}));
+
+			model.HitGroups.Add(hitGroup);
+		}
+
+		private void AddTopHitsToModel(
+			IEnumerable<ISearchHit> hits,
+			SearchResultModel model,
+			string name,
+			string displayName,
+			Func<ISearchHit, object> routeValues)
+		{
+			if (!hits.Any())
+				return;
+
+			var hitGroup = new SearchResultModel.HitGroup(model)
+			{
+				Name = name,
+				DisplayName = displayName,
+				Ordinal = -100
+			};
+
+			foreach (var hit in hits)
+			{
+				string label = null;
+
+				if (model.Query.LanguageSeoCode.HasValue())
+				{
+					label = hit.GetString("name", model.Query.LanguageSeoCode);
+				}
+				if (label.IsEmpty())
+				{
+					label = hit.GetString("name");
+				}
+
+				hitGroup.Hits.Add(new SearchResultModel.HitItem
+				{
+					Label = label,
+					Url = Url.RouteUrl("Search", routeValues(hit))
+				});
+			}
 
 			model.HitGroups.Add(hitGroup);
 		}

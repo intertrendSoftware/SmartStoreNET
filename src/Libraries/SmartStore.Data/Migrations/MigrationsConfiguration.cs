@@ -122,6 +122,8 @@ namespace SmartStore.Data.Migrations
 			builder.AddOrUpdate("Search.PageTitle", "Search result for {0}", "Suchergebnis für {0}");
 			builder.AddOrUpdate("Search.PagingInfo", "{0} of {1}", "{0} von {1}");
 			builder.AddOrUpdate("Search.DidYouMean", "Did you mean?", "Meinten Sie?");
+			builder.AddOrUpdate("Search.TopCategories", "Categories", "Warengruppen");
+			builder.AddOrUpdate("Search.TopManufacturers", "Brands", "Marken");
 			builder.AddOrUpdate("Search.Hits", "Hits", "Treffer");
 			builder.AddOrUpdate("Search.NoResultsText", "Your search did not match any products.", "Ihre Suche ergab leider keine Produkttreffer.");
 			builder.AddOrUpdate("Search.NumHits", "{0} Hits", "{0} Treffer");
@@ -247,16 +249,47 @@ namespace SmartStore.Data.Migrations
 
 			builder.AddOrUpdate("Common.ListIsEmpty", "The list is empty.", "Die Liste ist leer.");
 
-			builder.AddOrUpdate("Products.SortBy", "Sort by", "Sortiere nach");
-			builder.AddOrUpdate("Products.PageSize", "Show", "Zeige");
+			builder.AddOrUpdate("Products.SortByX", "Sort by {0}", "Sortiere nach {0}");
 			builder.AddOrUpdate("Products.SwitchToGrid", "Show", "Zur Rasteransicht wechseln");
 			builder.AddOrUpdate("Products.SwitchToList", "Show", "Zur Listenansicht wechseln");
+			builder.AddOrUpdate("Products.ToFilter", "Filter", "Filtern");
+			builder.AddOrUpdate("Products.ToSort", "Sort", "Sortieren");
 
 			builder.AddOrUpdate("Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.CreatedOn", "Newest Arrivals", "Neu eingetroffen");
 			builder.AddOrUpdate("Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.Initial", "Position", "Position");
 			builder.AddOrUpdate("Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.PriceAsc", "Price: Low to High", "Preis: aufsteigend");
 			builder.AddOrUpdate("Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.PriceDesc", "Price: High to Low", "Preis: absteigend");
 			builder.AddOrUpdate("Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.Relevance", "Relevance", "Beste Ergebnisse");
+
+			builder.AddOrUpdate("Pager.PageX", "Page {0}", "Seite {0}");
+			builder.AddOrUpdate("Pager.XPerPage", "{0} per Page", "{0} pro Seite");
+			builder.AddOrUpdate("Pager.PageXOfY", "Page {0} of {1}", "Seite {0} von {1}");
+			builder.AddOrUpdate("Pager.PageXOfYShort", "{0} of {1}", "{0} von {1}");
+
+			builder.AddOrUpdate("Products.Price.OldPrice", "Regular", "Regulär");
+			builder.AddOrUpdate("Products.Sku", "SKU", "Art.-Nr.");
+
+
+			builder.AddOrUpdate("Tax.LegalInfoShort", "Prices {0}, plus <a href='{1}'>shipping</a>", "Preise {0}, zzgl. <a href='{1}'>Versandkosten</a>");
+			builder.AddOrUpdate("Tax.LegalInfoShort2", "Prices {0}, plus shipping", "Preise {0}, zzgl. Versandkosten");
+
+			builder.AddOrUpdate("Enums.SmartStore.Core.Search.SearchMode.ExactMatch", "Is equal to (term)", "Ist gleich (Term)");
+			builder.AddOrUpdate("Enums.SmartStore.Core.Search.SearchMode.StartsWith", "Starts with (prefix)", "Beginnt mit (Prefix)");
+			builder.AddOrUpdate("Enums.SmartStore.Core.Search.SearchMode.Contains", "Contains (wildcard)", "Beinhaltet (Wildcard)");
+
+			builder.AddOrUpdate("Admin.Configuration.Settings.Search.WildcardSearchNote",
+				"A wildcard search can slow down the search for a large number of products.",
+				"Eine Wildcard-Suche kann bei einer großen Anzahl an Produkten die Suche verlangsamen.");
+
+			builder.AddOrUpdate("Admin.Configuration.Settings.Search.SearchMode",
+				"Search mode",
+				"Suchmodus",
+				"Specifies the search mode Legt den Suchmodus fest. Please keep in mind that the search mode (depending on the product number) can strongly influence the speed of the search. 'Is equal to' is the fastest, 'Contains' the slowest.",
+				"Legt den Suchmodus fest. Bitte beachten Sie, dass der Suchmodus die Geschwindigkeit der Suche (abhängig von der Produktanzahl) beeinflusst. 'Ist gleich' ist am schnellsten, 'Beinhaltet' am langsamsten.");
+
+			builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CannotDeleteAssignedProducts",
+				"The delivery time cannot be deleted. It has associated products or product variants.",
+				"Die Lieferzeit kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.");
 		}
 	}
 }
