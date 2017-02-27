@@ -32,21 +32,8 @@ namespace SmartStore.Data
 
 		public IDbHookHandler DbHookHandler
 		{
-			get
-			{
-				if (_dbHookHandler == null)
-				{
-					_dbHookHandler = HostingEnvironment.IsHosted
-						? EngineContext.Current.Resolve<IDbHookHandler>()
-						: NullDbHookHandler.Instance; // never trigger hooks during tooling or tests
-				}
-
-				return _dbHookHandler;
-			}
-			set
-			{
-				_dbHookHandler = value;
-			}
+			get;
+			set;
 		}
 
 		public override int SaveChanges()
@@ -141,7 +128,7 @@ namespace SmartStore.Data
 
 		private void IgnoreMergedData(IEnumerable<DbEntityEntry> entries, bool ignore)
 		{
-			foreach (var entry in entries.OfType<IMergedData>())
+			foreach (var entry in entries.Select(x => x.Entity).OfType<IMergedData>())
 			{
 				entry.MergedDataIgnore = ignore;
 			}

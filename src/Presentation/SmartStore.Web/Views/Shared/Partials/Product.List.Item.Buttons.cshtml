@@ -10,7 +10,11 @@
 }
 
 @helper RenderBuyButton(bool blockStyle) {{
-	var cssClasses = blockStyle ? "btn-block hidden-sm-down" : "btn-icon btn-lg art-btn col-xs hidden-md-up";
+	var cssClasses = blockStyle ? "btn-block hidden-sm-down" : "btn-icon btn-lg art-btn col-xs";
+	if (!blockStyle && Model.Parent.ViewMode == ProductSummaryViewMode.List)
+	{
+		cssClasses += " hidden-md-up";
+	}
 	if (!Model.Price.CallForPrice)
 	{
 		string addToCartUrl = "";
@@ -38,9 +42,8 @@
 			{
 				<span>@title</span>
 			}
-			else
+			else if (Model.Parent.ViewMode == ProductSummaryViewMode.List)
 			{
-				@* Show "Add to Cart" label on sm-only (enough space!) *@
 				<span class="hidden-md-up hidden-xs-down">@title</span>
 			}
 		</a>
@@ -66,7 +69,7 @@
 	}
 }}
 
-@if (list.ViewMode == ProductSummaryViewMode.List && !Model.Price.DisableBuyButton && Model.Parent.BuyEnabled)
+@if (list.ViewMode == ProductSummaryViewMode.List && !price.DisableBuyButton && list.BuyEnabled)
 {
 	<div class="m-y-1">
 		@RenderBuyButton(true)
@@ -81,14 +84,12 @@
 
 	@if (!price.DisableWishlistButton && list.WishlistEnabled)
 	{
-		@* TODO: (mc) refactor data-form-selector="#product-details-form"  *@
 		<a data-href='@Url.Action("AddProduct", "ShoppingCart", new RouteValueDictionary { { "productId", Model.Id }, { "shoppingCartTypeId", (int)ShoppingCartType.Wishlist } })'
 			href="#"
 			class="btn btn-secondary btn-icon btn-lg art-btn col-xs ajax-cart-link" 
 			title="@T("Categories.Wishlist")"
 			data-toggle="tooltip" 
 			rel="nofollow"
-			data-form-selector="#product-details-form" 
 			data-type="wishlist" 
 			data-action="add">
 			<i class="fa fa-heart-o"></i>

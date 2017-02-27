@@ -3,7 +3,6 @@
 @{
     Layout = "_ColumnsTwo";
 
-    //title
     Html.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
     Html.AddMetaDescriptionParts(Model.MetaDescription);
     Html.AddMetaKeywordParts(Model.MetaKeywords);
@@ -29,8 +28,7 @@
     </h1>
 
     <div class="blogpost-body">
-
-        @Html.Widget("blogpost_page_before_body")
+		@{ Html.RenderWidget("blogpost_page_before_body"); }
         <div class="blogpost-content">
             @Html.Raw(Model.Body)
         </div>
@@ -48,7 +46,7 @@
             </div>
         }
 
-        @Html.Widget("blogpost_page_before_comments")
+		@{ Html.RenderWidget("blogpost_page_before_comments"); }
         @if (Model.AllowComments)
         {
             <div id="new-comment" class="new-comment card">
@@ -101,7 +99,7 @@
                             @if (!String.IsNullOrEmpty(comment.CustomerAvatarUrl))
                             {
 								<div class="comment-avatar">
-									<img src="@(comment.CustomerAvatarUrl)" class="avatar-img img-polaroid" title="avatar" alt="avatar" />
+									<img src="@(comment.CustomerAvatarUrl)" class="avatar-img img-thumbnail" title="avatar" alt="avatar" />
 								</div>
                             }
 
@@ -124,13 +122,14 @@
                                 </div>
                             </div>
 
-                            @Html.Widget("blogpost_page_inside_comment")
+							@{ Html.RenderWidget("blogpost_page_inside_comment"); }
                         </div>
                     }
                     </div>
                 </div>
             }
         }
-        @Html.Widget("blogpost_page_after_comments")
+
+		@{ Html.RenderWidget("blogpost_page_after_comments"); }
     </div>
 </article>

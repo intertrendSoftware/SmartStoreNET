@@ -19,8 +19,15 @@
             var sel = $(this);
 
             if (sel.data("select2")) { 
-                // skip process, if select is skinned already
+                // skip process if select is skinned already
                 return;
+            }
+
+            if (Modernizr.touchevents) {
+            	if (sel.find('option[data-color], option[data-imageurl]').length == 0) {
+					// skip skinning if device is mobile and no rich content exists (color & image)
+            		return;
+            	}
             }
 
             var autoWidth = sel.hasClass("autowidth"),
@@ -70,10 +77,14 @@
             function renderSelectItem(item) {
             	try {
             		var option = $(item.element),
-						imageUrl = option.data('imageurl');
+						imageUrl = option.data('imageurl'),
+            			color = option.data('color');
 
             		if (imageUrl) {
-            			return '<img class="attribute-value-image" src="' + imageUrl + '" />' + item.text;
+            			return $('<span><img class="choice-item-img" src="' + imageUrl + '" />' + item.text + '</span>');
+            		}
+            		else if (color) {
+            			return $('<span><span class="choice-item-color" style="background-color: ' + color + '"></span>' + item.text + '</span>');
             		}
             	}
             	catch (e) { }
@@ -82,13 +93,15 @@
             }
 
             var opts = {
-                width: 'resolve',
+            	width: 'style', // 'resolve',
+            	dropdownAutoWidth: false,
                 allowClear: !!(placeholder), // assuming that a placeholder indicates nullability
                 placeholder: placeholder,
                 minimumResultsForSearch: _.isNumber(minResultsForSearch) ? minResultsForSearch : 8,
                 minimumInputLength: _.isNumber(minInputLength) ? minInputLength : 0,
-                formatResult: renderSelectItem,
-                formatSelection: renderSelectItem
+                templateResult: renderSelectItem,
+                templateSelection: renderSelectItem,
+				theme: 'bootstrap'
             };
 
             if (url) {

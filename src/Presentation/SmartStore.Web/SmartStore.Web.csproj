@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\JavaScriptEngineSwitcher.V8.2.0.0\build\JavaScriptEngineSwitcher.V8.props" Condition="Exists('..\..\packages\JavaScriptEngineSwitcher.V8.2.0.0\build\JavaScriptEngineSwitcher.V8.props')" />
-  <Import Project="..\..\packages\LibSassHost.0.5.2\build\LibSassHost.props" Condition="Exists('..\..\packages\LibSassHost.0.5.2\build\LibSassHost.props')" />
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\JavaScriptEngineSwitcher.V8.Native.win-x86.2.2.0\build\JavaScriptEngineSwitcher.V8.Native.win-x86.props" Condition="Exists('..\..\packages\JavaScriptEngineSwitcher.V8.Native.win-x86.2.2.0\build\JavaScriptEngineSwitcher.V8.Native.win-x86.props')" />
+  <Import Project="..\..\packages\JavaScriptEngineSwitcher.V8.Native.win-x64.2.2.0\build\JavaScriptEngineSwitcher.V8.Native.win-x64.props" Condition="Exists('..\..\packages\JavaScriptEngineSwitcher.V8.Native.win-x64.2.2.0\build\JavaScriptEngineSwitcher.V8.Native.win-x64.props')" />
+  <Import Project="..\..\packages\LibSassHost.0.6.1\build\LibSassHost.props" Condition="Exists('..\..\packages\LibSassHost.0.6.1\build\LibSassHost.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -75,36 +76,36 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+    <Reference Include="Autofac, Version=4.3.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Autofac.4.3.0\lib\net45\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Autofac.Integration.Mvc, Version=3.3.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Autofac.Mvc5.3.3.4\lib\net45\Autofac.Integration.Mvc.dll</HintPath>
+    <Reference Include="Autofac.Integration.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Autofac.Mvc5.4.0.1\lib\net45\Autofac.Integration.Mvc.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="BundleTransformer.Autoprefixer, Version=1.9.128.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\BundleTransformer.Autoprefixer.1.9.128\lib\net40\BundleTransformer.Autoprefixer.dll</HintPath>
+    <Reference Include="BundleTransformer.Autoprefixer, Version=1.9.139.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\BundleTransformer.Autoprefixer.1.9.139\lib\net40\BundleTransformer.Autoprefixer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="BundleTransformer.Core, Version=1.9.92.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\BundleTransformer.Core.1.9.92\lib\net40\BundleTransformer.Core.dll</HintPath>
+    <Reference Include="BundleTransformer.Core, Version=1.9.138.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\BundleTransformer.Core.1.9.138\lib\net40\BundleTransformer.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="BundleTransformer.Less, Version=1.9.122.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\BundleTransformer.Less.1.9.122\lib\net40\BundleTransformer.Less.dll</HintPath>
+    <Reference Include="BundleTransformer.Less, Version=1.9.138.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\BundleTransformer.Less.1.9.138\lib\net40\BundleTransformer.Less.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="BundleTransformer.MicrosoftAjax, Version=1.9.92.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
       <HintPath>..\..\packages\BundleTransformer.MicrosoftAjax.1.9.92\lib\net40\BundleTransformer.MicrosoftAjax.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="BundleTransformer.SassAndScss, Version=1.9.104.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\BundleTransformer.SassAndScss.1.9.104\lib\net40\BundleTransformer.SassAndScss.dll</HintPath>
+    <Reference Include="BundleTransformer.SassAndScss, Version=1.9.138.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\BundleTransformer.SassAndScss.1.9.138\lib\net40\BundleTransformer.SassAndScss.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ClearScript, Version=5.4.7.0, Culture=neutral, PublicKeyToken=935d0c957da47c73, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\JavaScriptEngineSwitcher.V8.2.0.0\lib\net451\ClearScript.dll</HintPath>
+    <Reference Include="ClearScript, Version=5.4.8.0, Culture=neutral, PublicKeyToken=935d0c957da47c73, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\JavaScriptEngineSwitcher.V8.2.2.0\lib\net45\ClearScript.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -127,28 +128,28 @@
       <HintPath>..\..\packages\FluentValidation.MVC5.5.6.2.0\lib\Net45\FluentValidation.Mvc.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="JavaScriptEngineSwitcher.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\JavaScriptEngineSwitcher.Core.2.0.0\lib\net451\JavaScriptEngineSwitcher.Core.dll</HintPath>
+    <Reference Include="JavaScriptEngineSwitcher.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\JavaScriptEngineSwitcher.Core.2.2.0\lib\net45\JavaScriptEngineSwitcher.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="JavaScriptEngineSwitcher.Msie, Version=2.0.0.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\JavaScriptEngineSwitcher.Msie.2.0.0\lib\net451\JavaScriptEngineSwitcher.Msie.dll</HintPath>
+    <Reference Include="JavaScriptEngineSwitcher.Msie, Version=2.2.0.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\JavaScriptEngineSwitcher.Msie.2.2.0\lib\net45\JavaScriptEngineSwitcher.Msie.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="JavaScriptEngineSwitcher.V8, Version=2.0.0.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\JavaScriptEngineSwitcher.V8.2.0.0\lib\net451\JavaScriptEngineSwitcher.V8.dll</HintPath>
+    <Reference Include="JavaScriptEngineSwitcher.V8, Version=2.2.0.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\JavaScriptEngineSwitcher.V8.2.2.0\lib\net45\JavaScriptEngineSwitcher.V8.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="LibSassHost, Version=0.5.2.0, Culture=neutral, PublicKeyToken=3e24e88796a38e46, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\LibSassHost.0.5.2\lib\net40-client\LibSassHost.dll</HintPath>
+    <Reference Include="LibSassHost, Version=0.6.1.0, Culture=neutral, PublicKeyToken=3e24e88796a38e46, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\LibSassHost.0.6.1\lib\net40-client\LibSassHost.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
-    <Reference Include="MsieJavaScriptEngine, Version=2.0.0.0, Culture=neutral, PublicKeyToken=a3a2846a37ac0d3e, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MsieJavaScriptEngine.2.0.0\lib\net451\MsieJavaScriptEngine.dll</HintPath>
+    <Reference Include="MsieJavaScriptEngine, Version=2.1.0.0, Culture=neutral, PublicKeyToken=a3a2846a37ac0d3e, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MsieJavaScriptEngine.2.1.0\lib\net45\MsieJavaScriptEngine.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -335,15 +336,16 @@
     <Compile Include="Models\Boards\TopicMoveModel.cs" />
     <Compile Include="Models\Catalog\BackInStockSubscribeModel.cs" />
     <Compile Include="Models\Catalog\CategoryModel.cs" />
+    <Compile Include="Models\Catalog\IQuantityInput.cs" />
     <Compile Include="Models\Catalog\IListActions.cs" />
     <Compile Include="Models\Catalog\NavigationModelBuiltEvent.cs" />
     <Compile Include="Models\Catalog\ProductAskQuestionModel.cs" />
     <Compile Include="Models\Catalog\ProductSummaryModel.cs" />
     <Compile Include="Models\Catalog\ManufacturerOverviewModel.cs" />
+    <Compile Include="Models\Catalog\AjaxCategoryModel.cs" />
     <Compile Include="Models\Catalog\SearchBoxModel.cs" />
     <Compile Include="Models\Catalog\ProductsByTagModel.cs" />
     <Compile Include="Models\Catalog\PopularProductTagsModel.cs" />
-    <Compile Include="Models\Catalog\AddToCompareListModel.cs" />
     <Compile Include="Models\Catalog\ProductTagModel.cs" />
     <Compile Include="Models\Catalog\ProductEmailAFriendModel.cs" />
     <Compile Include="Models\Catalog\ProductSpecificationModel.cs" />
@@ -496,7 +498,9 @@
     <Content Include="Content\2012.2.607\Telerik\treeview-line.png" />
     <Content Include="Content\2012.2.607\Telerik\treeview-nodes-rtl.png" />
     <Content Include="Content\2012.2.607\Telerik\treeview-nodes.png" />
+    <Content Include="Content\bootstrap\custom\images\alpha-horizontal.png" />
     <Content Include="Content\bootstrap\custom\images\alpha.png" />
+    <Content Include="Content\bootstrap\custom\images\hue-horizontal.png" />
     <Content Include="Content\bootstrap\custom\images\hue.png" />
     <Content Include="Content\bootstrap\custom\images\saturation.png" />
     <Content Include="Content\bootstrap\js\custom\bootstrap-colorpicker.js" />
@@ -663,6 +667,7 @@
     <Content Include="Content\editors\summernote\summernote.css" />
     <Content Include="Content\editors\summernote\summernote.js" />
     <Content Include="Content\editors\summernote\summernote.min.js" />
+    <Content Include="Themes\Alpha\Content\css\fonts\Linearicons-Free.svg" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="App_GlobalResources\MvcLocalization.de.resx">
@@ -709,7 +714,8 @@
     <Content Include="Content\image-gallery\js\blueimp-gallery-vimeo.js" />
     <Content Include="Content\image-gallery\js\blueimp-gallery-youtube.js" />
     <Content Include="Content\image-gallery\js\blueimp-gallery.js" />
-    <Content Include="Content\Images\default-image.jpg" />
+    <Content Include="Content\Images\default-image-alt.png" />
+    <Content Include="Content\Images\default-image.png" />
     <Content Include="Content\Images\grippy.png" />
     <Content Include="Content\Images\sad.png" />
     <Content Include="Content\Images\smartstore.net-200-black.png" />
@@ -825,6 +831,10 @@
     <Content Include="Content\bootstrap\custom\spinner.less" />
     <Content Include="Config\ConnectionStrings.config" />
     <Content Include="Config\SessionState.config" />
+    <Content Include="Themes\Alpha\Content\css\fonts\Linearicons-Free.eot" />
+    <Content Include="Themes\Alpha\Content\css\fonts\Linearicons-Free.ttf" />
+    <Content Include="Themes\Alpha\Content\css\fonts\Linearicons-Free.woff" />
+    <Content Include="Themes\Alpha\Content\css\fonts\Linearicons-Free.woff2" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\globalize\cultures\globalize.culture.ar-AE.js" />
     <Content Include="Scripts\globalize\cultures\globalize.culture.ar-BH.js" />
@@ -933,24 +943,35 @@
     <Content Include="Scripts\jquery-ui\effect.js" />
     <Content Include="Scripts\jquery-ui\position.js" />
     <Content Include="Scripts\jquery-ui\widget.js" />
-    <Content Include="Scripts\jquery.mobile-1.3.2.js" />
-    <Content Include="Scripts\jquery.mobile-1.3.2.min.js" />
     <Content Include="Scripts\jquery-2.1.1.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.sortable.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
-    <Content Include="Scripts\modernizr-2.7.2.js" />
+    <Content Include="Scripts\modernizr.js" />
     <Content Include="Scripts\public.product-detail.mobile.js" />
+    <Content Include="Themes\Alpha\Content\css\linearicons.css" />
+    <Content Include="Themes\Alpha\Content\shared\_pnotify.scss" />
+    <Content Include="Themes\Alpha\Content\shared\_mixins.scss" />
+    <Content Include="Themes\Alpha\Content\shared\_select2.scss" />
+    <Content Include="Themes\Alpha\Content\shared\_touchspin.scss" />
+    <Content Include="Themes\Alpha\Content\pnotify\css\pnotify.buttons.css" />
+    <Content Include="Themes\Alpha\Content\pnotify\css\pnotify.css" />
+    <Content Include="Themes\Alpha\Content\pnotify\css\pnotify.mobile.css" />
+    <Content Include="Themes\Alpha\Content\pnotify\js\pnotify.animate.js" />
+    <Content Include="Themes\Alpha\Content\pnotify\js\pnotify.buttons.js" />
+    <Content Include="Themes\Alpha\Content\pnotify\js\pnotify.js" />
+    <Content Include="Themes\Alpha\Content\pnotify\js\pnotify.mobile.js" />
+    <Content Include="Themes\Alpha\Scripts\jquery.hammer.js" />
+    <Content Include="Themes\Alpha\Scripts\public.offcanvas-menu.js" />
+    <Content Include="Themes\Alpha\Scripts\public.product.js" />
+    <Content Include="Themes\Alpha\Scripts\smartstore.responsiveNav.js" />
     <Content Include="Scripts\smartstore.entityPicker.js" />
     <Content Include="Scripts\smartstore.instantsearch.js" />
     <Content Include="Scripts\smartstore.common.js" />
     <Content Include="Scripts\smartstore.globalize.adapter.js" />
-    <Content Include="Scripts\jquery.backgroundpos.js" />
     <Content Include="Scripts\jquery.elevatezoom.js" />
     <Content Include="Scripts\jquery.menu-aim.js" />
-    <Content Include="Scripts\jquery.sequence.js" />
-    <Content Include="Scripts\jquery.sequence.custom.js" />
     <Content Include="Scripts\smartstore.placeholder.js" />
     <Content Include="Scripts\public.voting.js" />
     <Content Include="Scripts\public.reviews.js" />
@@ -965,16 +986,18 @@
     <Content Include="Themes\Alpha\Content\bs4\js\bootstrap-colorpicker-globalinit.js" />
     <Content Include="Themes\Alpha\Content\bs4\js\bootstrap-colorpicker.js" />
     <Content Include="Themes\Alpha\Content\bs4\js\bootstrap-datetimepicker.js" />
-    <Content Include="Themes\Alpha\Content\bs4\js\bootstrap-typeahead.js" />
     <Content Include="Themes\Alpha\Content\css\font-awesome.css" />
     <Content Include="Themes\Alpha\Content\css\font-awesome.min.css" />
     <Content Include="Themes\Alpha\Content\css\fonts\fontawesome-webfont.svg" />
-    <Content Include="Themes\Alpha\Content\css\jquery.bootstrap-touchspin.css" />
-    <Content Include="Themes\Alpha\Content\css\jquery.pnotify.default.css" />
-    <Content Include="Themes\Alpha\Content\css\jquery.pnotify.default.icons.css" />
     <Content Include="Themes\Alpha\Content\css\smartstore.smartgallery.css" />
     <Content Include="Themes\Alpha\Content\bs4\js\bootstrap.js" />
     <Content Include="Themes\Alpha\Content\bs4\js\bootstrap.min.js" />
+    <None Include="Themes\Alpha\Content\photoswipe\LICENSE" />
+    <None Include="Themes\Alpha\Content\drift\LICENSE" />
+    <Content Include="Themes\Alpha\Content\photoswipe\photoswipe-ui-default.js" />
+    <Content Include="Themes\Alpha\Content\photoswipe\photoswipe-ui-default.min.js" />
+    <Content Include="Themes\Alpha\Content\photoswipe\photoswipe.js" />
+    <Content Include="Themes\Alpha\Content\photoswipe\photoswipe.min.js" />
     <Content Include="Themes\Alpha\Content\images\ajax_loader_small.gif" />
     <Content Include="Themes\Alpha\Content\images\color-overlay.png" />
     <Content Include="Themes\Alpha\Content\images\deliv-bg-aero.png" />
@@ -1064,6 +1087,8 @@
     <Content Include="Themes\Alpha\Content\animate\animations\zoom-exit\_zoomOutRight.scss" />
     <Content Include="Themes\Alpha\Content\animate\animations\zoom-exit\_zoomOutUp.scss" />
     <Content Include="Themes\Alpha\Content\shared\_animate.scss" />
+    <Content Include="Themes\Alpha\Content\slick\slick.js" />
+    <Content Include="Themes\Alpha\Content\slick\slick.min.js" />
     <Content Include="Themes\Alpha\Content\_megamenu.scss" />
     <Content Include="Themes\Alpha\preview.png" />
     <Content Include="Themes\AlphaOld\Content\images\color-overlay.png" />
@@ -1106,7 +1131,6 @@
     <Content Include="Content\bootstrap\js\bootstrap-transition.js" />
     <Content Include="Content\bootstrap\js\bootstrap-typeahead.js" />
     <Content Include="Content\bootstrap\custom\images\loading.gif" />
-    <Content Include="Content\fileupload\fileupload.css" />
     <Content Include="Content\fileupload\images\loading.gif" />
     <Content Include="Content\fileupload\images\progressbar.gif" />
     <Content Include="Content\fileupload\jquery.fileupload-fp.js" />
@@ -1425,39 +1449,28 @@
     <Content Include="Themes\AlphaOld\Content\images\ajax_loader_small.gif" />
     <Content Include="Themes\AlphaOld\Content\images\loading.gif" />
     <Content Include="Themes\AlphaOld\preview.png" />
+    <Content Include="Themes\Alpha\Content\drift\Drift.min.js" />
+    <Content Include="Themes\Alpha\Content\drift\Drift.js" />
     <Content Include="Themes\Alpha\Scripts\hammer.js" />
     <Content Include="Themes\Alpha\Scripts\jquery.addeasing.js" />
     <Content Include="Themes\Alpha\Scripts\jquery.ba-outside-events.js" />
     <Content Include="Themes\Alpha\Scripts\jquery.ba-outside-events.min.js" />
-    <Content Include="Themes\Alpha\Scripts\jquery.backgroundpos.js" />
     <Content Include="Themes\Alpha\Scripts\jquery.bootstrap-touchspin.js" />
-    <Content Include="Themes\Alpha\Scripts\jquery.elevatezoom.js" />
-    <Content Include="Themes\Alpha\Scripts\jquery.menu-aim.js" />
-    <Content Include="Themes\Alpha\Scripts\jquery.mobile-events.min.js" />
-    <Content Include="Themes\Alpha\Scripts\jquery.pnotify.js" />
-    <Content Include="Themes\Alpha\Scripts\jquery.preload.js" />
     <Content Include="Themes\Alpha\Scripts\jquery.requestAnimationFrame.js" />
     <Content Include="Themes\Alpha\Scripts\jquery.scrollTo.js" />
-    <Content Include="Themes\Alpha\Scripts\jquery.sequence.custom.js" />
-    <Content Include="Themes\Alpha\Scripts\jquery.sequence.js" />
-    <Content Include="Themes\Alpha\Scripts\jquery.serialScroll.js" />
     <Content Include="Themes\Alpha\Scripts\jquery.sortable.js" />
     <Content Include="Themes\Alpha\Scripts\jquery.transit.js" />
     <Content Include="Themes\Alpha\Scripts\jquery.validate.unobtrusive.custom.js" />
     <Content Include="Themes\Alpha\Scripts\offcanvas.js" />
     <Content Include="Themes\Alpha\Scripts\prettify.js" />
-    <Content Include="Themes\Alpha\Scripts\public.ajaxcart.js" />
     <Content Include="Themes\Alpha\Scripts\public.common.js" />
     <Content Include="Themes\Alpha\Scripts\public.product-detail.js" />
     <Content Include="Themes\Alpha\Scripts\public.product-filter.js" />
-    <Content Include="Themes\Alpha\Scripts\public.product-list-scroller.js" />
     <Content Include="Themes\Alpha\Scripts\public.reviews.js" />
     <Content Include="Themes\Alpha\Scripts\public.offcanvas-cart.js" />
-    <Content Include="Themes\Alpha\Scripts\public.shopbar.js" />
     <Content Include="Themes\Alpha\Scripts\public.voting.js" />
-    <Content Include="Themes\Alpha\Scripts\select2.js" />
-    <Content Include="Themes\Alpha\Scripts\select2.min.js" />
-    <Content Include="Themes\Alpha\Scripts\smartstore.column-equalizer.js" />
+    <Content Include="Themes\Alpha\Content\select2\js\select2.js" />
+    <Content Include="Themes\Alpha\Content\select2\js\select2.min.js" />
     <Content Include="Themes\Alpha\Scripts\smartstore.common.js" />
     <Content Include="Themes\Alpha\Scripts\smartstore.articlelist.js" />
     <Content Include="Themes\Alpha\Scripts\smartstore.doAjax.js" />
@@ -1468,11 +1481,8 @@
     <Content Include="Themes\Alpha\Scripts\smartstore.jquery.utils.js" />
     <Content Include="Themes\Alpha\Scripts\smartstore.megamenu.js" />
     <Content Include="Themes\Alpha\Scripts\smartstore.keynav.js" />
-    <Content Include="Themes\Alpha\Scripts\smartstore.navbar.js" />
-    <Content Include="Themes\Alpha\Scripts\smartstore.placeholder.js" />
-    <Content Include="Themes\Alpha\Scripts\smartstore.scrollbutton.js" />
     <Content Include="Themes\Alpha\Scripts\smartstore.selectwrapper.js" />
-    <Content Include="Themes\Alpha\Scripts\smartstore.shrinkmenu.js" />
+    <Content Include="Themes\Alpha\Scripts\smartstore.gallery.js" />
     <Content Include="Themes\Alpha\Scripts\smartstore.smartgallery.js" />
     <Content Include="Themes\Alpha\Scripts\smartstore.system.js" />
     <Content Include="Themes\Alpha\Scripts\smartstore.throbber.js" />
@@ -1644,18 +1654,11 @@
     <Content Include="Themes\Alpha\Content\shared\_star-rating.scss" />
     <Content Include="Themes\Alpha\Content\shared\_sortable-grip.scss" />
     <Content Include="Themes\Alpha\Content\_shopbar.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\core.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\_dropdown.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\_multiple.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\_single.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\theme\classic\layout.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\theme\classic\_defaults.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\theme\classic\_multiple.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\theme\classic\_single.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\theme\default\layout.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\theme\default\_multiple.scss" />
-    <Content Include="Themes\Alpha\Content\shared\select2\theme\default\_single.scss" />
-    <Content Include="Themes\Alpha\Content\shared\offcanvas.scss" />
+    <Content Include="Themes\Alpha\Content\select2\scss\core.scss" />
+    <Content Include="Themes\Alpha\Content\select2\scss\_dropdown.scss" />
+    <Content Include="Themes\Alpha\Content\select2\scss\_multiple.scss" />
+    <Content Include="Themes\Alpha\Content\select2\scss\_single.scss" />
+    <Content Include="Themes\Alpha\Content\shared\_offcanvas.scss" />
     <Content Include="Themes\Alpha\Content\_login.scss" />
     <Content Include="Themes\Alpha\Content\theme.scss">
       <Compile>True</Compile>
@@ -1680,7 +1683,6 @@
     <Content Include="Views\Shared\Partials\ConditionalComments.cshtml" />
     <Content Include="Themes\Alpha\Views\Shared\ConfigureTheme.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
-    <Content Include="Views\Shared\Partials\LanguageAttributes.cshtml" />
     <Content Include="Views\Shared\LicenseRequired.cshtml" />
     <Content Include="Views\Shared\NotFound.cshtml" />
     <Content Include="Views\Shared\Layouts\_Checkout.cshtml" />
@@ -1688,8 +1690,6 @@
     <Content Include="Views\Shared\Partials\_CreateOrUpdateAddress.cshtml" />
     <Content Include="Views\Shared\Partials\_Notifications.cshtml" />
     <Content Include="Views\Shared\Layouts\_Print.cshtml" />
-    <Content Include="Views\Shared\Partials\_ProductBox.cshtml" />
-    <Content Include="Views\Shared\Partials\_ProductBoxCompact.cshtml" />
     <Content Include="Views\Shared\Layouts\_Layout.cshtml" />
     <Content Include="Views\Shared\Layouts\_Layout.Popup.cshtml" />
     <Content Include="Views\Blog\BlogMonths.cshtml" />
@@ -1719,8 +1719,6 @@
     <Content Include="Views\Catalog\Partials\CategoryNavigation.cshtml" />
     <Content Include="Views\Catalog\CategoryTemplate.ProductsInGridOrLines.cshtml" />
     <Content Include="Views\Catalog\CompareProducts.cshtml" />
-    <Content Include="Views\Catalog\Partials\CompareProductsButton.cshtml" />
-    <Content Include="Views\Catalog\Partials\FlyoutCompare.cshtml" />
     <Content Include="Views\Catalog\Partials\HomepageBestSellers.cshtml" />
     <Content Include="Views\Catalog\Partials\HomepageCategories.cshtml" />
     <Content Include="Views\Catalog\Partials\HomepageProducts.cshtml" />
@@ -1739,8 +1737,6 @@
     <Content Include="Views\Search\SearchBox.cshtml" />
     <Content Include="Views\Catalog\Partials\_FilterPriceBox.cshtml" />
     <Content Include="Views\Catalog\Partials\_FilterSpecsBox.cshtml" />
-    <Content Include="Views\Catalog\Partials\_ProductBoxList.cshtml" />
-    <Content Include="Views\Shared\Partials\_ProductListOptions.cshtml" />
     <Content Include="Views\Checkout\BillingAddress.cshtml" />
     <Content Include="Views\Checkout\CheckoutProgress.cshtml" />
     <Content Include="Views\Checkout\Completed.cshtml" />
@@ -1748,23 +1744,23 @@
     <Content Include="Views\Checkout\PaymentMethod.cshtml" />
     <Content Include="Views\Checkout\ShippingAddress.cshtml" />
     <Content Include="Views\Checkout\ShippingMethod.cshtml" />
-    <Content Include="Views\Common\AccountDropdown.cshtml" />
-    <Content Include="Views\Common\CurrencySelector.cshtml" />
-    <Content Include="Views\Common\EntityPicker.cshtml" />
-    <Content Include="Views\Common\EntityPickerList.cshtml" />
-    <Content Include="Views\Common\Favicon.cshtml" />
-    <Content Include="Views\Common\Footer.cshtml" />
-    <Content Include="Views\Common\InfoBlock.cshtml" />
-    <Content Include="Views\Common\JavaScriptDisabledWarning.cshtml" />
-    <Content Include="Views\Common\LanguageSelector.cshtml" />
+    <Content Include="Views\Common\Partials\AccountDropdown.cshtml" />
+    <Content Include="Views\Common\Partials\CurrencySelector.cshtml" />
+    <Content Include="Views\Common\Partials\EntityPicker.cshtml" />
+    <Content Include="Views\Common\Partials\EntityPickerList.cshtml" />
+    <Content Include="Views\Common\Partials\Favicon.cshtml" />
+    <Content Include="Views\Common\Partials\Footer.cshtml" />
+    <Content Include="Views\Common\Partials\InfoBlock.cshtml" />
+    <Content Include="Views\Common\Partials\JavaScriptDisabledWarning.cshtml" />
+    <Content Include="Views\Common\Partials\LanguageSelector.cshtml" />
     <Content Include="Views\Common\List.cshtml" />
-    <Content Include="Views\Common\Menu.cshtml" />
+    <Content Include="Views\Common\Partials\Menu.cshtml" />
     <Content Include="Views\Common\PdfReceiptFooter.cshtml" />
     <Content Include="Views\Common\PdfReceiptHeader.cshtml" />
     <Content Include="Views\Common\Settings.cshtml" />
-    <Content Include="Views\Common\ShopBar.cshtml" />
-    <Content Include="Views\Common\StoreThemeSelector.cshtml" />
-    <Content Include="Views\Common\TaxTypeSelector.cshtml" />
+    <Content Include="Views\Common\Partials\ShopBar.cshtml" />
+    <Content Include="Views\Common\Partials\StoreThemeSelector.cshtml" />
+    <Content Include="Views\Common\Partials\TaxTypeSelector.cshtml" />
     <Content Include="Views\Customer\AccountActivation.cshtml" />
     <Content Include="Views\Customer\AddressAdd.cshtml" />
     <Content Include="Views\Customer\AddressEdit.cshtml" />
@@ -1813,23 +1809,20 @@
     <Content Include="Views\PrivateMessages\SentItems.cshtml" />
     <Content Include="Views\PrivateMessages\View.cshtml" />
     <Content Include="Views\Product\AskQuestion.cshtml" />
-    <Content Include="Views\Product\Partials\AskQuestionButton.cshtml" />
     <Content Include="Views\Product\BackInStockSubscribePopup.cshtml" />
     <Content Include="Views\Product\Partials\CrossSellProducts.cshtml" />
     <Content Include="Views\Product\EmailAFriend.cshtml" />
-    <Content Include="Views\Product\Partials\EmailAFriendButton.cshtml" />
     <Content Include="Views\Product\Partials\ProductDetailReviews.cshtml" />
     <Content Include="Views\Product\Partials\ProductManufacturers.cshtml" />
-    <Content Include="Views\Product\Partials\ProductsAlsoPurchased.cshtml" />
+    <Content Include="Views\Product\Partials\Product.AlsoPurchased.cshtml" />
     <Content Include="Views\Product\Partials\ProductSpecifications.cshtml" />
-    <Content Include="Views\Product\Partials\ProductTags.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Tags.cshtml" />
     <Content Include="Views\Product\ProductTemplate.Grouped.cshtml" />
-    <Content Include="Views\Product\ProductTemplate.Simple.cshtml" />
-    <Content Include="Views\Product\Partials\ProductTierPrices.cshtml" />
-    <Content Include="Views\Product\Partials\RelatedProducts.cshtml" />
+    <Content Include="Views\Product\Product.cshtml" />
+    <Content Include="Views\Product\Partials\Product.TierPrices.cshtml" />
+    <Content Include="Views\Product\Partials\Product.RelatedProducts.cshtml" />
     <Content Include="Views\Product\Partials\ReviewOverview.cshtml" />
     <Content Include="Views\Product\Reviews.cshtml" />
-    <Content Include="Views\Product\Partials\ShareButton.cshtml" />
     <Content Include="Views\Product\Partials\_AddToCart.cshtml" />
     <Content Include="Views\Product\Partials\_Attributes.cshtml" />
     <Content Include="Views\Product\Partials\_BackInStockSubscription.cshtml" />
@@ -1837,9 +1830,8 @@
     <Content Include="Views\Product\Partials\_BundleItemsAddToCart.cshtml" />
     <Content Include="Views\Product\Partials\_GiftCardInfo.cshtml" />
     <Content Include="Views\Product\Partials\_PictureGallery.cshtml" />
-    <Content Include="Views\Product\Partials\_ProductTemplate.Grouped.AssociatedProduct.cshtml" />
+    <Content Include="Views\Product\Partials\Product.AssociatedProduct.cshtml" />
     <Content Include="Views\Product\Partials\_ReviewHelpfulness.cshtml" />
-    <Content Include="Views\Product\Partials\_SKU_Man_Stock.cshtml" />
     <Content Include="Views\Profile\Index.cshtml" />
     <Content Include="Views\Profile\Info.cshtml" />
     <Content Include="Views\Profile\Posts.cshtml" />
@@ -1856,8 +1848,6 @@
     <Content Include="Views\ShoppingCart\Cart.cshtml" />
     <Content Include="Views\ShoppingCart\EmailWishlist.cshtml" />
     <Content Include="Views\ShoppingCart\EstimateShipping.cshtml" />
-    <Content Include="Views\ShoppingCart\FlyoutShoppingCart.cshtml" />
-    <Content Include="Views\ShoppingCart\FlyoutWishlist.cshtml" />
     <Content Include="Views\ShoppingCart\OrderSummary.cshtml" />
     <Content Include="Views\ShoppingCart\OrderTotals.cshtml" />
     <Content Include="Views\ShoppingCart\Wishlist.cshtml" />
@@ -1877,17 +1867,16 @@
     <Content Include="Themes\Alpha\Content\_misc.scss" />
     <Content Include="Themes\Alpha\Content\_blog.scss" />
     <Content Include="Themes\Alpha\Content\_forum.scss" />
-    <Content Include="Views\Shared\Partials\_ProductList.cshtml" />
-    <Content Include="Themes\Alpha\Content\_product.scss" />
+    <Content Include="Themes\Alpha\Content\_product_old.scss" />
     <Content Include="Themes\Alpha\Content\_pages.scss" />
     <Content Include="Themes\Alpha\Content\_rating.scss" />
-    <Content Include="Views\Common\ServiceMenu.cshtml" />
+    <Content Include="Views\Common\Partials\ServiceMenu.cshtml" />
     <Content Include="Views\ShoppingCart\OffCanvasCart.cshtml" />
     <Content Include="Themes\Alpha\Content\_cart.scss" />
     <Content Include="Views\ShoppingCart\OffCanvasShoppingCart.cshtml" />
     <Content Include="Views\ShoppingCart\OffCanvasWishlist.cshtml" />
     <Content Include="Views\Catalog\Partials\OffCanvasCompare.cshtml" />
-    <Content Include="Views\Common\Logo.cshtml" />
+    <Content Include="Views\Common\Partials\Logo.cshtml" />
     <Content Include="Themes\Alpha\Content\_search.scss" />
     <Content Include="Views\Search\InstantSearch.cshtml" />
     <Content Include="Views\Search\InstantSearch.HitGroup.cshtml" />
@@ -1904,6 +1893,47 @@
     <Content Include="Views\Shared\Partials\Product.List.Item.Price.cshtml" />
     <Content Include="Views\Shared\Partials\Product.List.Item.Buttons.cshtml" />
     <Content Include="Views\Shared\Partials\Product.List.Item.Variants.cshtml" />
+    <Content Include="Themes\Alpha\Content\slick\slick.scss" />
+    <Content Include="Themes\Alpha\Content\_slick-theme.scss" />
+    <Content Include="Views\Product\ProductTemplate.Simple.cshtml" />
+    <Content Include="Themes\Alpha\Content\_product.scss" />
+    <Content Include="Views\Product\Partials\Product.Picture.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Info.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Offer.cshtml" />
+    <Content Include="Themes\Alpha\Content\_drift-theme.scss" />
+    <Content Include="Themes\Alpha\Content\_photoswipe-theme.scss" />
+    <Content Include="Themes\Alpha\Content\photoswipe\photoswipe.scss" />
+    <Content Include="Themes\Alpha\Content\photoswipe\_main-settings.scss" />
+    <Content Include="Themes\Alpha\Content\_gallery.scss" />
+    <Content Include="Views\Product\Partials\Product.Offer.Price.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Offer.Actions.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Attrs.cshtml" />
+    <Content Include="Views\Product\Partials\Product.StockInfo.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Reviews.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Specs.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Tabs.cshtml" />
+    <Content Include="Themes\Alpha\Content\shared\_nav.scss" />
+    <Content Include="Views\Product\Partials\Product.ReviewSummary.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\QtyInput.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Variants.cshtml" />
+    <Content Include="Views\Shared\ChoiceTemplates\Choice.Dropdown.cshtml" />
+    <Content Include="Views\Shared\ChoiceTemplates\Choice.cshtml" />
+    <Content Include="Views\Shared\ChoiceTemplates\Choice.CheckRadio.cshtml" />
+    <Content Include="Views\Shared\ChoiceTemplates\Choice.Radio.cshtml" />
+    <Content Include="Views\Shared\ChoiceTemplates\Choice.TextBox.cshtml" />
+    <Content Include="Views\Shared\ChoiceTemplates\Choice.TextArea.cshtml" />
+    <Content Include="Views\Shared\ChoiceTemplates\Choice.Date.cshtml" />
+    <Content Include="Views\Shared\ChoiceTemplates\Choice.FileUpload.cshtml" />
+    <Content Include="Views\Shared\ChoiceTemplates\Choice.Box.cshtml" />
+    <Content Include="Views\Product\Partials\Product.GiftCard.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Bundle.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Bundle.Price.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Bundle.Items.cshtml" />
+    <Content Include="Views\Product\Partials\_ProductTemplate.Grouped.AssociatedProduct.cshtml" />
+    <Content Include="Views\Product\Partials\Product.Offer.Actions.Misc.cshtml" />
+    <Content Include="Views\Common\Partials\ShopBar.Tools.cshtml" />
+    <Content Include="Themes\Alpha\Content\_menu.scss" />
+    <Content Include="Views\Catalog\ChildCategories.cshtml" />
     <None Include="Web.EFMigrations.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1911,9 +1941,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Themes\Alpha\Content\shared\select2\mixins\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\Libraries\SmartStore.Core\SmartStore.Core.csproj">
       <Project>{6bda8332-939f-45b7-a25e-7a797260ae59}</Project>
@@ -2099,30 +2127,26 @@
 		**\packages.config;
 		**\*.Debug.config;
 		**\*.Release.config;
+		**\*.PluginDev.config;
+		**\*.EFMigrations.config;
 		**\obj\**;
 		**\bin\*.xml;
 		**\bin\HostRestart\**;
 		Administration\bin\**;
 		App_Data\_Backup\**;
 		App_Data\_temp\**;
-		App_Data\ExportProfiles\**;
-		App_Data\ImportProfiles\**;
+		App_Data\Tenants\**;
 		App_Data\Migrations\**;
-		App_Data\InstalledPlugins.txt;
+		App_Data\Logs\**;
 		App_Data\Licenses.lic;
 		App_Data\Settings.txt;
 		App_Data\SmartStore.Db.sdf;
 		Exchange\**; 
 		Content\Files\ExportImport\**;
 		Content\Images\Thumbs\**;
-		Media\**\*.png;
-		Media\**\*.jpg;
-		Media\**\*.jpeg;
-		Media\**\*.gif;
-		Media\**\*.pdf;
-		Media\**\*.docx;
+		Media\**;
 		Properties\**;
-		Plugins\*\bin\**;				
+		Plugins\*\bin\**;		
       </ExcludeFilesFromDeployment>
     </PropertyGroup>
   </Target>
@@ -2135,15 +2159,13 @@
     <ItemGroup>
       <SqlCeBinariesx86 Include="$(SolutionDir)..\lib\sqlce\x86\**\*" />
       <SqlCeBinariesx64 Include="$(SolutionDir)..\lib\sqlce\amd64\**\*" />
-      <ClearScriptV8Binaries Include="$(SolutionDir)..\lib\ClearScript.V8\lib\**\*" />
-      <ClearScriptV8Nativex86 Include="$(SolutionDir)..\lib\ClearScript.V8\Native\x86\**\*" />
-      <ClearScriptV8Nativex64 Include="$(SolutionDir)..\lib\ClearScript.V8\Native\amd64\**\*" />
+      <Msvcp140Binariesx86 Include="$(SolutionDir)..\lib\msvcp140\x86\**\*" />
+      <Msvcp140Binariesx64 Include="$(SolutionDir)..\lib\msvcp140\amd64\**\*" />
     </ItemGroup>
     <Copy SourceFiles="@(SqlCeBinariesx86)" DestinationFolder="$(OutputPath)\x86\%(RecursiveDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(SqlCeBinariesx64)" DestinationFolder="$(OutputPath)\amd64\%(RecursiveDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(ClearScriptV8Binaries)" DestinationFolder="$(OutputPath)\ClearScript.V8\%(RecursiveDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(ClearScriptV8Nativex86)" DestinationFolder="$(OutputPath)\x86\%(RecursiveDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(ClearScriptV8Nativex64)" DestinationFolder="$(OutputPath)\amd64\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(Msvcp140Binariesx86)" DestinationFolder="$(OutputPath)\x86\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(Msvcp140Binariesx64)" DestinationFolder="$(OutputPath)\amd64\%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
   <PropertyGroup>
     <PlaceholderFile>$(ProjectDir)Content\placeholder.txt</PlaceholderFile>
@@ -2158,10 +2180,8 @@
   </Target>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\LibSassHost.0.5.2\build\LibSassHost.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\LibSassHost.0.5.2\build\LibSassHost.props'))" />
-    <Error Condition="!Exists('..\..\packages\JavaScriptEngineSwitcher.V8.2.0.0\build\JavaScriptEngineSwitcher.V8.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\JavaScriptEngineSwitcher.V8.2.0.0\build\JavaScriptEngineSwitcher.V8.props'))" />
+    <Error Condition="!Exists('..\..\packages\LibSassHost.0.6.1\build\LibSassHost.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\LibSassHost.0.6.1\build\LibSassHost.props'))" />
+    <Error Condition="!Exists('..\..\packages\JavaScriptEngineSwitcher.V8.Native.win-x64.2.2.0\build\JavaScriptEngineSwitcher.V8.Native.win-x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\JavaScriptEngineSwitcher.V8.Native.win-x64.2.2.0\build\JavaScriptEngineSwitcher.V8.Native.win-x64.props'))" />
+    <Error Condition="!Exists('..\..\packages\JavaScriptEngineSwitcher.V8.Native.win-x86.2.2.0\build\JavaScriptEngineSwitcher.V8.Native.win-x86.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\JavaScriptEngineSwitcher.V8.Native.win-x86.2.2.0\build\JavaScriptEngineSwitcher.V8.Native.win-x86.props'))" />
   </Target>
 </Project>

@@ -163,7 +163,7 @@ namespace SmartStore.Web.Controllers
                     };
 
 					_services.DisplayControl.Announce(x);
-					
+
                     // prepare picture model
                     int pictureSize = _mediaSettings.CategoryThumbPictureSize;
 					var categoryPictureCacheKey = string.Format(ModelCacheEventConsumer.CATEGORY_PICTURE_MODEL_KEY, x.Id, pictureSize, true, _services.WorkContext.WorkingLanguage.Id, _services.StoreContext.CurrentStore.Id);
@@ -175,6 +175,8 @@ namespace SmartStore.Web.Controllers
 							PictureId = x.PictureId.GetValueOrDefault(),
 							Size = pictureSize,
 							FullSizeImageUrl = _pictureService.GetPictureUrl(picture),
+							FullSizeImageWidth = picture?.Width,
+							FullSizeImageHeight = picture?.Height,
 							ImageUrl = _pictureService.GetPictureUrl(picture, pictureSize, !_catalogSettings.HideCategoryDefaultPictures),
                             Title = string.Format(T("Media.Category.ImageLinkTitleFormat"), subCatName),
                             AlternateText = string.Format(T("Media.Category.ImageAlternateTextFormat"), subCatName)
@@ -199,7 +201,8 @@ namespace SmartStore.Web.Controllers
 					.WithCategoryIds(true, new int[] { categoryId })
 					.VisibleIndividuallyOnly(true)
 					.HasStoreId(_services.StoreContext.CurrentStore.Id)
-					.WithLanguage(_services.WorkContext.WorkingLanguage);
+					.WithLanguage(_services.WorkContext.WorkingLanguage)
+					.WithCurrency(_services.WorkContext.WorkingCurrency);
 
 				if (!hasFeaturedProductsCache.HasValue)
 				{
@@ -271,12 +274,12 @@ namespace SmartStore.Web.Controllers
 		[ChildActionOnly]
 		public ActionResult ProductBreadcrumb(int productId)
 		{
+			if (!_catalogSettings.CategoryBreadcrumbEnabled)
+				return Content("");
+
 			var product = _productService.GetProductById(productId);
 			if (product == null)
 				throw new ArgumentException(T("Products.NotFound", productId));
-
-			if (!_catalogSettings.CategoryBreadcrumbEnabled)
-				return Content("");
 
 			var model = new ProductDetailsModel.ProductBreadcrumbModel
 			{
@@ -303,11 +306,12 @@ namespace SmartStore.Web.Controllers
                 {
                     var catModel = x.ToModel();
 
-                    //prepare picture model
+                    // Prepare picture model
                     int pictureSize = _mediaSettings.CategoryThumbPictureSize;
 					var categoryPictureCacheKey = string.Format(ModelCacheEventConsumer.CATEGORY_PICTURE_MODEL_KEY, x.Id, pictureSize, true, 
 						_services.WorkContext.WorkingLanguage.Id, 
 						_services.StoreContext.CurrentStore.Id);
+
                     catModel.PictureModel = _services.Cache.Get(categoryPictureCacheKey, () =>
                     {
                         var pictureModel = new PictureModel
@@ -372,14 +376,16 @@ namespace SmartStore.Web.Controllers
 			{
 				CatalogSearchResult featuredProductsResult = null;
 
-				string cacheKey = ModelCacheEventConsumer.MANUFACTURER_HAS_FEATURED_PRODUCTS_KEY.FormatInvariant(manufacturerId, string.Join(",", customerRolesIds), _services.StoreContext.CurrentStore.Id);
+				string cacheKey = ModelCacheEventConsumer.MANUFACTURER_HAS_FEATURED_PRODUCTS_KEY.FormatInvariant(
+					manufacturerId, string.Join(",", customerRolesIds), _services.StoreContext.CurrentStore.Id);
 				var hasFeaturedProductsCache = _services.Cache.Get<bool?>(cacheKey);
 
 				var featuredProductsQuery = new CatalogSearchQuery()
 					.WithManufacturerIds(true, new int[] { manufacturerId })
 					.VisibleIndividuallyOnly(true)
 					.HasStoreId(_services.StoreContext.CurrentStore.Id)
-					.WithLanguage(_services.WorkContext.WorkingLanguage);
+					.WithLanguage(_services.WorkContext.WorkingLanguage)
+					.WithCurrency(_services.WorkContext.WorkingCurrency);
 
 				if (!hasFeaturedProductsCache.HasValue)
 				{
@@ -857,7 +863,7 @@ namespace SmartStore.Web.Controllers
 			});
 		}
 
-		[RequireHttpsByConfigAttribute(SslRequirement.No)]
+        [RequireHttpsByConfigAttribute(SslRequirement.No)]
 		public ActionResult CompareProducts()
 		{
 			if (!_catalogSettings.CompareProductsEnabled)
@@ -901,29 +907,98 @@ namespace SmartStore.Web.Controllers
 			return RedirectToRoute("CompareProducts");
 		}
 
-		[ChildActionOnly]
-		public ActionResult CompareProductsButton(int productId)
-		{
-			if (!_catalogSettings.CompareProductsEnabled)
-				return Content("");
+        // ajax
+        [HttpPost]
+        [ActionName("ClearCompareList")]
+        public ActionResult ClearCompareListAjax()
+        {
+            _compareProductsService.ClearCompareProducts();
 
-			var model = new AddToCompareListModel()
-			{
-				ProductId = productId
-			};
-
-			return PartialView("CompareProductsButton", model);
-		}
+            return Json(new
+            {
+                success = true,
+                message = T("CompareList.ListWasCleared")
+            });
+        }
 
 		public ActionResult CompareSummary()
 		{
 			return Json(new
 			{
-				Count = _compareProductsService.GetComparedProducts().Count
+                TotalProducts = _compareProductsService.GetComparedProducts().Count
 			},
 			JsonRequestBehavior.AllowGet);
 		}
 
-		#endregion
+        #endregion
+
+        #region OffCanvasMenu 
+
+        // ajax
+        [HttpPost]
+        public ActionResult ChildCategories(int categoryId)
+        {
+            var model = new AjaxCategoryModel();
+
+            if (categoryId != 0)
+            {    
+                var category = _categoryService.GetCategoryById(categoryId);
+                
+                model.Id = category.Id;
+                model.Name = category.GetLocalized(x => x.Name);
+                model.SeName = category.GetSeName();
+                model.SortDescription = category.GetLocalized(x => x.Description);
+
+                if (category.ParentCategoryId != 0)
+                {
+                    var parentCategory = _categoryService.GetCategoryById(category.ParentCategoryId);
+                
+                    // TODO: cachen ???
+                    model.ParentCategory = new AjaxParentCategoryModel
+                    {
+                        Id = parentCategory.Id,
+                        Name = parentCategory.GetLocalized(x => x.Name),
+                        SeName = parentCategory.GetSeName(),
+                        // won't be needed in this context, so we set it to null
+                        //ParentCategory = null,
+                        //SubCategories = null
+                        //HasChildren = true,
+                    };
+                }
+            }
+            else
+            {
+                model.Id = 0;
+            }
+
+            // subcategories
+            model.SubCategories = _categoryService
+                .GetAllCategoriesByParentCategoryId(categoryId)
+                .Select(x =>
+                {
+                    // TODO: cachen ???
+                    var subCatName = x.GetLocalized(y => y.Name);
+                    var subSubCats = _categoryService.GetAllCategoriesByParentCategoryId(x.Id);
+
+                    var subCatModel = new AjaxCategoryModel
+                    {
+                        Id = x.Id,
+                        Name = subCatName,
+                        SeName = x.GetSeName(),
+                        HasChildren = subSubCats.Count > 0,
+                        //ParentCategory = model
+                        //SubCategories
+                    };
+
+                    return subCatModel;
+
+                }).ToList();
+
+            model.HasChildren = model.SubCategories.Count > 0;
+            
+            return PartialView(model);
+        }
+        
+        #endregion
     }
 }

@@ -4,6 +4,11 @@
 	{
 		Product = 0,
 		Category,
-		Manufacturer
+		Manufacturer,
+		DeliveryTime,
+		Attribute,
+		AttributeValue,
+		Variant,
+		VariantValue
 	}
 }

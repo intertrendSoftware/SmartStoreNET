@@ -15,13 +15,13 @@
 		@if (Model.IsEditable)
 		{
 			<td class="remove">
-				<input type="checkbox" name="removefromcart" value="@(item.Id)" />
+				<input type="checkbox" name="removefromcart" value="@item.Id" />
 			</td>
 		}
 		@if (Model.DisplayAddToCart)
 		{
 			<td class="addtocart">
-				<input type="checkbox" name="addtocart" value="@(item.Id)" />
+				<input type="checkbox" name="addtocart" value="@item.Id" />
 			</td>
 		}
 		@if (Model.ShowSku)
@@ -35,7 +35,7 @@
 			<td class="productpicture text-nowrap">
 				@if (item.Picture.ImageUrl.HasValue())
 				{
-					<img class="img-polaroid" alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" />
+					<img alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" />
 				}
 			</td>
 		}
@@ -63,7 +63,7 @@
 			}
 			@if (item.Warnings.Count > 0)
 			{
-				<div class="alert alert-error">
+				<div class="alert alert-danger">
 					@for (int i = 0; i < item.Warnings.Count; i++)
 					{
 						<p>@item.Warnings[i]</p>
@@ -76,36 +76,13 @@
 		</td>
 		<td class="text-nowrap" style="width:170px">
 			@if (Model.IsEditable)
-			{
-				if (item.AllowedQuantities.Count > 0)
-				{
-				    <select name="itemquantity@(item.Id)" class="qty-dropdown noskin">
-					    @foreach (var qty in item.AllowedQuantities)
-					    {
-						    <option selected="@qty.Selected" value="@qty.Value">@qty.Value</option>
-					    }
-				    </select>
-				}
-				else
-				{
-					<input id="itemquantity@(item.Id)" name="itemquantity@(item.Id)" type="text" value="@(item.Quantity)" class="qty-input"/>
-
-                    <script type="text/javascript">
-                        $(function () {
-                            //TODO NewAlpha: implement step in admin product detail
-                            $("#itemquantity@(item.Id)").TouchSpin({
-                                min: @item.MinOrderAmount,
-                                max: @item.MaxOrderAmount,
-                                step: 1
-                            });
-                        });
-                    </script>
-                }
+            {
+                @Html.EditorFor(x => item, "QtyInput", new { htmlAttributes = new { id = "itemquantity{0}".FormatWith(item.Id), Name = "itemquantity{0}".FormatWith(item.Id) } })
             }
             else
             {
-				<span>@item.Quantity</span>
-			}
+                <span>@item.EnteredQuantity</span>
+            }
 		</td>
 		<td class="text-nowrap text-success omega">
 			<span class="product-subtotal">@item.SubTotal</span>
@@ -149,7 +126,7 @@
 							<div class="bundle-item-image" style="@("min-width: {0}px; min-height: {0}px;".FormatWith(Model.BundleThumbSize + 10))">
 								@if (item.Picture.ImageUrl.HasValue() && !item.BundleItem.HideThumbnail)
 								{
-									<img class="img-polaroid" src="@item.Picture.ImageUrl" alt="@item.Picture.AlternateText" title="@item.Picture.Title" />
+									<img src="@item.Picture.ImageUrl" alt="@item.Picture.AlternateText" title="@item.Picture.Title" />
 								}
 							</div>
 						}						
@@ -163,10 +140,10 @@
 								{
 									@item.ProductName
 								}
-								@if (item.Quantity > 1 && item.BundlePerItemShoppingCart)
+								@if (item.EnteredQuantity > 1 && item.BundlePerItemShoppingCart)
 								{
 									<text>
-										&#215;&nbsp;@item.Quantity
+										&#215;&nbsp;@item.EnteredQuantity
 									</text>
 								}
 							</div>
@@ -184,7 +161,7 @@
 							}
 							@if (item.Warnings.Count > 0)
 							{
-								<div class="alert alert-error">
+								<div class="alert alert-danger">
 									@foreach (var warning in item.Warnings)
 									{
 										<p>@warning</p>
@@ -229,7 +206,7 @@
             {
                 if (Model.Warnings.Count > 0)
                 {
-                    <div class="alert alert-error">
+                    <div class="alert alert-danger">
                         @for (int i = 0; i < Model.Warnings.Count; i++)
                         {
                             <p>@Model.Warnings[i]</p>

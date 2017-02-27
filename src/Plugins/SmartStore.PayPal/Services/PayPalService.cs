@@ -13,7 +13,6 @@ using SmartStore.Core.Data;
 using SmartStore.Core.Domain.Common;
 using SmartStore.Core.Domain.Customers;
 using SmartStore.Core.Domain.Discounts;
-using SmartStore.Core.Domain.Logging;
 using SmartStore.Core.Domain.Orders;
 using SmartStore.Core.Domain.Payments;
 using SmartStore.Core.Domain.Stores;
@@ -321,43 +320,6 @@ namespace SmartStore.PayPal.Services
 			catch { }
 		}
 
-		public void LogError(Exception exception, string shortMessage = null, string fullMessage = null, bool notify = false, IList<string> errors = null, bool isWarning = false)
-		{
-			try
-			{
-				if (exception != null)
-				{
-					shortMessage = exception.Message;
-				}
-
-				if (shortMessage.HasValue())
-				{
-					shortMessage = "PayPal. " + shortMessage;
-
-					if (exception == null && fullMessage.HasValue())
-					{
-						exception = new SmartException(fullMessage);
-					}
-
-					Logger.Log(isWarning ? LogLevel.Warning : LogLevel.Error, exception, shortMessage, null);
-
-					if (notify)
-					{
-						if (isWarning)
-							_services.Notifier.Warning(new LocalizedString(shortMessage));
-						else
-							_services.Notifier.Error(new LocalizedString(shortMessage));
-					}
-				}
-			}
-			catch (Exception) { }
-
-			if (errors != null && shortMessage.HasValue())
-			{
-				errors.Add(shortMessage);
-			}
-		}
-
 		public PayPalPaymentInstruction ParsePaymentInstruction(dynamic json)
 		{
 			if (json == null)
@@ -601,19 +563,20 @@ namespace SmartStore.PayPal.Services
 			{
 				result.Success = false;
 				result.ErrorMessage = exception.ToString();
-				LogError(exception);
+				Logger.Log(LogLevel.Error, exception, null, null);
 			}
 
 			try
 			{
 				if (webResponse != null)
 				{
+					string rawResponse = null;
 					using (var reader = new StreamReader(webResponse.GetResponseStream(), Encoding.UTF8))
 					{
-						var rawResponse = reader.ReadToEnd();
+						rawResponse = reader.ReadToEnd();
 						if (rawResponse.HasValue())
 						{
-							if (webResponse.ContentType.IsCaseInsensitiveEqual("application/json"))
+							try
 							{
 								if (rawResponse.StartsWith("["))
 									result.Json = JArray.Parse(rawResponse);
@@ -637,9 +600,10 @@ namespace SmartStore.PayPal.Services
 									}
 								}
 							}
-							else if (!result.Success)
-							{							
-								result.ErrorMessage = rawResponse;
+							catch
+							{
+								if (!result.Success)
+									result.ErrorMessage = rawResponse;
 							}
 						}
 					}
@@ -649,13 +613,38 @@ namespace SmartStore.PayPal.Services
 						if (result.ErrorMessage.IsEmpty())
 							result.ErrorMessage = webResponse.StatusDescription;
 
-						LogError(null, result.ErrorMessage, string.Concat(data.NaIfEmpty(), "\r\n\r\n", result.Json == null ? "" : result.Json.ToString()), false);
+						var sb = new StringBuilder();
+
+						try
+						{
+							sb.AppendLine();
+							request.Headers.AllKeys.Each(x => sb.AppendLine($"{x}: {request.Headers[x]}"));
+							if (data.HasValue())
+							{
+								sb.AppendLine();
+								sb.AppendLine(JObject.Parse(data).ToString(Formatting.Indented));
+							}
+							sb.AppendLine();
+							webResponse.Headers.AllKeys.Each(x => sb.AppendLine($"{x}: {webResponse.Headers[x]}"));
+							sb.AppendLine();
+							if (result.Json != null)
+							{
+								sb.AppendLine(result.Json.ToString());
+							}
+							else if (rawResponse.HasValue())
+							{
+								sb.AppendLine(rawResponse);
+							}
+						}
+						catch { }
+
+						Logger.Log(LogLevel.Error, new Exception(sb.ToString()), result.ErrorMessage, null);
 					}
 				}
 			}
 			catch (Exception exception)
 			{
-				LogError(exception);
+				Logger.Log(LogLevel.Error, exception, null, null);
 			}
 			finally
 			{
@@ -1050,7 +1039,12 @@ namespace SmartStore.PayPal.Services
 			var paymentId = (string)json.resource.parent_payment;
 			if (paymentId.IsEmpty())
 			{
-				LogError(null, T("Plugins.SmartStore.PayPal.FoundOrderForPayment", 0, "".NaIfEmpty()), JsonConvert.SerializeObject(json, Formatting.Indented), isWarning: true);
+				Logger.Log(
+					LogLevel.Warning,
+					new Exception(JsonConvert.SerializeObject(json, Formatting.Indented)),
+					T("Plugins.SmartStore.PayPal.FoundOrderForPayment", 0, "".NaIfEmpty()),
+					null);
+
 				return HttpStatusCode.OK;
 			}
 
@@ -1060,7 +1054,12 @@ namespace SmartStore.PayPal.Services
 
 			if (orders.Count != 1)
 			{
-				LogError(null, T("Plugins.SmartStore.PayPal.FoundOrderForPayment", orders.Count, paymentId), JsonConvert.SerializeObject(json, Formatting.Indented), isWarning: true);
+				Logger.Log(
+					LogLevel.Warning,
+					new Exception(JsonConvert.SerializeObject(json, Formatting.Indented)),
+					T("Plugins.SmartStore.PayPal.FoundOrderForPayment", orders.Count, paymentId),
+					null);
+
 				return HttpStatusCode.OK;
 			}
 
@@ -1073,7 +1072,12 @@ namespace SmartStore.PayPal.Services
 
 			if (!primaryCurrency.IsCaseInsensitiveEqual(currency))
 			{
-				LogError(null, T("Plugins.SmartStore.PayPal.CurrencyNotEqual", currency.NaIfEmpty(), primaryCurrency), JsonConvert.SerializeObject(json, Formatting.Indented), isWarning: true);
+				Logger.Log(
+					LogLevel.Warning,
+					new Exception(JsonConvert.SerializeObject(json, Formatting.Indented)),
+					T("Plugins.SmartStore.PayPal.CurrencyNotEqual", currency.NaIfEmpty(), primaryCurrency),
+					null);
+
 				return HttpStatusCode.OK;
 			}
 

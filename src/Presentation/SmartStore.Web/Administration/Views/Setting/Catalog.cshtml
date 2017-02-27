@@ -25,7 +25,8 @@
             $("#@Html.FieldIdFor(model => model.ShowManufacturersOnHomepage)").click(toggleManufacturersOnHomepage);
         	$("#@Html.FieldIdFor(model => model.ProductsAlsoPurchasedEnabled)").click(toggleProductsAlsoPurchasedNumber);
             $("#@Html.FieldIdFor(model => model.CompareProductsEnabled)").click(toggleCompareProducts);
-        	$("#@Html.FieldIdFor(model => model.EnableHtmlTextCollapser)").click(toggleHtmlTextCollapsedHeight);
+            $("#@Html.FieldIdFor(model => model.EnableHtmlTextCollapser)").click(toggleHtmlTextCollapsedHeight);
+            $("#@Html.FieldIdFor(model => model.ShowManufacturerInProductDetail)").click(toggleManufacturerPictures);
 
         	$("#@Html.FieldIdFor(model => model.FilterEnabled)").change(function () {
         		$('#ProductFilterTable').find('.product-filter-option').toggle($(this).is(':checked'));
@@ -40,6 +41,7 @@
             toggleCompareProducts();
             toggleHtmlTextCollapsedHeight();
             toggleManufacturersOnHomepage();
+            toggleManufacturerPictures();
         });
 
         function toggleShowCategoryProductNumberIncludingSubcategories() {
@@ -106,7 +108,7 @@
                 $('#pnlProductsAlsoPurchasedNumber').hide();
             }
         }
-        
+
         function toggleCompareProducts() {
             if ($('#@Html.FieldIdFor(model => model.CompareProductsEnabled)').is(':checked')) {
                 $('#pnlIncludeShortDescriptionInCompareProducts').show();
@@ -116,7 +118,7 @@
                 $('#pnlIncludeFullDescriptionInCompareProducts').hide();
             }
         }
-        
+
         function toggleHtmlTextCollapsedHeight() {
             if ($('#@Html.FieldIdFor(model => model.EnableHtmlTextCollapser)').is(':checked')) {
                 $('#pnlHtmlTextCollapsedHeight').show();
@@ -125,6 +127,17 @@
                 $('#pnlHtmlTextCollapsedHeight').hide();
             }
         }
+
+        function toggleManufacturerPictures() {
+            if ($('#@Html.FieldIdFor(model => model.ShowManufacturerInProductDetail)').is(':checked')) {
+                $('.manufacturer-pictures').show();
+            }
+            else {
+                $('.manufacturer-pictures').hide();
+            }
+        }
+
+
     </script>
 
     Html.RenderAction("StoreScopeConfiguration", "Setting"); 
@@ -297,6 +310,15 @@
 				@Html.ValidationMessageFor(model => model.HideManufacturerDefaultPictures)
 			</td>
 		</tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.SmartLabelFor(model => model.SortManufacturersAlphabetically)
+            </td>
+            <td class="adminData">
+                @Html.SettingEditorFor(model => model.SortManufacturersAlphabetically)
+                @Html.ValidationMessageFor(model => model.SortManufacturersAlphabetically)
+            </td>
+        </tr>
 		<tr>
 			<td class="adminTitle">
 				@Html.SmartLabelFor(model => model.HideCategoryDefaultPictures)
@@ -341,6 +363,15 @@
             <td class="adminData">
                 @Html.SettingEditorFor(model => model.ShowDefaultQuantityUnit)
                 @Html.ValidationMessageFor(model => model.ShowDefaultQuantityUnit)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.SmartLabelFor(model => model.ShowDefaultDeliveryTime)
+            </td>
+            <td class="adminData">
+                @Html.SettingEditorFor(model => model.ShowDefaultDeliveryTime)
+                @Html.ValidationMessageFor(model => model.ShowDefaultDeliveryTime)
             </td>
         </tr>
     </table>
@@ -488,6 +519,15 @@
 		</tr>
 		<tr>
 			<td class="adminTitle">
+				@Html.SmartLabelFor(model => model.GridStyleListColumnSpan)
+			</td>
+			<td class="adminData">
+				@Html.EnumSettingEditorFor(model => model.GridStyleListColumnSpan)
+				@Html.ValidationMessageFor(model => model.GridStyleListColumnSpan)
+			</td>
+		</tr>
+		<tr>
+			<td class="adminTitle">
 				@Html.SmartLabelFor(model => model.DefaultSortOrder)
 			</td>
 			<td class="adminData">
@@ -568,6 +608,15 @@
 			<td class="adminData">
 				@Html.SettingEditorFor(model => model.ShowManufacturerInGridStyleLists)
 				@Html.ValidationMessageFor(model => model.ShowManufacturerInGridStyleLists)
+			</td>
+		</tr>
+		<tr>
+			<td class="adminTitle">
+				@Html.SmartLabelFor(model => model.ShowManufacturerLogoInLists)
+			</td>
+			<td class="adminData">
+				@Html.SettingEditorFor(model => model.ShowManufacturerLogoInLists)
+				@Html.ValidationMessageFor(model => model.ShowManufacturerLogoInLists)
 			</td>
 		</tr>
 		<tr>
@@ -790,7 +839,16 @@
                 @Html.ValidationMessageFor(model => model.DisplayAllImagesNumber)
             </td>
         </tr>
-		<tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.SmartLabelFor(model => model.ShowManufacturerInProductDetail)
+            </td>
+            <td class="adminData">
+                @Html.SettingEditorFor(model => model.ShowManufacturerInProductDetail)
+                @Html.ValidationMessageFor(model => model.ShowManufacturerInProductDetail)
+            </td>
+        </tr>
+		<tr class="manufacturer-pictures">
 			<td class="adminTitle">
 				@Html.SmartLabelFor(model => model.ShowManufacturerPicturesInProductDetail)
 			</td>

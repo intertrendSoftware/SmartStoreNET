@@ -1,31 +1,198 @@
 ﻿;
 
-$(function () {
+/*
+** Ajax cart implementation
+*/
+var AjaxCart = (function ($, window, document, undefined) {
 
+	$(function () {
+		// GLOBAL event handler
+		$("body").on("click", ".ajax-cart-link", function (e) {
+			//e.stopPropagation();
+			return AjaxCart.executeRequest(this);
+		});
+	});
+
+	function createMessageObj(el) {
+		return {
+			success: { title: el.data("msg-success-title"), text: el.data("msg-success-text") },
+			error: { title: el.data("msg-error-title"), text: el.data("msg-error-text") }
+		}
+	}
+
+	/*
+        attr("href") > href
+    */
+	function createCommand(el) {
+		if (!_.isElement(el)) {
+			return null;
+		}
+
+		el = $(el);
+
+		var cmd = {
+			src: el,
+			type: el.data("type") || "cart", // or "wishlist" or "compare",
+			action: el.data("action") || "add", // or "remove" or "addfromwishlist" or "addfromcart"
+			href: el.data("href") || el.attr("href"),
+			data: undefined // handled further below
+		};
+
+		if (el.data("form-selector")) {
+			str = $(el.data("form-selector")).serialize();
+
+			// HACK (MC)!
+			// we changed the ModelType of the _AddToCart
+			// from ...ProductModel.AddToCart to .ProductModel.
+			// Therefore input names are not in the form anymore as the ShoppingCartController 
+			// expects them. Hacking here ist much easier than refactoring the controller method.
+			// But change this in future of couse.
+			arr = str.split(".");
+			if (arr.length == 3 && arr[1] == "AddToCart") {
+				str = arr[0] + "." + arr[2];
+			}
+
+			cmd.data = str;
+		}
+
+		return cmd;
+	}
+
+	function verifyCommand(cmd) {
+		return !!(cmd.href); // TODO: implement (MC)
+	}
+
+	var busy = false;
+
+	return {
+
+		executeRequest: function (cmd) {
+			if (busy)
+				return false;
+
+			if (!$.isPlainObject(cmd)) {
+				cmd = createCommand(cmd);
+			}
+			if (!cmd || !verifyCommand(cmd)) return;
+
+			busy = true;
+
+			if (cmd.action === "add") {
+				EventBroker.publish("ajaxcart.item.adding", cmd);
+			}
+			else if (cmd.action === "addfromwishlist" || cmd.action === "addfromwishcart") {
+				EventBroker.publish("ajaxcart.item.adding", cmd);
+			}
+			else if (cmd.action === "remove") {
+				EventBroker.publish("ajaxcart.item.removing", cmd);
+			}
+
+			$.ajax({
+				cache: false,
+				url: cmd.href,
+				data: cmd.data,
+				type: 'POST',
+
+				success: function (response) {
+					if (response.redirect) {
+						// when the controller sets the "redirect"
+						// property (either to cart, product page etc.), 
+						// it's mandatory to do so and useless to do ajax stuff.
+						location.href = response.redirect;
+						return false;
+					}
+
+					// success is optional and therefore true by default
+					isSuccess = response.success === undefined ? true : response.success;
+
+					var msg = cmd.action === "add" || cmd.action === "addfromwishlist" || cmd.action === "addfromcart" ? "ajaxcart.item.added" : "ajaxcart.item.removed";
+					EventBroker.publish(
+                        isSuccess
+                            ? msg
+                            : "ajaxcart.error",
+                        $.extend(cmd, { response: response })
+                    );
+
+					if (isSuccess && (cmd.action === "addfromwishlist" || cmd.action === "addfromcart")) {
+						// special case when item was copied/moved from wishlist
+						if (response.wasMoved) {
+							// if an item was MOVED from Wishlist to cart,
+							// we must also set the wishlist dropdown dirty
+							var clonedCmd = $.extend({}, cmd, { type: "wishlist" });
+							EventBroker.publish(
+                                "ajaxcart.item.removed",
+                                clonedCmd
+                            );
+						}
+					}
+				},
+
+				error: function (jqXHR, textStatus, errorThrown) {
+					EventBroker.publish(
+                        "ajaxcart.error",
+                        $.extend(cmd, { response: { success: false, message: errorThrown } })
+                    );
+				},
+
+				complete: function () {
+					// never say never ;-)
+					busy = false;
+					EventBroker.publish("ajaxcart.complete", cmd);
+				}
+			});
+
+			// for stopping event propagation
+			return false;
+		}
+
+	}
+
+})(jQuery, this, document);
+
+$(function () {
     var shopBar = $(".shopbar");
 
-    shopBar.find(".shopbar-button").on("click", function ()
-    {
-        var el = $(this);
+    shopBar.find(".shopbar-button").on("click", function () {
+    	var el = $(this);
         var tool = el.parent();
 
-        // open corresponding tab
+        // Open corresponding tab
         $('.nav-tabs a' + tool.data("target")).tab('show');
     });
 
-    // register for tab change event 
-    $('#offcanvas-cart a[data-toggle="tab"]').on('shown.bs.tab', function (e)
-    {
+    // Register for tab change event 
+    $('#offcanvas-cart a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         var tool = $(e.target);
-        var cnt = $("#offcanvas-cart .tab-content " + tool.attr("href"));
 
         if (!tool.hasClass("loaded") && !tool.hasClass("loading")) {
-
-            cnt.throbber({ white: true, small: true, message: '' });
+        	ShopBar.showThrobber();
             ShopBar.loadHtml(tool, function () {
-                cnt.data("throbber").hide();
+            	ShopBar.hideThrobber();
             });
         }
+    });
+
+	// React to touchspin change
+    $('#offcanvas-cart').on('change', '.qty-input .form-control', function (e) {
+    	var el = $(this);
+    	$.ajax({
+    		cache: false,
+    		type: "POST",
+    		url: el.data("update-url"),
+    		data: { "sciItemId": el.data("sci-id"), "newQuantity": el.val() },
+    		success: function (data) {
+    			if (data.success == true) {
+    				var type = el.data("type");
+    				ShopBar.loadSummary(type, true);
+    				el.closest('.tab-pane').find('.sub-total').html(data.SubTotal);
+    			}
+    			else {
+    				$(data.message).each(function (index, value) {
+    					displayNotification(value, "error", false);
+    				});
+    			}
+    		}
+    	});
     });
 }); 
 
@@ -52,43 +219,46 @@ var ShopBar = (function($) {
     }
 
     EventBroker.subscribe("ajaxcart.item.adding", function (msg, data) {
-        // show transfer effect
-        var tool = buttons[data.type];
-
-        if (data.src) {
-            // "guess" the closest transferrable element
-            var transferSrc = $(data.src).closest(".item-box, [data-transfer-src]");
-            if (!transferSrc.length) {
-                // ... couldn't find any? then take the src itself (could be a bit small though)
-                transferSrc = data.src.parent() || data.src;
-            }
-
-            transferSrc.stop(true, true).effect("transfer", { to: tool.find(".shopbar-button-icon"), easing: "easeOutQuad", className: "transfer" }, 800, function () { });
-        }
+    	var tool = tools[data.type];
+    	ShopBar.showThrobber();
     });
 
     EventBroker.subscribe("ajaxcart.item.added", function (msg, data) {
-
-        var tool = buttons[data.type];
-        var badge = $("span.label", tool);
+        var tool = tools[data.type];
+        var button = buttons[data.type];
+        var badge = $("span.label", button);
+        
         if (badge.hasClass("hidden-xs-up")) {
             badge.removeClass("hidden-xs-up");
         }
 
+        ShopBar.loadHtml(tool, function () {
+        	ShopBar.hideThrobber();
+        });
+
         ShopBar.loadSummary(data.type, true /*fade*/, function (resultData) { });
 
-        notify(data.response);
+        var action = data.action;
+
+        if (action == "addfromwishlist" || action == "addfromcart") 
+        {
+            $('.nav-tabs ' + (action == "addfromcart" ? "#wishlist-tab" : "#cart-tab")).tab('show');
+        }
+        else {
+            ShopBar.toggleCart(data.type);
+        }
+    });
+
+    EventBroker.subscribe("ajaxcart.item.removing", function (msg, data) {
+    	var tool = tools[data.type];
+    	ShopBar.showThrobber();
     });
 
     EventBroker.subscribe("ajaxcart.item.removed", function (msg, data) {
-
-        var tool = tools[data.type];
-        var tabId = tool.attr("href");
-        var cnt = $(".tab-content " + tabId, offcanvasCart);
-        cnt.throbber({ white: true, small: true, message: '' });
-
+    	var tool = tools[data.type];
+        
         ShopBar.loadHtml(tool, function () {
-            cnt.data("throbber").hide();
+        	ShopBar.hideThrobber();
         });
 
         ShopBar.loadSummary(data.type, true /*fade*/, function (resultData) { });
@@ -108,45 +278,41 @@ var ShopBar = (function($) {
             // [...]
         },
 
+        showThrobber: function () {
+        	var cnt = $(".tab-content", offcanvasCart);
+        	var throbber = cnt.data('throbber');
+        	if (!throbber) {
+        		throbber = cnt.throbber({ white: true, small: true, message: '', show: false }).data('throbber');
+        	}
+
+        	throbber.show();
+		},
+
+        hideThrobber: function () {      	
+        	var cnt = $(".tab-content", offcanvasCart);
+        	_.delay(function () { cnt.data("throbber").hide(); }, 100);
+		},
+
         initQtyControls: function(parentSelector) {
-            
-            $(parentSelector + " .qty-input").each(function () {
-
-                var qtyControl = $(this);
-
-                qtyControl.TouchSpin({
-                    min: qtyControl.data("min-qty"),   
-                    max: qtyControl.data("max-qty"),
-                    step: qtyControl.data("min-step"),
-                    buttondown_class: "btn btn-sm btn-secondary",
-                    buttonup_class: "btn btn-sm btn-secondary"
-                }).change(function (e) {
-
-                    var currentValue = this.value;
-                                        
-                    $.ajax({
-                        cache: false,
-                        type: "POST",
-                        url: qtyControl.data("update-url"),
-                        data: { "sciItemId": qtyControl.data("sci-id"), "newQuantity": currentValue },
-                        success: function (data) {
-                            if(data.success == true) {
-                                var type = qtyControl.data("type");
-                                ShopBar.loadSummary(type, true, function (data) { });
-                            }
-                            else {
-                                $(data.message).each(function (index, value) {
-                                    displayNotification(value, "error", false);
-                                });
-                            }
-                        },
-                        complete: function (jqXHR, textStatus) { }
-                    });
+            $(parentSelector + " .qty-input .form-control").each(function (e) {
+                var el = $(this);
+                el.TouchSpin({
+                	min: el.data("min-qty"),
+                	max: el.data("max-qty"),
+                	step: el.data("min-step"),
+                    buttondown_class: 'btn btn-secondary',
+                    buttonup_class: 'btn btn-secondary',
+                    buttondown_txt: '<i class="fa fa-minus"></i>',
+                    buttonup_txt: '<i class="fa fa-plus"></i>',
                 });
             });
         },
 
-        loadSummary: function (type, fade, fn /* successCallBack */) {
+        toggleCart: function (tab) {
+        	buttons[tab].find(".shopbar-button").trigger('click');
+        },
+
+        loadSummary: function (type, animate, fn /* successCallBack */) {
             var tool = _.isString(type) ? buttons[type] : type;
             if (!tool) return;
 
@@ -159,9 +325,9 @@ var ShopBar = (function($) {
                     url: button.data("summary-href"),
                     success: function (data) {
 
-                        tools[type].bindData(data, { fade: fade });
+                    	tools[type].bindData(data, { animate: animate });
 
-                        button.bindData(data, { fade: fade });
+                    	button.bindData(data, { animate: animate });
 
                         if (_.isFunction(fn)) {
                             fn.call(this, data);
@@ -173,12 +339,10 @@ var ShopBar = (function($) {
         },
 
         loadHtml: function (type, fn /* completeCallback */) {
-
             var tool = _.isString(type) ? tools[type] : type;
-            if (!tool) return;
+            if (!tool || tool.data("url") == undefined) return;
 
             var cnt = $(".tab-content " + tool.attr("href"), offcanvasCart);
-
             tool.removeClass("loaded").addClass("loading");
 
             $.ajax({
@@ -187,13 +351,12 @@ var ShopBar = (function($) {
                 url: tool.data("url"),
                 success: function (data) {
                     cnt.find('.offcanvas-cart-body').remove();
-                    cnt.find('.summary').remove();
-                    cnt.find('.buttons').remove();
-                    cnt.append(data);
+                    cnt.find('.offcanvas-cart-footer').remove();
+                    cnt.find('.offcanvas-cart-external-checkout').remove();
+                    cnt.prepend(data);
                 },
                 complete: function (jqXHR, textStatus) {
                     tool.removeClass("loading").addClass("loaded");
-
                     ShopBar.initQtyControls(tool.attr("href"));
 
                     if (_.isFunction(fn)) {

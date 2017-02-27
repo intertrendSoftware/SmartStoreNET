@@ -48,6 +48,16 @@
 				@Html.ValidationMessageFor(x => x.SearchFields)
 			</td>
 		</tr>
+		@if (Model.SearchFieldsNote.HasValue())
+		{
+		<tr>
+			<td colspan="2">
+				<div class="alert alert-info">
+					@Html.Raw(Model.SearchFieldsNote)
+				</div>
+			</td>
+		</tr>
+		}
 		<tr>
 			<td colspan="2">
 				<div class="admin-config-group">
@@ -94,7 +104,7 @@
 		<tr>
 			<td colspan="2">
 				<div class="admin-config-group">
-					<div class="title">@T("Search.GlobalFilters")</div>
+					<div class="title">@T("Search.ResultFiltering")</div>
 				</div>
 			</td>
 		</tr>
@@ -105,12 +115,12 @@
 					<thead>
 						<tr>
 							<th>@T("Search.FilterBy")</th>
-							<th class="ac">@T("Common.Enabled")</th>
+							<th class="ac">@T("Common.Deactivated")</th>
 							<th>@T("Common.DisplayOrder")</th>
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var filter in Model.GlobalFilters.OrderByDescending(x => x.Enabled).ThenBy(x => x.DisplayOrder))
+						@foreach (var filter in Model.GlobalFilters.OrderByDescending(x => !x.Disabled).ThenBy(x => x.DisplayOrder))
 						{
 							var filterIndex = Model.GlobalFilters.IndexOf(filter);
 							<tr>
@@ -119,7 +129,7 @@
 									@Html.HiddenFor(model => model.GlobalFilters[filterIndex].FieldName)
 								</td>
 								<td class="ac">
-									@Html.SettingEditorFor(model => model.GlobalFilters[filterIndex].Enabled)
+									@Html.SettingEditorFor(model => model.GlobalFilters[filterIndex].Disabled)
 								</td>
 								<td>
 									@Html.SettingEditorFor(model => model.GlobalFilters[filterIndex].DisplayOrder, null, new { small = true })
@@ -129,6 +139,24 @@
 					</tbody>
 				</table>
 
+			</td>
+		</tr>
+		<tr>
+			<td class="adminTitle">
+				@Html.SmartLabelFor(model => model.FilterMinHitCount)
+			</td>
+			<td class="adminData">
+				@Html.SettingEditorFor(model => model.FilterMinHitCount, null, new { small = true })
+				@Html.ValidationMessageFor(model => model.FilterMinHitCount)
+			</td>
+		</tr>
+		<tr>
+			<td class="adminTitle">
+				@Html.SmartLabelFor(model => model.FilterMaxChoicesCount)
+			</td>
+			<td class="adminData">
+				@Html.SettingEditorFor(model => model.FilterMaxChoicesCount, null, new { small = true })
+				@Html.ValidationMessageFor(model => model.FilterMaxChoicesCount)
 			</td>
 		</tr>
 	</table>

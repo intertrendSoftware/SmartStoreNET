@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
-using SmartStore.Core;
 using SmartStore.Core.Domain.Catalog;
 using SmartStore.Core.Events;
 using SmartStore.Core.Logging;
 using SmartStore.Core.Search;
+using SmartStore.Core.Search.Facets;
 using SmartStore.Services.Catalog;
 
 namespace SmartStore.Services.Search
@@ -67,10 +67,9 @@ namespace SmartStore.Services.Search
 					{
 						int totalCount = 0;
 						string[] spellCheckerSuggestions = null;
-						IEnumerable<ISearchHit> topCategories = null;
-						IEnumerable<ISearchHit> topManufacturers = null;
 						IEnumerable<ISearchHit> searchHits;
 						Func<IList<Product>> hitsFactory = null;
+						IDictionary<string, FacetGroup> facets = null;
 
 						_eventPublisher.Publish(new CatalogSearchingEvent(searchQuery));
 
@@ -91,8 +90,20 @@ namespace SmartStore.Services.Search
 								var productIds = searchHits.Select(x => x.EntityId).ToArray();
 								hitsFactory = () => _productService.Value.GetProductsByIds(productIds, loadFlags);
 							}
+
+							try
+							{
+								using (_chronometer.Step("Get facets"))
+								{
+									facets = searchEngine.GetFacetMap();
+								}
+							}
+							catch (Exception exception)
+							{
+								_logger.Error(exception);
+							}
 						}
-						
+
 						try
 						{
 							using (_chronometer.Step("Spell checking"))
@@ -106,38 +117,13 @@ namespace SmartStore.Services.Search
 							_logger.Error(exception);
 						}
 
-						try
-						{
-							using (_chronometer.Step("Top categories"))
-							{
-								topCategories = searchEngine.GetTopCategories();
-							}
-						}
-						catch (Exception exception)
-						{
-							_logger.Error(exception);
-						}
-
-						try
-						{
-							using (_chronometer.Step("Top manufacturers"))
-							{
-								topManufacturers = searchEngine.GetTopManufacturers();
-							}
-						}
-						catch (Exception exception)
-						{
-							_logger.Error(exception);
-						}
-
 						var result = new CatalogSearchResult(
-							searchEngine, 
+							searchEngine,
+							searchQuery,
 							totalCount,
 							hitsFactory, 
-							searchQuery, 
 							spellCheckerSuggestions,
-							topCategories,
-							topManufacturers);
+							facets);
 
 						_eventPublisher.Publish(new CatalogSearchedEvent(searchQuery, result));
 

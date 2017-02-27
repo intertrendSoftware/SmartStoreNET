@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using System.Web.Hosting;
 using System.Web.Mvc;
 using Autofac;
 using Autofac.Builder;
@@ -179,7 +180,6 @@ namespace SmartStore.Web.Framework
 			builder.RegisterType<AffiliateService>().As<IAffiliateService>().InstancePerRequest();
 			builder.RegisterType<AddressService>().As<IAddressService>().InstancePerRequest();
 			builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerRequest();
-			builder.RegisterType<FulltextService>().As<IFulltextService>().InstancePerRequest();
 			builder.RegisterType<MaintenanceService>().As<IMaintenanceService>().InstancePerRequest();
 
 			builder.RegisterType<CustomerContentService>().As<ICustomerContentService>().InstancePerRequest();
@@ -266,6 +266,7 @@ namespace SmartStore.Web.Framework
 			builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().InstancePerRequest();
 			builder.RegisterType<LinqCatalogSearchService>().Named<ICatalogSearchService>("linq").InstancePerRequest();
 			builder.RegisterType<CatalogSearchQueryFactory>().As<ICatalogSearchQueryFactory>().InstancePerRequest();
+			builder.RegisterType<CatalogSearchQueryAliasMapper>().As<ICatalogSearchQueryAliasMapper>().InstancePerRequest();
 		}
 
 		protected override void AttachToComponentRegistration(IComponentRegistry componentRegistry, IComponentRegistration registration)
@@ -396,12 +397,19 @@ namespace SmartStore.Web.Framework
 				}
 
 				builder.Register<IDbContext>(c => new SmartObjectContext(DataSettings.Current.DataConnectionString))
-					.PropertiesAutowired(PropertyWiringOptions.None)
+					//.PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
+					.PropertiesAutowired((pi, obj) => 
+					{
+						// Prevent Autofac circularity exception & never trigger hooks during tooling or tests
+						return typeof(IDbHookHandler).IsAssignableFrom(pi.PropertyType) && HostingEnvironment.IsHosted;
+					})
 					.InstancePerRequest();
 			}
 			else
 			{
-				builder.Register<IDbContext>(c => new SmartObjectContext(DataSettings.Current.DataConnectionString)).InstancePerRequest();
+				builder.Register<IDbContext>(c => new SmartObjectContext(DataSettings.Current.DataConnectionString))
+					.PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
+					.InstancePerRequest();
 			}
 
 			builder.Register<Func<string, IDbContext>>(c =>
@@ -493,6 +501,7 @@ namespace SmartStore.Web.Framework
 			// Output cache
 			builder.RegisterType<DisplayControl>().As<IDisplayControl>().InstancePerRequest();
 			builder.Register<IOutputCacheInvalidationObserver>(c => NullOutputCacheInvalidationObserver.Instance).SingleInstance();
+			builder.RegisterType<NullCacheableRouteRegistrar>().As<ICacheableRouteRegistrar>().InstancePerRequest();
 
 			// Request cache
 			builder.RegisterType<RequestCache>().As<IRequestCache>().InstancePerRequest();
@@ -1100,7 +1109,7 @@ namespace SmartStore.Web.Framework
 				{
 					int currentStoreId = 0;
 					IStoreContext storeContext;
-					if (c.TryResolve<IStoreContext>(out storeContext))
+					if (c.TryResolve(out storeContext))
 					{
 						//currentStoreId = storeContext.CurrentStoreIdIfMultiStoreMode;
 						currentStoreId = storeContext.CurrentStore.Id;

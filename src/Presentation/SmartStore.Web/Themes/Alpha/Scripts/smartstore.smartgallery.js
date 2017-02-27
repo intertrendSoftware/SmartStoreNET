@@ -1,53 +1,59 @@
 /*
  *  Project: smartstore.smartgallery
- *  Version: 1.1
+ *  Version: 2.0
  *  Author: Murat Cakir
  */
 
-;(function ( $, window, document, undefined ) {
+;(function ($, window, document, undefined) {
     
     var pluginName = 'smartGallery';
     
 	var defaultEasing = "easeInOutQuad";
 	var animations = {
-	    'slide': function (cnt, dir, desc) {
+		'slide': function (cnt, dir, desc) {
 			var curLeft = parseInt(cnt.css('left'), 10);
 			var oldImageLeft = 0;
-			if (dir == 'left') {
-				oldImageLeft = '-'+ this.imageWrapperWidth +'px';
-				cnt.css('left', this.imageWrapperWidth +'px');
-			} 
+			if (dir === 'left') {
+				oldImageLeft = '-' + this.imageWrapperWidth + 'px';
+				cnt.css('left', this.imageWrapperWidth + 'px');
+			}
 			else {
-				oldImageLeft = this.imageWrapperWidth +'px';
-				cnt.css('left', '-'+ this.imageWrapperWidth +'px');
+				oldImageLeft = this.imageWrapperWidth + 'px';
+				cnt.css('left', '-' + this.imageWrapperWidth + 'px');
 			}
 			if (desc) {
-				desc.css('bottom', '-'+ desc[0].offsetHeight +'px');
+				desc.css('bottom', '-' + desc[0].offsetHeight + 'px');
 				if (this.inWrapper) {
-					desc.animate({bottom: 0}, this.options.animationSpeed * 2);
+					desc.animate({ bottom: 0 }, this.options.animationSpeed * 2);
 				}
 			}
 			if (this.currentDescription) {
-				this.currentDescription.animate({bottom: '-'+ this.currentDescription[0].offsetHeight +'px'}, this.options.animationSpeed * 2);
+				this.currentDescription.animate({ bottom: '-' + this.currentDescription[0].offsetHeight + 'px' }, this.options.animationSpeed * 2);
 			}
-			return {oldImage: {left: oldImageLeft},
-			        newImage: {left: curLeft}};	
+			return {
+				oldImage: { left: oldImageLeft },
+				newImage: { left: curLeft }
+			};
 		},
-			
-		'fade' : function(cnt, dir, desc) {
+
+		'fade': function (cnt, dir, desc) {
 			cnt.css('opacity', 0);
-			return {oldImage: {opacity: 0},
-			        newImage: {opacity: 1},
-			        easing: 'linear'};	
+			return {
+				oldImage: { opacity: 0 },
+				newImage: { opacity: 1 },
+				easing: 'linear'
+			};
 		},
-			
-		'none' : function(cnt, dir, desc) {
+
+		'none': function (cnt, dir, desc) {
 			cnt.css('opacity', 0);
-			return {oldImage: {opacity: 0},
-			        newImage: {opacity: 1},
-			        speed: 0};
-		}	
-	}
+			return {
+				oldImage: { opacity: 0 },
+				newImage: { opacity: 1 },
+				speed: 0
+			};
+		}
+	};
 
 	var defaultZoomOpts = {
 	    zoomType: 'window',
@@ -90,7 +96,7 @@
 			this.imageWrapperHeight = opts.height || 300;
 
 			if (this.imageWrapperHeight > 300) {
-				this.imageWrapper.css({ height: this.imageWrapperHeight + 'px' })
+				this.imageWrapper.css({ height: this.imageWrapperHeight + 'px' });
 			}
 			
 			this.navDisplayWidth = this.nav.width();
@@ -120,7 +126,7 @@
 			
 			if(opts.enableKeyboardMove) {
 				this.initKeyEvents();
-			};
+			}
 		
 			//this.findImages();
 			
@@ -129,8 +135,8 @@
 				startAt = window.location.hash.replace(/[^0-9]+/g, '');
 				if(!_.isNumber(startAt)) {
 					startAt = opts.startIndex;
-				};
-			};
+				}
+			}
 			
 			if (this.images[startAt]) {
 				this.loading(true);
@@ -153,34 +159,34 @@
 	}
 	
 	SmartGallery.prototype = {
-		
+
 		imageWrapper: null,
-	    nav: null,
-	    loader: null,
-	    preloads: null,
-	    thumbsWrapper: null,
-	    box: null, // (blueImp) image gallery element
-	    	
-	    imageWrapperWidth: 0,
-	    imageWrapperHeight: 0,
-	    currentIndex: 0,
-	    currentImage: null,
-	    currentDescription: null,
-	    navDisplayWidth: 0,
-	    navListWidth: 0,
-	    noScrollers: false,
-	    images: null,
-	    inTransition: false,
-	    inWrapper: false,
-	    	
-	  	scrollForward: null,
-	  	scrollBack: null,
-	  		
-	  	origHtml: null,
-	    	
-		setupElements: function() {
+		nav: null,
+		loader: null,
+		preloads: null,
+		thumbsWrapper: null,
+		box: null, // (blueImp) image gallery element
+
+		imageWrapperWidth: 0,
+		imageWrapperHeight: 0,
+		currentIndex: 0,
+		currentImage: null,
+		currentDescription: null,
+		navDisplayWidth: 0,
+		navListWidth: 0,
+		noScrollers: false,
+		images: null,
+		inTransition: false,
+		inWrapper: false,
+
+		scrollForward: null,
+		scrollBack: null,
+
+		origHtml: null,
+
+		setupElements: function () {
 			var el = this.el;
-			
+
 			this.origHtml = this.el.outerHtml();
 			this.imageWrapper = el.find('.sg-image-wrapper').empty();
 			this.nav = el.find('.sg-nav').css("opacity", "0");
@@ -203,50 +209,50 @@
 			self.thumbsWrapper.find('> ul > li > a').off('click mouseenter');
 			self.thumbsWrapper.css('width', 'initial');
 
-		    if (self.preloads) {
-		        self.preloads.remove();
-		    }
-		    if (self.loader) {
-		    	self.loader.remove();
-		    }
-		    var oldZoomImage = self.imageWrapper.find('.sg-image img').data("elevateZoom");
-		    if (oldZoomImage) {
-		        oldZoomImage.reset();
-		    }
+			if (self.preloads) {
+				self.preloads.remove();
+			}
+			if (self.loader) {
+				self.loader.remove();
+			}
+			var oldZoomImage = self.imageWrapper.find('.sg-image img').data("elevateZoom");
+			if (oldZoomImage) {
+				oldZoomImage.reset();
+			}
 
-		    self.imageWrapper.find('.sg-image').remove();
+			self.imageWrapper.find('.sg-image').remove();
 
-		    $('.smartgallery-overlay').remove();
-		    if (self.box) {
-		    	self.box.remove();
-		    }
-		    self.box = null;
+			$('.smartgallery-overlay').remove();
+			if (self.box) {
+				self.box.remove();
+			}
+			self.box = null;
 		},
 
-		loading: function(value) {
+		loading: function (value) {
 			if (value) {
 				this.loader.addClass('active');
-			} 
+			}
 			else {
-			    this.loader.removeClass('active');
-			};
+				this.loader.removeClass('active');
+			}
 		},
 
-		addAnimation: function(name, fn) {
+		addAnimation: function (name, fn) {
 			if ($.isFunction(fn)) {
 				animations[name] = fn;
-			};
+			}
 		},
-		
-		findImages: function() {
+
+		findImages: function () {
 			var self = this;
 			this.images = [];
 			var thumbWrapperWidth = 0;
 			var thumbsLoaded = 0;
 			var thumbs = this.thumbsWrapper.find('a');
 			var thumbCount = thumbs.length;
-			
-			thumbs.each( function(i) {
+
+			thumbs.each(function (i) {
 				var link = $(this);
 				var imageSrc = link.data('medium-image');
 				var thumb = link.find('img');
@@ -255,71 +261,72 @@
 
 				// Check if the thumb has already been loaded
 				if (!self.isImageLoaded(thumb[0])) {
-					thumb.load(function() {
-					    thumbsLoaded++;
+					thumb.load(function () {
+						thumbsLoaded++;
 					});
-				} 
-				else{
+				}
+				else {
 					thumbsLoaded++;
 				}
-				
-				
+
+
 				link.addClass('sg-thumb' + i);
-				
-				link.on({ 
-				    'click': function () {
-						var fn = function() {};
+
+				link.on({
+					'click': function () {
+						var fn = function () { };
 						if (!self.options.displayImage) {
-							self._showBox(i);	
+							self._showBox(i);
 						}
 						self.showImage(i, fn);
 						return false;
 					},
-					'mouseenter': function() {
+					'mouseenter': function () {
 						self.preloadImage(i);
 					}
 				});
-				
+
 				var s;
 				var href = false;
-				
+
 				s = thumb.data('sg-link') || thumb.attr('rel') || thumb.attr('longdesc');
 				if (!s && self.options.ensureLink) {
-					s = link.attr("href");	
+					s = link.attr("href");
 				}
 				if (s) href = s;
-				
+
 				s = "";
 				var title = false;
 				s = thumb.data('sg-title') || thumb.attr('title');
 				if (s) title = s;
 				thumb.removeAttr('title'); // das stört sonst
-				
+
 				s = "";
 				var desc = false;
 				s = thumb.data('sg-desc') || thumb.attr('alt');
-				if (s && s != title) desc = s;
-				
-				self.images[i] = { thumb: thumb.attr('src'), 
-				                   image: imageSrc,
-                                   zoom: link.attr("href"),
-								   error: false,
-				                   preloaded: false, 
-				                   desc: desc, 
-				                   title: title, 
-				                   size: false,
-				                   link: href
+				if (s && s !== title) desc = s;
+
+				self.images[i] = {
+					thumb: thumb.attr('src'),
+					image: imageSrc,
+					zoom: link.attr("href"),
+					error: false,
+					preloaded: false,
+					desc: desc,
+					title: title,
+					size: false,
+					link: href
 				};
 			});
-			
+
 			// Wait until all thumbs are loaded, and then set the width of the UL wrapper
 			var listWrapper = self.nav.find('.sg-thumbs');
-			var setULWrapperWidth = function() {
-				if (thumbCount == thumbsLoaded) {
+			var setULWrapperWidth = function () {
+				if (thumbCount === thumbsLoaded) {
 					var scrollers = self.nav.find('.scroll-button');
 					if (thumbWrapperWidth <= self.navDisplayWidth) {
 						// List fits into container: remove ScrollButtons
-						scrollers.each(function() {
+						scrollers.each(function () {
 							$(this).parent().remove();
 						});
 						// ...and prevent a ThumbJump
@@ -337,43 +344,43 @@
 					thumbWrapperWidth += listWrapper.horizontalCushioning() - thumbsLoaded + 1;
 
 					// tatsächliche Breite der Liste setzen
-					listWrapper.css('width', (thumbWrapperWidth) + 'px');
-					
+					listWrapper.css('width', thumbWrapperWidth + 'px');
+
 					clearInterval(inter);
 					self.navListWidth = thumbWrapperWidth;
 					self.nav.css("opacity", "1");
 				}
-			}
-			
+			};
+
 			var inter = setInterval(setULWrapperWidth, 50);
 		},
 
-		initKeyEvents: function() {
+		initKeyEvents: function () {
 			var self = this;
-			$(document).keydown(function(e) {
-				if (e.keyCode == 39) {
+			$(document).keydown(function (e) {
+				if (e.keyCode === 39) {
 					// right arrow
 					self.nextImage();
-				} 
-				else if (e.keyCode == 37) {
+				}
+				else if (e.keyCode === 37) {
 					// left arrow
 					self.prevImage();
 				}
 			});
 		},
 
-		initThumbNav: function() {
+		initThumbNav: function () {
 			var self = this;
-			
+
 			this.scrollForward = $('<a href="#" class="sb invisible sb-dir-right">></a>');
 			this.scrollBack = $('<a href="#" class="sb invisible sb-dir-left"><</a>');
 			this.nav.prepend(this.scrollForward.wrap('<div class="sg-scroll-forward"></div>').parent());
 			this.nav.prepend(this.scrollBack.wrap('<div class="sg-scroll-back"></div>').parent());
 
 			var hasScrolled = 0;
-      		var thumbsScrollInterval = false;
-			
-			this.nav.find(".sb").scrollButton({ 
+			var thumbsScrollInterval = false;
+
+			this.nav.find(".sb").scrollButton({
 				nearSize: "100%",
 				farSize: "100%",
 				showButtonAlways: true,
@@ -382,7 +389,7 @@
 				offset: 4,
 				handleCorners: false,
 				smallIcons: true,
-				click: function(dir) {
+				click: function (dir) {
 					// We don't want to jump the whole width, since an image
 					// might be cut at the edge
 					var width = self.navDisplayWidth - 80;
@@ -390,37 +397,37 @@
 						width = self.options.scrollJump;
 					}
 					var left;
-					if (dir == 'right') {
+					if (dir === 'right') {
 						left = self.thumbsWrapper.scrollLeft() + width;
-					} 
+					}
 					else {
 						left = self.thumbsWrapper.scrollLeft() - width;
 					}
 					left = Math.min(left, self.navListWidth - self.navDisplayWidth);
 
-					self.thumbsWrapper.animate({ scrollLeft: left +'px' }, 400, "easeOutQuad");
+					self.thumbsWrapper.animate({ scrollLeft: left + 'px' }, 400, "easeOutQuad");
 					self._toggleScrollButtons(left);
 					return false;
 				},
-				enter: function(dir) { 
-					thumbsScrollInterval = setInterval(function() {
+				enter: function (dir) {
+					thumbsScrollInterval = setInterval(function () {
 						hasScrolled++;
 						var left = self.thumbsWrapper.scrollLeft() + 1;
-						if (dir == 'left') {
+						if (dir === 'left') {
 							left = self.thumbsWrapper.scrollLeft() - 1;
-						};
+						}
 						self.thumbsWrapper.scrollLeft(left);
 						self._toggleScrollButtons(left);
-					}, 10);	
+					}, 10);
 				},
-				leave: function(dir) { 
-			          hasScrolled = 0;
-			          clearInterval(thumbsScrollInterval);	
+				leave: function (dir) {
+					hasScrolled = 0;
+					clearInterval(thumbsScrollInterval);
 				}
 			});
 		},
-		
-		initBox: function() {
+
+		initBox: function () {
 			var self = this;
 
 			var getWidget = function (id) {
@@ -445,7 +452,7 @@
 					if (!_.isNumber(prevY)) {
 						prevY = e.pageY;
 						return;
-					}		
+					}
 
 					if (e.pageY - prevY > 25) {
 						// moved down by 25px
@@ -468,7 +475,7 @@
 
 			var getOverlay = function (widget) {
 				var gov = $('.smartgallery-overlay');
-				if (gov.length == 0) {
+				if (gov.length === 0) {
 					gov = $('<div class="smartgallery-overlay" style="display: none"></div>').insertBefore(widget[0]);
 				}
 				return gov;
@@ -481,7 +488,7 @@
 					e.preventDefault();
 
 					var id = $(this).data('gallery') || 'default',
-						widget = getWidget(id == 'default' ? 'image-gallery-default' : id),
+						widget = getWidget(id === 'default' ? 'image-gallery-default' : id),
 						container = (widget.length && widget) || $(Gallery.prototype.options.container),
 						callbacks = {
 							onopen: function () {
@@ -491,36 +498,36 @@
 								});
 								gov.show().addClass("in");
 								container.data('gallery', this).trigger('open');
-						    },
+							},
 							onopened: function () {
-						        container.trigger('opened');
-						    },
-						    onslide: function () {
-						        container.trigger('slide', arguments);
-						    },
-						    onslideend: function () {
-						        container.trigger('slideend', arguments);
-						    },
-						    onslidecomplete: function () {
-						        container.trigger('slidecomplete', arguments);
-						    },
-						    onclose: function () {
-						    	getOverlay(widget).removeClass("in");
-						    	container.trigger('close');
-						    },
-						    onclosed: function () {
-						    	getOverlay(widget).css('display', 'none');
-						        container.trigger('closed').removeData('gallery');
-						    }
+								container.trigger('opened');
+							},
+							onslide: function () {
+								container.trigger('slide', arguments);
+							},
+							onslideend: function () {
+								container.trigger('slideend', arguments);
+							},
+							onslidecomplete: function () {
+								container.trigger('slidecomplete', arguments);
+							},
+							onclose: function () {
+								getOverlay(widget).removeClass("in");
+								container.trigger('close');
+							},
+							onclosed: function () {
+								getOverlay(widget).css('display', 'none');
+								container.trigger('closed').removeData('gallery');
+							}
 						},
 						options = $.extend(
 							// Retrieve custom options from data-attributes
 							// on the Gallery widget:
 							container.data(),
 							{
-                				container: container[0],
-                				index: self.currentIndex,
-                				event: e
+								container: container[0],
+								index: self.currentIndex,
+								event: e
 							},
 							callbacks,
 							self.options.box || {}
@@ -536,23 +543,23 @@
 				});
 			}
 		},
-		
+
 		_showBox: function (idx) {
-		    idx = idx === undefined ? this.currentIndex : idx;
-		    this.imageWrapper.find('.sg-image > a').click();
+			idx = idx === undefined ? this.currentIndex : idx;
+			this.imageWrapper.find('.sg-image > a').click();
 			var fn = this.options.callbacks.imageClick;
 			return $.isFunction(fn) ? fn.call(this) : false;
 		},
-			
-		_toggleScrollButtons: function(scrollLeft) {
+
+		_toggleScrollButtons: function (scrollLeft) {
 			if (this.noScrollers) return;
-			
+
 			var fwd = this.scrollForward, back = this.scrollBack;
 			var plugin, enabled = true;
 			scrollLeft = scrollLeft !== undefined ? scrollLeft : this.thumbsWrapper.scrollLeft();
 			var listWidth = this.navListWidth || this.thumbsWrapper.outerWidth(true);
-			if (fwd) {	
-				enabled = (this.navDisplayWidth - (listWidth - scrollLeft)) < 0;
+			if (fwd) {
+				enabled = this.navDisplayWidth - (listWidth - scrollLeft) < 0;
 				plugin = fwd.data("ScrollButton");
 				plugin.enable(enabled);
 			}
@@ -560,12 +567,13 @@
 				enabled = scrollLeft > 0;
 				plugin = back.data("ScrollButton");
 				plugin.enable(enabled);
-			}	
+			}
 		},
 
 		/**
 		 * Checks if the image is small enough to fit inside the container
 		 * If it's not, shrink it proportionally
+		 * @returns {number}
 		 */
 		_getContainedImageSize: function (imageWidth, imageHeight) {
 			var ratio = 0;
@@ -586,56 +594,57 @@
 		 * If the image dimensions are smaller than the wrapper, we position
 		 * it in the middle anyway
 		 */
-		_centerImage: function(imgContainer, imageWidth, imageHeight) {
+		_centerImage: function (imgContainer, imageWidth, imageHeight) {
 			imgContainer.css('top', '0px');
+			var dif = 0;
 			if (imageHeight < this.imageWrapperHeight) {
-				var dif = this.imageWrapperHeight - imageHeight;
-				imgContainer.css('top', (dif / 2) +'px');
+				dif = this.imageWrapperHeight - imageHeight;
+				imgContainer.css('top', (dif / 2) + 'px');
 			};
 			imgContainer.css('left', '0px');
 			if (imageWidth < this.imageWrapperWidth) {
-				var dif = this.imageWrapperWidth - imageWidth;
-				imgContainer.css('left', (dif / 2) +'px');
+				dif = this.imageWrapperWidth - imageWidth;
+				imgContainer.css('left', (dif / 2) + 'px');
 			};
 		},
 
-		_createDescription: function(image) {
+		_createDescription: function (image) {
 			var desc = null;
 			if (image.desc.length || image.title.length) {
 				var title = '';
 				if (image.title.length) {
-			  		title = '<strong class="sg-description-title ellipsis" title="{0}">{0}</strong>'.format(image.title);
+					title = '<strong class="sg-description-title ellipsis" title="{0}">{0}</strong>'.format(image.title);
 				};
-				var desc = '';
+				desc = '';
 				if (image.desc.length) {
-			  		desc = '<span>'+ image.desc +'</span>';
+					desc = '<span>' + image.desc + '</span>';
 				};
-				desc = $('<div class="sg-image-description">'+ title + desc +'</div>');
+				desc = $('<div class="sg-image-description">' + title + desc + '</div>');
 			};
 			return desc;
 		},
 
-		showImage: function(index, callback) {
+		showImage: function (index, callback) {
 			if (this.images[index] && !this.inTransition) {
 				var self = this;
 				var image = this.images[index];
 				this.inTransition = true;
 				if (!image.preloaded) {
 					this.loading(true);
-					this.preloadImage(index, function() {
+					this.preloadImage(index, function () {
 						self.loading(false);
 						self._showWhenLoaded(index, callback);
 					});
-				} 
+				}
 				else {
 					this._showWhenLoaded(index, callback);
 				};
 			};
 		},
 
-		_showWhenLoaded: function(index, callback) {
+		_showWhenLoaded: function (index, callback) {
 			if (!this.images[index]) return;
-			
+
 			var self = this;
 			var image = this.images[index];
 			var opts = self.options;
@@ -647,66 +656,66 @@
 				var link = $('<a href="' + image.link + '" target="_blank"></a>');
 				link.append(img).data('gallery', thumb.data('gallery'));
 				imgContainer.append(link);
-			} 
+			}
 			else {
 				imgContainer.append(img);
 			}
-			
+
 			this.imageWrapper.prepend(imgContainer);
-			
+
 			var size = this._getContainedImageSize(image.size.width, image.size.height);
 			img.css('max-height', opts.height);
 			imgContainer.css({ width: size.width + 'px', height: size.height + 'px' });
 			this._centerImage(imgContainer, size.width, size.height);
-			
+
 			if (opts.enableDescription) {
 				var desc = this._createDescription(image, imgContainer);
 				if (desc) {
 					this.imageWrapper.append(desc);
 					var width = this.imageWrapper.width() - parseInt(desc.css('padding-left'), 10) - parseInt(desc.css('padding-right'), 10);
 					desc.css('width', width + 'px');
-					desc.css('bottom', '-'+ desc[0].offsetHeight +'px');
+					desc.css('bottom', '-' + desc[0].offsetHeight + 'px');
 				};
 			}
-			
+
 			this.highlightThumb(thumb);
-			
+
 			var direction = 'right';
 			if (this.currentIndex < index) {
 				direction = 'left';
 			};
-			
+
 			if (this.currentImage) {
-			    var animationSpeed = opts.animationSpeed;
+				var animationSpeed = opts.animationSpeed;
 				var easing = defaultEasing;
 				var animation = (animations[opts.animation] || animations['none']).call(this, imgContainer, direction, desc);
-				if (typeof animation.speed != 'undefined') {
+				if (typeof animation.speed !== 'undefined') {
 					animationSpeed = animation.speed;
 				};
-				if (typeof animation.easing != 'undefined') {
+				if (typeof animation.easing !== 'undefined') {
 					easing = animation.easing;
 				};
-				
+
 				var oldImage = this.currentImage;
 				var oldDescription = this.currentDescription;
-				oldImage.animate(animation.oldImage, animationSpeed, easing, function() {
-				    var oldZoomImage = oldImage.find("img").data("elevateZoom");
-				    if (oldZoomImage) {
-				        oldZoomImage.reset();
-				    }
-				    oldImage.remove();
-				    if (oldDescription) oldDescription.remove();
+				oldImage.animate(animation.oldImage, animationSpeed, easing, function () {
+					var oldZoomImage = oldImage.find("img").data("elevateZoom");
+					if (oldZoomImage) {
+						oldZoomImage.reset();
+					}
+					oldImage.remove();
+					if (oldDescription) oldDescription.remove();
 				});
-				
-				imgContainer.animate(animation.newImage, animationSpeed, easing, function() {
+
+				imgContainer.animate(animation.newImage, animationSpeed, easing, function () {
 					self.currentIndex = index;
 					self.currentImage = imgContainer;
 					self.currentDescription = desc;
 					self.inTransition = false;
 					self.fireCallback(callback);
 				});
-			  
-			} 
+
+			}
 			else {
 				this.currentIndex = index;
 				this.currentImage = imgContainer;
@@ -715,7 +724,7 @@
 				this.fireCallback(callback);
 			};
 
-		    // enable zoom
+			// enable zoom
 			if ($.isPlainObject(opts.zoom) && opts.zoom.enabled === true && image.zoom) {
 				if (img.data("elevateZoom") === undefined) {
 					img.attr("data-zoom-image", image.zoom);
@@ -732,20 +741,21 @@
 			}
 		},
 
-		nextIndex: function() {
-			if (this.currentIndex == (this.images.length - 1)) {
-				if(!this.options.cycle) {
+		nextIndex: function () {
+			var next = 0;
+			if (this.currentIndex === (this.images.length - 1)) {
+				if (!this.options.cycle) {
 					return false;
 				};
-				var next = 0;
-			} 
+			}
 			else {
-				var next = this.currentIndex + 1;
+				next = this.currentIndex + 1;
 			};
+
 			return next;
 		},
 
-		nextImage: function(callback) {
+		nextImage: function (callback) {
 			var next = this.nextIndex();
 			if (next === false) return false;
 			this.preloadImage(next + 1);
@@ -753,81 +763,83 @@
 			return true;
 		},
 
-		prevIndex: function() {
-			if (this.currentIndex == 0) {
+		prevIndex: function () {
+			var prev = 0;
+			if (this.currentIndex === 0) {
 				if (!this.options.cycle) {
 					return false;
 				};
-				var prev = this.images.length - 1;
-			} 
+				prev = this.images.length - 1;
+			}
 			else {
-				var prev = this.currentIndex - 1;
+				prev = this.currentIndex - 1;
 			};
+
 			return prev;
 		},
 
-		prevImage: function(callback) {
-		  var prev = this.prevIndex();
-		  if (prev === false) return false;
-		  this.preloadImage(prev - 1);
-		  this.showImage(prev, callback);
-		  return true;
+		prevImage: function (callback) {
+			var prev = this.prevIndex();
+			if (prev === false) return false;
+			this.preloadImage(prev - 1);
+			this.showImage(prev, callback);
+			return true;
 		},
 
-		preloadAll: function() {
+		preloadAll: function () {
 			var self = this;
 			var i = 0;
 			function preloadNext() {
-				if(i < self.images.length) {
-				  i++;
-				  self.preloadImage(i, preloadNext);
+				if (i < self.images.length) {
+					i++;
+					self.preloadImage(i, preloadNext);
 				};
 			};
 			self.preloadImage(i, preloadNext);
 		},
 
-		preloadImage: function(index, callback) {
+		preloadImage: function (index, callback) {
 			if (this.images[index]) {
 				var image = this.images[index];
 
 				if (!this.images[index].preloaded) {
 					var img = $(new Image());
 					img.attr('src', image.image);
-					
+
 					if (!this.isImageLoaded(img[0])) {
-					  
+
 						this.preloads.append(img);
 						var self = this;
-						img.load(function() {
-						        image.preloaded = true;
-						        //image.size = { width: this.width, height: this.height };
-						        image.size = { width: $(this).width(), height: $(this).height() };
-								self.fireCallback(callback);
-						 	})
-						 	.on("error", function(e) {
-						    	image.error = true;
-						    	image.preloaded = false;
-						    	image.size = false;
-							});
-					} 
+						img.load(function () {
+							image.preloaded = true;
+							//image.size = { width: this.width, height: this.height };
+							image.size = { width: $(this).width(), height: $(this).height() };
+							self.fireCallback(callback);
+						})
+						 	.on("error", function (e) {
+						 		image.error = true;
+						 		image.preloaded = false;
+						 		image.size = false;
+						 	});
+					}
 					else {
 						image.preloaded = true;
 						image.size = { width: img[0].width, height: img[0].height };
 						this.fireCallback(callback);
 					};
-				  
-				} 
+
+				}
 				else {
 					this.fireCallback(callback);
 				}; // !this.images[index].preloaded
-				};
+			};
 		},
 
-		isImageLoaded: function(img) {
-			if (typeof img.complete != 'undefined' && !img.complete) {
+		isImageLoaded: function (img) {
+			if (typeof img.complete !== 'undefined' && !img.complete) {
 				return false;
 			};
-			if (typeof img.naturalWidth != 'undefined' && img.naturalWidth == 0) {
+			if (typeof img.naturalWidth !== 'undefined' && img.naturalWidth === 0) {
 				return false;
 			};
 			return true;
@@ -848,46 +860,46 @@
 			}
 		},
 
-		fireCallback: function(fn) {
-			if($.isFunction(fn)) {
+		fireCallback: function (fn) {
+			if ($.isFunction(fn)) {
 				return fn.call(this);
 			};
-		}		
-		
-	} // SmartGallery.prototype
+		}
+
+	}; // SmartGallery.prototype
 	
 	
 	// the global, default plugin options
 	_.provide('$.' + pluginName);
 	$[pluginName].defaults = {
-        // whether the gallery should be update on windows/viewport resize
-	    responsive: true,
+		// whether the gallery should be update on windows/viewport resize
+		responsive: true,
 		// 0-based index of image to start with
 		startIndex: 0,
-        // animation type: slide, fade, none
+		// animation type: slide, fade, none
 		animation: "slide",
 		// speed of animation in ms.
 		animationSpeed: 400,
-        // height of image container in px.
-        height: 300,
-        // display the top toolbar
-        displayImage: true,
-        // ...
-        scrollJump: 0,
-        // cycle thru images
-        cycle: true,
-        // show the bottom description panel
-        enableDescription: true,
-        // ...
+		// height of image container in px.
+		height: 300,
+		// display the top toolbar
+		displayImage: true,
+		// ...
+		scrollJump: 0,
+		// cycle thru images
+		cycle: true,
+		// show the bottom description panel
+		enableDescription: true,
+		// ...
 		enableKeyboardMove: true,
-        // ...
+		// ...
 		ensureLink: true,
 		// zoom options
 		zoom: {
 			enabled: true,
-            zoomType: "window",
+			zoomType: "window"
 			/* {...} 'elevatedZoom' options are passed through */
-		},	
+		},
 		// full size image box options
 		box: {
 			enabled: true,
@@ -897,18 +909,17 @@
 		callbacks: {
 			imageClick: null,
 			thumbClick: null
-		}	
-	}
+		}
+	};
 	
-	$.fn[pluginName] = function( options ) {
+	$.fn[pluginName] = function (options) {
+		return this.each(function () {
+			if (!$.data(this, 'plugin_' + pluginName)) {
+				options = $.extend(true, {}, $[pluginName].defaults, options);
 
-		return this.each(function() {
-		    if (!$.data(this, 'plugin_' + pluginName)) {
-		        options = $.extend( true, {}, $[pluginName].defaults, options );
-		        
-		        $.data(this, 'plugin_' + pluginName, new SmartGallery( this, options ));
-		    }
+				$.data(this, 'plugin_' + pluginName, new SmartGallery(this, options));
+			}
 		});
-	}
+	};
 
 })(jQuery, window, document);

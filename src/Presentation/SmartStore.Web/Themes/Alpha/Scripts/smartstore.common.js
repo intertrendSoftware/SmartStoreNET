@@ -4,7 +4,41 @@
 		window.location.href = url;
 	}
 
-	window.OpenWindow = function (query, w, h, scroll) {
+	window.openPopup = function (url, fluid) {
+		var modal = $('#modal-popup-shared');
+
+		if (modal.length === 0) {
+			// TODO: (mc) Update to BS4 modal html later
+			var html =
+				'<div id="modal-popup-shared" class="modal modal-flex {0} fade" tabindex="-1" style="border-radius: 0">'.format(!!(fluid) ? 'modal-fluid' : 'modal-xlarge')
+					+ '<div class="modal-body" style="padding: 0">'
+						+ '<iframe class="modal-flex-fill-area" frameborder="0" src="' + url + '" />'
+					+ '</div>'
+					+ '<div class="modal-footer">'
+						+ '<button type="button" class="btn btn-secondary btn-default" data-dismiss="modal">' + window.Res['Common.Close'] + '</button>'
+					+ '</div>'
+				+ '</div>';
+
+			modal = $(html).appendTo('body').on('hidden.bs.modal', function (e) {
+				//modal.remove();
+			});
+		}
+		else {
+			var iframe = modal.find('> .modal-body > iframe');
+			iframe.attr('src', url);
+		}
+
+		modal.modal('show');
+	}
+
+	window.closePopup = function () {
+		var modal = $('#modal-popup-shared');
+		if (modal.length > 0) {
+			modal.modal('hide');
+		}
+	}
+
+	window.openWindow = function (url, w, h, scroll) {
 		var l = (screen.width - w) / 2;
 		var t = (screen.height - h) / 2;
 
@@ -14,7 +48,7 @@
 
 		winprops = 'resizable=0, height=' + h + ',width=' + w + ',top=' + t + ',left=' + l + 'w';
 		if (scroll) winprops += ',scrollbars=1';
-		var f = window.open(query, "_blank", winprops);
+		var f = window.open(url, "_blank", winprops);
 	}
 
 	window.modifyUrl = function (url, qsName, qsValue) {
@@ -104,6 +138,49 @@
 		}
 	}
 
+	window.Prefixer = (function () {
+		var TransitionEndEvent = {
+			WebkitTransition: 'webkitTransitionEnd',
+			MozTransition: 'transitionend',
+			OTransition: 'oTransitionEnd otransitionend',
+			transition: 'transitionend'
+		};
+
+		var AnimationEndEvent = {
+			WebkitAnimation: 'webkitAnimationEnd',
+			MozAnimation: 'animationend',
+			OAnimation: 'webkitAnimationEnd oAnimationEnd',
+			animation: 'animationend'
+		};
+
+		var cssProps = {},
+			cssValues = {},
+			domProps = {};
+
+		function prefixCss(prop) {
+			return cssProps[prop] || (cssProps[prop] = Modernizr.prefixedCSS(prop));
+		}
+		
+		function prefixCssValue(prop, value) {
+			var key = prop + '.' + value;
+			return cssValues[key] || (cssValues[key] = Modernizr.prefixedCSSValue(prop, value));
+		}
+
+		function prefixDom(prop) {
+			return domProps[prop] || (domProps[prop] = Modernizr.prefixed(prop));
+		}
+
+		return {
+			css: prefixCss,
+			cssValue: prefixCssValue,
+			dom: prefixDom,
+			event: {
+				transitionEnd: TransitionEndEvent[prefixDom('transition')],
+				animationEnd: AnimationEndEvent[prefixDom('animation')]
+			}
+		}
+	})();
+
 	window.createCircularSpinner = function (size, active, strokeWidth, boxed, white) {
 	    var spinner = $('<div class="spinner"></div>');
 	    if (active) spinner.addClass('active');
@@ -146,30 +223,28 @@
 			return str;
 		}
 
-		if (!Modernizr.csstransitions) {
-			$.fn.transition = $.fn.animate;
-		}
-
-		// adjust pnotify global defaults
-		if ($.pnotify) {
-			$.extend($.pnotify.defaults, {
-				history: false,
-				animate_speed: "normal",
-				shadow: true,
-				width: "400px",
-				icon: true
+		// Adjust initPNotify global defaults
+		if (typeof PNotify !== 'undefined') {
+			PNotify.prototype.options = $.extend(PNotify.prototype.options, {
+				styling: "fontawesome",
+				stack: { "dir1": "down", "dir2": "left", "push": "bottom", "firstpos1": 80, "spacing1": 25, "spacing2": 25, "context": $("body") },
+				addclass: 'stack-topright',
+				//stack: { "dir1": "up", "dir2": "right", "firstpos1": 100, "spacing1": 20 }, // SMNET style
+				//addclass: 'stack-bottomcenter x-ui-pnotify-dark', // SMNET style
+				width: "450px",
+				mobile: { swipe_dismiss: true, styling: true },
+				//animation: 'none',
+				animate: { animate: true, in_class: "fadeInDown", out_class: "fadeOutRight" }
 			});
 		}
 
-		// global notification subscriber
-		if (window.EventBroker && window._ && $.pnotify) {
+		// Global notification subscriber
+		if (window.EventBroker && window._ && typeof PNotify !== 'undefined') {
 			//var stack_bottomright = { "dir1": "up", "dir2": "left", "firstpos1": 25, "firstpos2": 25 };
 			var stack_bottomcenter = { "dir1": "up", "dir2": "right", "firstpos1": 100, "firstpos2": 10 };
 			EventBroker.subscribe("message", function (message, data) {
 				var opts = _.isString(data) ? { text: data } : data;
-				opts.stack = stack_bottomcenter;
-				opts.addclass = "stack-bottomcenter";
-				$.pnotify(opts);
+				new PNotify(opts);
 			});
 		}
 
@@ -283,7 +358,7 @@
 			}
 		);
 
-		// .mf-dropdown (mobile friendly dropdown
+		// .mf-dropdown (mobile friendly dropdown)
 		$('body').on('mouseenter mouseleave mousedown change', '.mf-dropdown > select', function (e) {
 			var btn = $(this).parent().find('> .btn');
 			if (e.type == "mouseenter") {
@@ -300,6 +375,7 @@
 			}
 			else if (e.type == "change") {
 				btn.removeClass('focus active');
+				btn.find('.mf-dropdown-value').text($(this).val());
 			}
 		});
 
@@ -309,6 +385,7 @@
 		}
 		
 		// fixes bootstrap 2 bug: non functional links on mobile devices
+		// TODO: (mc) delete this later
 	    // https://github.com/twbs/bootstrap/issues/4550
 		$('body').on('touchstart.dropdown', '.dropdown-menu a', function (e) { e.stopPropagation(); });
     });

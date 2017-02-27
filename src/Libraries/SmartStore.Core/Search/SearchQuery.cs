@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SmartStore.Core.Domain.Directory;
 using SmartStore.Core.Domain.Localization;
 using SmartStore.Core.Search.Facets;
 
@@ -47,11 +48,13 @@ namespace SmartStore.Core.Search
 			Take = int.MaxValue;
 
 			SpellCheckerMinQueryLength = 4;
+			SpellCheckerMaxHitCount = 3;
 		}
 
-		// Language & Store
+		// Language, Currency & Store
 		public int? LanguageId { get; protected set; }
-		public string LanguageSeoCode { get; protected set; }
+		public string LanguageCulture { get; protected set; }
+		public string CurrencyCode { get; protected set; }
 		public int? StoreId { get; protected set; }
 
 		// Search term
@@ -90,6 +93,7 @@ namespace SmartStore.Core.Search
 		// Spell checker
 		public int SpellCheckerMaxSuggestions { get; protected set; }
 		public int SpellCheckerMinQueryLength { get; protected set; }
+		public int SpellCheckerMaxHitCount { get; protected set; }
 
 		// Misc
 		public string Origin { get; protected set; }
@@ -116,9 +120,20 @@ namespace SmartStore.Core.Search
 		public TQuery WithLanguage(Language language)
 		{
 			Guard.NotNull(language, nameof(language));
+			Guard.NotEmpty(language.LanguageCulture, nameof(language.LanguageCulture));
 
 			LanguageId = language.Id;
-			LanguageSeoCode = language.UniqueSeoCode.EmptyNull().ToLower();
+			LanguageCulture = language.LanguageCulture;
+
+			return (this as TQuery);
+		}
+
+		public TQuery WithCurrency(Currency currency)
+		{
+			Guard.NotNull(currency, nameof(currency));
+			Guard.NotEmpty(currency.CurrencyCode, nameof(currency.CurrencyCode));
+
+			CurrencyCode = currency.CurrencyCode;
 
 			return (this as TQuery);
 		}
@@ -134,12 +149,15 @@ namespace SmartStore.Core.Search
 			return (this as TQuery);
 		}
 
-		public TQuery CheckSpelling(int maxSuggestions, int minQueryLength = 4)
+		public TQuery CheckSpelling(int maxSuggestions, int minQueryLength = 4, int maxHitCount = 3)
 		{
 			Guard.IsPositive(maxSuggestions, nameof(maxSuggestions));
+			Guard.IsPositive(minQueryLength, nameof(minQueryLength));
+			Guard.IsPositive(maxHitCount, nameof(maxHitCount));
 
 			SpellCheckerMaxSuggestions = maxSuggestions;
 			SpellCheckerMinQueryLength = minQueryLength;
+			SpellCheckerMaxHitCount = maxHitCount;
 
 			return (this as TQuery);
 		}

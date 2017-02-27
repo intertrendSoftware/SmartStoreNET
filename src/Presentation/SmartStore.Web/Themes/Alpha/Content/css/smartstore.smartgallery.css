@@ -134,7 +134,7 @@
     height: 60px;
 	line-height: 52px;
 	text-align: center;
-    vertical-align: middle;
+    /*vertical-align: middle;*/
 }
 
 .sg-thumb-list li a:hover,

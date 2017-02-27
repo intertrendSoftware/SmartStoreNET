@@ -13,11 +13,13 @@ namespace SmartStore.Web.Infrastructure
 		public void RegisterBundles(BundleCollection bundles)
 		{
 			/* Image Gallery
+			 * TODO: (mc) Delete this once work is finished
 			-----------------------------------------------------*/
 			bundles.Add(new CustomScriptBundle("~/bundles/image-gallery").Include(
 				"~/Content/image-gallery/js/blueimp-gallery.js",
 				//"~/Content/image-gallery/js/blueimp-gallery-fullscreen.js",
 				"~/Content/image-gallery/js/blueimp-gallery-indicator.js",
+				"~/Scripts/smartstore.scrollbutton.js",
 				"~/Scripts/jquery.elevatezoom.js",
 				"~/Scripts/smartstore.smartgallery.js"));
 
@@ -28,12 +30,16 @@ namespace SmartStore.Web.Infrastructure
 				"~/Content/image-gallery/css/blueimp-gallery-custom.css"));
 
 
-			/* sequence js
+			/* Image Gallery
+			 * TODO: (mc) change pathes once work is finished
 			-----------------------------------------------------*/
-			bundles.Add(new CustomScriptBundle("~/bundles/sequencejs").Include(
-				"~/Scripts/jquery.backgroundpos.js",
-				"~/Scripts/jquery.sequence.js",
-				"~/Scripts/jquery.sequence.custom.js"));
+			bundles.Add(new CustomScriptBundle("~/bundles/smart-gallery").Include(
+				//"~/Themes/Alpha/Content/smart-gallery/js/blueimp-gallery.js",
+				//"~/Themes/Alpha/Content/smart-gallery/js/blueimp-gallery-indicator.js",
+				"~/Themes/Alpha/Content/drift/Drift.js",
+				"~/Themes/Alpha/Content/photoswipe/photoswipe.js",
+				"~/Themes/Alpha/Content/photoswipe/photoswipe-ui-default.js",
+				"~/Themes/Alpha/Scripts/smartstore.gallery.js"));
 
 
 			/* File Upload

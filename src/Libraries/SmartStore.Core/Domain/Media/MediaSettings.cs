@@ -8,17 +8,17 @@ namespace SmartStore.Core.Domain.Media
 		{
 			AvatarPictureSize = 85;
 			ProductThumbPictureSize = 250;
-			ProductDetailsPictureSize = 300;
+			CategoryThumbPictureSize = 250;
+			ManufacturerThumbPictureSize = 250;
+			ProductDetailsPictureSize = 600;
 			ProductThumbPictureSizeOnProductDetailsPage = 70;
 			MessageProductThumbPictureSize = 70;
-			AssociatedProductPictureSize = 125;
+			AssociatedProductPictureSize = 600;
 			BundledProductPictureSize = 70;
-			CategoryThumbPictureSize = 125;
-			ManufacturerThumbPictureSize = 125;
-			CartThumbPictureSize = 80;
+			CartThumbPictureSize = ProductThumbPictureSize;
 			CartThumbBundleItemPictureSize = 32;
-			MiniCartThumbPictureSize = 32;
-			VariantValueThumbPictureSize = 20;
+			MiniCartThumbPictureSize = ProductThumbPictureSize;
+			VariantValueThumbPictureSize = 70;
 			MaximumImageSize = 1280;
 			DefaultPictureZoomEnabled = true;
 			PictureZoomType = "window";

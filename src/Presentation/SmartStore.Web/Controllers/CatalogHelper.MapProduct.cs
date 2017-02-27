@@ -58,7 +58,7 @@ namespace SmartStore.Web.Controllers
 			}
 			
 			// Pagination
-			if (model.PagedList.TotalPages > 1 && (entity?.AllowCustomersToSelectPageSize ?? _catalogSettings.AllowCustomersToSelectPageSize))
+			if (entity?.AllowCustomersToSelectPageSize ?? _catalogSettings.AllowCustomersToSelectPageSize)
 			{
 				try
 				{
@@ -208,6 +208,7 @@ namespace SmartStore.Web.Controllers
 					var model = new ProductSummaryModel(products)
 					{
 						ViewMode = settings.ViewMode,
+						GridColumnSpan = _catalogSettings.GridStyleListColumnSpan,
 						ShowSku = _catalogSettings.ShowProductSku,
 						ShowWeight = _catalogSettings.ShowWeight,
 						ShowDimensions = settings.MapDimensions,
@@ -256,6 +257,10 @@ namespace SmartStore.Web.Controllers
 
 					scope.Commit();
 
+					// don't show stuff without data at all
+					model.ShowDescription = model.ShowDescription && model.Items.Any(x => x.ShortDescription.HasValue());
+					model.ShowBrand = model.ShowBrand && model.Items.Any(x => x.Manufacturer != null);
+
 					return model;
 				}
 			}		
@@ -298,50 +303,56 @@ namespace SmartStore.Web.Controllers
 
 				var attributes = ctx.BatchContext.Attributes.GetOrLoad(contextProduct.Id);
 
+				var cachedAttributeNames = new Dictionary<int, string>();
+
 				// Color squares
 				if (attributes.Any() && settings.MapColorAttributes)
 				{
-					var colorAttribute = attributes.FirstOrDefault(x => x.AttributeControlType == AttributeControlType.ColorSquares);
-
-					if (colorAttribute != null)
-					{
-						var colorValues =
-							from a in colorAttribute.ProductVariantAttributeValues.Take(20)
-							where (a.ColorSquaresRgb.HasValue() && !a.ColorSquaresRgb.IsCaseInsensitiveEqual("transparent"))
-							select new ProductSummaryModel.ColorAttributeValue
-							{
-								Color = a.ColorSquaresRgb,
-								Alias = a.Alias,
-								FriendlyName = a.GetLocalized(l => l.Name)
-							};
-
-						if (colorValues.Any())
+					var colorAttributes = attributes
+						.Where(x => x.IsListTypeAttribute())
+						.SelectMany(x => x.ProductVariantAttributeValues)
+						.Where(x => x.ColorSquaresRgb.HasValue() && !x.ColorSquaresRgb.IsCaseInsensitiveEqual("transparent"))
+						.Distinct()
+						.Take(20) // limit results
+						.Select(x => 
 						{
-							var colorAttributeModel = new ProductSummaryModel.ColorAttribute(
-								colorAttribute.Id,
-								colorAttribute.ProductAttribute.GetLocalized(x => x.Name), 
-								colorValues.Distinct());
+							var attr = x.ProductVariantAttribute.ProductAttribute;
+							var attrName = cachedAttributeNames.Get(attr.Id) ?? (cachedAttributeNames[attr.Id] = attr.GetLocalized(l => l.Name));
 
-							item.ColorAttribute = colorAttributeModel;
-						}
-					}
+							return new ProductSummaryModel.ColorAttributeValue
+							{
+								Id = x.Id,
+								Color = x.ColorSquaresRgb,
+								Alias = x.Alias,
+								FriendlyName = x.GetLocalized(l => l.Name),
+								AttributeId = x.ProductVariantAttributeId,
+								AttributeName = attrName
+							};
+						})
+						.ToList();
+
+					item.ColorAttributes = colorAttributes;
+
+					// TODO: (mc) Resolve attribute value images also
 				}
 
 				// Variant Attributes
 				if (attributes.Any() && settings.MapAttributes)
 				{
-					if (item.ColorAttribute != null)
+					if (item.ColorAttributes != null && item.ColorAttributes.Any())
 					{
-						attributes = attributes.Where(x => x.Id != item.ColorAttribute.Id).ToList();
+						var processedIds = item.ColorAttributes.Select(x => x.AttributeId).Distinct().ToArray();
+						attributes = attributes.Where(x => !processedIds.Contains(x.Id)).ToList();
 					}
 
 					foreach (var attr in attributes)
 					{
+						var pa = attr.ProductAttribute;
 						item.Attributes.Add(new ProductSummaryModel.Attribute
 						{
 							Id = attr.Id,
-							Alias = attr.ProductAttribute.Alias,
-							Name = attr.ProductAttribute.GetLocalized(x => x.Name)
+							Alias = pa.Alias,
+							Name = cachedAttributeNames.Get(pa.Id) ?? (cachedAttributeNames[pa.Id] = pa.GetLocalized(l => l.Name))
 						});
 					}
 				}
@@ -380,7 +391,8 @@ namespace SmartStore.Web.Controllers
 						ImageUrl = _pictureService.GetPictureUrl(picture, pictureSize, !_catalogSettings.HideProductDefaultPictures),
 						FullSizeImageUrl = _pictureService.GetPictureUrl(picture, 0, !_catalogSettings.HideProductDefaultPictures),
 						Title = string.Format(ctx.Resources["Media.Product.ImageLinkTitleFormat"], item.Name),
-						AlternateText = string.Format(ctx.Resources["Media.Product.ImageAlternateTextFormat"], item.Name)
+						AlternateText = string.Format(ctx.Resources["Media.Product.ImageAlternateTextFormat"], item.Name),
+						PictureId = picture == null ? 0 : picture.Id
 					};
 
 					return pictureModel;
@@ -392,7 +404,10 @@ namespace SmartStore.Web.Controllers
 			// Manufacturers
 			if (settings.MapManufacturers)
 			{
-				item.Manufacturer = PrepareManufacturersOverviewModel(ctx.BatchContext.ProductManufacturers.GetOrLoad(product.Id), ctx.CachedManufacturerModels, false).FirstOrDefault();
+				item.Manufacturer = PrepareManufacturersOverviewModel(
+					ctx.BatchContext.ProductManufacturers.GetOrLoad(product.Id), 
+					ctx.CachedManufacturerModels,
+					_catalogSettings.ShowManufacturerLogoInLists && settings.ViewMode == ProductSummaryViewMode.List).FirstOrDefault();
 			}
 
 			// Spec Attributes
@@ -408,9 +423,9 @@ namespace SmartStore.Web.Controllers
 			if (model.ShowDimensions && (contextProduct.Width != 0 || contextProduct.Height != 0 || contextProduct.Length != 0))
 			{
 				item.Dimensions = ctx.Resources["Products.DimensionsValue"].Text.FormatCurrent(
-					contextProduct.Width.ToString("F2"),
-					contextProduct.Height.ToString("F2"),
-					contextProduct.Length.ToString("F2")
+					contextProduct.Width.ToString("N2"),
+					contextProduct.Height.ToString("N2"),
+					contextProduct.Length.ToString("N2")
 				);
 				item.DimensionMeasureUnit = _measureService.GetMeasureDimensionById(_measureSettings.BaseDimensionId).SystemKeyword;
 			}

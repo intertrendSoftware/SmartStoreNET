@@ -10,18 +10,34 @@ $art-font-size-xs:              $font-size-xs;
 $art-line-height:               1.3;
 $art-price-color:               $body-color;
 $art-price-offer-color:         $brand-danger;
-$art-border-color:              rgba(0,0,0, 0.12);
+$art-border-color:              #ddd;
 $art-active-bg-color:           #fff;
+$art-active-border-color:       rgba(0,0,0, 0.2);
 
+@mixin make-art-col($cols) {
+    $w: percentage(1 / $cols);
+
+    .art {
+        flex: 0 0 $w;
+        max-width: $w;
+        color: yellow;
+    }
+
+    &.artlist-boxed .art {
+        flex-basis: calc(#{$w} - 1rem);
+        max-width: calc(#{$w} - 1rem);
+    }
+}
 
 // Action Bar
 
 .artlist-actions {
     margin-bottom: 1.5rem;
-    &.artlist-actions--top { border-bottom: 1px solid $art-border-color; }
 }
 
 .artlist-action {
+    padding: 0 0.25rem;
+
     &:not(:last-child) {
         //margin-right: 0.5rem;
     }
@@ -47,12 +63,10 @@ $art-active-bg-color:           #fff;
 }
 
 .artlist-action-group {
-    padding-bottom: 1.5rem;
-}
-
-.artlist-action-group--page {   
-    > .artlist-action--viewmode, 
-    > .artlist-action--pagesize { margin-right: 1rem; }
+    padding-bottom: 1rem;
+    display: flex;
+    flex-wrap: nowrap;
+    margin: 0 -0.25rem;
 }
 
 .artlist-action--pager {
@@ -73,30 +87,29 @@ $art-active-bg-color:           #fff;
     .btn-artlist-action,
     .btn-artlist-action span { font-weight: 400 !important; }
 
-    .artlist-filtersort-row {
-        @include make-row();
+    .artlist-action-group--filtersort {
         .btn { 
             font-size: 1rem; text-align: left; border-radius: $btn-border-radius;
             > b { background: transparent; } 
         }
     }
-
-     .artlist-filter-col, 
-     .artlist-sort-col {
-        @include make-col();
-        @include make-col-span(6, $grid-columns);
-    }
-
-    .artlist-filter-col { padding-right: 0.2rem; }
-    .artlist-sort-col { padding-left: 0.2rem; }
-
-    .artlist-action--xviewmode > .btn { font-size: 1rem; border-color: transparent !important; }
 }
 
 @include media-breakpoint-up(lg) {
     .btn-artlist-action { font-weight: 600; }
-    .artlist-action-group--filtersort { float: left; }
-    .artlist-action-group--page { float: right; }
+}
+
+.artlist-actions--top { 
+    border-bottom: 1px solid $art-border-color; 
+    display: flex;
+    flex-wrap: wrap;
+    .artlist-action-group { width: 100%; }
+
+    @include media-breakpoint-up(lg) {
+        flex-wrap: nowrap;
+        .artlist-action-group { width: auto; }
+        .artlist-action-group--page { margin-left: auto; }
+    }
 }
 
 
@@ -113,6 +126,7 @@ $art-active-bg-color:           #fff;
 
 .art {
     position: relative;
+    //float: none;
     min-height: 1px;
 
     @include make-col();
@@ -132,7 +146,7 @@ $art-active-bg-color:           #fff;
 
     &.active {
         background: $art-active-bg-color;
-        border-color: rgba(0,0,0, 0.2);
+        border-color: $art-active-border-color !important;
         box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
     }
 }
@@ -143,23 +157,17 @@ $art-active-bg-color:           #fff;
     overflow: hidden;
 }
 
-.art-picture {
-    display: block;
-    position: relative;
-    height: 0;
-    width: 100%;
-    padding-top: 100%;
-    text-decoration: none !important;
-
-    > img {
+.art-picture.no-picture {
+    &:before {
+        display: block;
+        content: attr(data-content);
         position: absolute;
-        max-width: 100%;
-        max-height: 100%;
+        z-index: 1;
         left: 0;
         top: 0;
-        right: 0;
-        bottom: 0;
-        margin: auto;
+        width: 100%;
+        text-align: center;
+        color: $gray-light;
     }
 }
 
@@ -167,6 +175,7 @@ $art-active-bg-color:           #fff;
     position: absolute;
     left: 0;
     top: 20px;
+    z-index: 10;
 }
 
 .art-badge {
@@ -203,10 +212,14 @@ $art-active-bg-color:           #fff;
     font-size: $art-font-size;
     font-weight: 600;
     margin-bottom: 0.25rem;
+    > a { color: $body-color; }
+}
 
-    > a {
-        color: $body-color;
-    }
+.art-genericname {
+    font-size: $art-font-size;
+    font-weight: 600;
+    text-align: center;
+    > a { color: $body-color; }
 }
 
 .art-description {
@@ -217,6 +230,7 @@ $art-active-bg-color:           #fff;
 
 .art-price-block {
     position: relative;
+    margin-top: 0.5rem;
 }
 
 .art-price {
@@ -256,7 +270,7 @@ $art-active-bg-color:           #fff;
 }
 
 .art-info-group {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
 }
 
 .art-drop {
@@ -265,7 +279,7 @@ $art-active-bg-color:           #fff;
     right: -1px;
     bottom: 0;
     background: $art-active-bg-color;
-    border: 1px solid rgba(0,0,0, 0.2);
+    border: 1px solid $art-active-border-color;
     border-top-color: #fff;
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
     opacity: 0;
@@ -396,17 +410,31 @@ $art-active-bg-color:           #fff;
 
     .art-brand,
     .art-rating {
-        float: left;
+        position: relative;
         margin-bottom: 0;
+    }
+
+    .art-brand-picture {
+        display: inline-block;
+        max-width: 100%;
+        height: auto;
+        max-height: 24px;
+    }
+
+    .floating > .art-brand {
+        padding-right: 90px; // ratings width + 10px
+        min-height: 20px; // Height of rating widget
+    }
+
+    .floating > .art-rating {
+        position: absolute;
+        top: 0;
+        right: 0;
     }
 
     .art-name {
         font-size: 1rem;
         margin-bottom: 0.5em;
-    }
-
-    .art-brand + .art-rating {
-        float: right !important;
     }
 
     .art-price {
@@ -459,7 +487,7 @@ $art-active-bg-color:           #fff;
     margin-left: 0;
     margin-right: 0;
 
-    &.artlist::after {
+    &:not(.artlist-boxed).artlist::after {
         // Make continous line after last row
         position: relative;
         content: '';
@@ -470,10 +498,11 @@ $art-active-bg-color:           #fff;
     }
     
     .art {
-        // Grid has always 2 cols per row at least, even on xs
-        @include make-col-span(6, $grid-columns);
         border-bottom-color: $art-border-color;
     }
+
+    // Grid has always 2 cols per row at least, even on xs
+    @include make-art-col(2);
 
     // Ensure equal height for some elements in grid style lists
     .art-name,
@@ -511,9 +540,9 @@ $art-active-bg-color:           #fff;
         @include text-truncate();
     }
 
-    .art-price-block {
+    /*.art-price-block {
         margin-top: 0.5rem;
-    }
+    }*/
 
     .art-oldprice {
         font-size: $art-font-size * 0.925;
@@ -525,40 +554,54 @@ $art-active-bg-color:           #fff;
     }
 
     @include media-breakpoint-up(sm) {
-        &.artlist-6-cols .art {
-            @include make-col-span(4, $grid-columns);
+        &.artlist-4-cols,
+        &.artlist-5-cols,
+        &.artlist-6-cols {
+            @include make-art-col(3);
         }
     }
 
     @include media-breakpoint-up(md) {
-        &.artlist-5-cols .art {
-            @include make-col-span(4, $grid-columns);
+        &.artlist-5-cols {
+            @include make-art-col(3);
         }
-        &.artlist-6-cols .art {
-            @include make-col-span(3, $grid-columns);
+        &.artlist-6-cols {
+            @include make-art-col(4);
         }
     }
 
     @include media-breakpoint-up(lg) {
-        &.artlist-3-cols .art,
-        &.artlist-4-cols .art {
-            @include make-col-span(4, $grid-columns);
+        &.artlist-3-cols,
+        &.artlist-4-cols {
+            @include make-art-col(3);
         }
-        &.artlist-5-cols .art,
-        &.artlist-6-cols .art {
-            @include make-col-span(3, $grid-columns);
+        &.artlist-5-cols,
+        &.artlist-6-cols {
+            @include make-art-col(4);
         }
     }
 
     @include media-breakpoint-up(xl) {
-        &.artlist-4-cols .art {
-            @include make-col-span(3, $grid-columns);
+        &.artlist-4-cols {
+            @include make-art-col(4);
         }
-        &.artlist-5-cols .art {
-            @include make-col-span(2, 10);
+        &.artlist-5-cols {
+            @include make-art-col(5);
         }
-        &.artlist-6-cols .art {
-            @include make-col-span(2, $grid-columns);
+        &.artlist-6-cols {
+            @include make-art-col(6);
+        }
+    }
+
+    &.artlist-boxed {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+
+        .art {
+            background: $art-active-bg-color;
+            border-color: $art-border-color;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+            margin: 0 0.5rem 1rem 0.5rem;
         }
     }
 }
@@ -571,32 +614,36 @@ $art-active-bg-color:           #fff;
     position: relative;
     overflow: hidden;
 
-    .touch & {
-        overflow-x: auto !important;
-    }
-
     .artlist-grid {
         flex-wrap: nowrap;
+    }
+
+    .artlist {
         margin-bottom: 0;
-        transition: margin-left 0.12s ease-in-out;
     }
 
     .art {
-        flex-basis: 180px !important;
-        max-width: 180px !important;
         border-bottom: none;
     }
 
     .art-drop {
         display: none;
     }
-
-    @include media-breakpoint-only(md) {
-        // Fits better
-        .art { flex-basis: 172px !important; max-width: 172px !important; }
-    }
 }
 
+.slick-slider {
+    &.artlist-grid {
+        display: block !important;
+        flex: initial !important;
+        flex-wrap: nowrap;
+    }
+
+    .art {
+        display: inline-block !important;
+        max-width: initial !important;
+        //width: 180px; // avoids flickering during initial load
+    }
+}
 
 
 /*@include media-breakpoint-between(xs, md) {

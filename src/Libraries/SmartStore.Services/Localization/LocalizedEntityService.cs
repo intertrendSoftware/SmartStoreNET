@@ -10,10 +10,10 @@ using SmartStore.Core.Domain.Localization;
 
 namespace SmartStore.Services.Localization
 {
-    /// <summary>
-    /// Provides information about localizable entities
-    /// </summary>
-    public partial class LocalizedEntityService : ScopedServiceBase, ILocalizedEntityService
+	/// <summary>
+	/// Provides information about localizable entities
+	/// </summary>
+	public partial class LocalizedEntityService : ScopedServiceBase, ILocalizedEntityService
     {
 		/// <summary>
 		/// 0 = segment (keygroup.key.idrange), 1 = language id
@@ -31,7 +31,7 @@ namespace SmartStore.Services.Localization
         {
             _cacheManager = cacheManager;
             _localizedPropertyRepository = localizedPropertyRepository;
-        }
+		}
 
 		protected override void OnClearCache()
 		{
@@ -159,12 +159,12 @@ namespace SmartStore.Services.Localization
         {
 			Guard.NotNull(property, nameof(property));
 
+			// db
+			_localizedPropertyRepository.Insert(property);
+			HasChanges = true;
+
 			try
 			{
-				// db
-				_localizedPropertyRepository.Insert(property);
-				HasChanges = true;
-
 				// cache
 				ClearCachedPropertySegment(property.LocaleKeyGroup, property.LocaleKey, property.EntityId, property.LanguageId);
 			}
@@ -175,12 +175,12 @@ namespace SmartStore.Services.Localization
         {
 			Guard.NotNull(property, nameof(property));
 
+			// db
+			_localizedPropertyRepository.Update(property);
+			HasChanges = true;
+
 			try
 			{
-				// db
-				_localizedPropertyRepository.Update(property);
-				HasChanges = true;
-
 				// cache
 				ClearCachedPropertySegment(property.LocaleKeyGroup, property.LocaleKey, property.EntityId, property.LanguageId);
 			}
@@ -195,12 +195,12 @@ namespace SmartStore.Services.Localization
 			{
 				// cache
 				ClearCachedPropertySegment(property.LocaleKeyGroup, property.LocaleKey, property.EntityId, property.LanguageId);
-
-				// db
-				_localizedPropertyRepository.Delete(property);
-				HasChanges = true;
 			}
 			catch { }
+
+			// db
+			_localizedPropertyRepository.Delete(property);
+			HasChanges = true;
 		}
 
 		public virtual LocalizedProperty GetLocalizedPropertyById(int localizedPropertyId)
@@ -233,29 +233,23 @@ namespace SmartStore.Services.Localization
             var member = keySelector.Body as MemberExpression;
             if (member == null)
             {
-                throw new ArgumentException(string.Format(
-                    "Expression '{0}' refers to a method, not a property.",
-                    keySelector));
+                throw new ArgumentException($"Expression '{keySelector}' refers to a method, not a property.");
             }
 
             var propInfo = member.Member as PropertyInfo;
             if (propInfo == null)
             {
-                throw new ArgumentException(string.Format(
-                       "Expression '{0}' refers to a field, not a property.",
-                       keySelector));
+                throw new ArgumentException($"Expression '{keySelector}' refers to a field, not a property.");
             }
 
-            string localeKeyGroup = typeof(T).Name;
-            string localeKey = propInfo.Name;
-
-			var prop = GetLocalizedProperty(languageId, entity.Id, localeKeyGroup, localeKey);
-
-            string localeValueStr = localeValue.Convert<string>();
+            var keyGroup = typeof(T).Name;
+            var key = propInfo.Name;
+			var valueStr = localeValue.Convert<string>();
+			var prop = GetLocalizedProperty(languageId, entity.Id, keyGroup, key);
 
             if (prop != null)
             {
-                if (localeValueStr.IsEmpty())
+                if (valueStr.IsEmpty())
                 {
                     // delete
                     DeleteLocalizedProperty(prop);
@@ -263,25 +257,25 @@ namespace SmartStore.Services.Localization
                 else
                 {
                     // update
-					if (prop.LocaleValue != localeValueStr)
+					if (prop.LocaleValue != valueStr)
 					{
-						prop.LocaleValue = localeValueStr;
+						prop.LocaleValue = valueStr;
 						UpdateLocalizedProperty(prop);
 					}
                 }
             }
             else
             {
-                if (localeValueStr.HasValue())
+                if (valueStr.HasValue())
                 {
                     // insert
                     prop = new LocalizedProperty
                     {
                         EntityId = entity.Id,
                         LanguageId = languageId,
-                        LocaleKey = localeKey,
-                        LocaleKeyGroup = localeKeyGroup,
-                        LocaleValue = localeValueStr
+                        LocaleKey = key,
+                        LocaleKeyGroup = keyGroup,
+                        LocaleValue = valueStr
                     };
                     InsertLocalizedProperty(prop);
                 }

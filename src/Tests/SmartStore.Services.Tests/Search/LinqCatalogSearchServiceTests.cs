@@ -13,6 +13,7 @@ using SmartStore.Core.Domain.Stores;
 using SmartStore.Core.Events;
 using SmartStore.Core.Search;
 using SmartStore.Services.Catalog;
+using SmartStore.Services.Directory;
 using SmartStore.Services.Search;
 
 namespace SmartStore.Services.Tests.Search
@@ -20,26 +21,27 @@ namespace SmartStore.Services.Tests.Search
 	[TestFixture]
 	public class LinqCatalogSearchServiceTests
 	{
+		private LinqCatalogSearchService _linqCatalogSearchService;
 		private IProductService _productService;
 		private IRepository<Product> _productRepository;
+		private IRepository<ProductManufacturer> _productManufacturerRepository;
+		private IRepository<ProductCategory> _productCategoryRepository;
+		private IRepository<Manufacturer> _manufacturerRepository;
+		private IRepository<Category> _categoryRepository;
 		private IRepository<LocalizedProperty> _localizedPropertyRepository;
 		private IRepository<StoreMapping> _storeMappingRepository;
 		private IRepository<AclRecord> _aclRepository;
 		private IEventPublisher _eventPublisher;
-		private LinqCatalogSearchService _linqCatalogSearchService;
+		private ICommonServices _services;
+		private IDeliveryTimeService _deliveryTimeService;
 
-		private void InitMocks(List<Product> products)
-		{
-			InitMocks(products, new List<LocalizedProperty>());
-		}
-
-		private void InitMocks(List<Product> products, List<LocalizedProperty> localized)
+		private void InitMocks(CatalogSearchQuery query, IEnumerable<Product> products, IEnumerable<LocalizedProperty> localized)
 		{
 			_productRepository.Expect(x => x.Table).Return(products.AsQueryable());
 			_productRepository.Expect(x => x.TableUntracked).Return(products.AsQueryable());
 
-			_localizedPropertyRepository.Expect(x => x.Table).Return(localized.AsQueryable());
-			_localizedPropertyRepository.Expect(x => x.TableUntracked).Return(localized.AsQueryable());
+			_localizedPropertyRepository.Expect(x => x.Table).Return((localized ?? new List<LocalizedProperty>()).AsQueryable());
+			_localizedPropertyRepository.Expect(x => x.TableUntracked).Return((localized ?? new List<LocalizedProperty>()).AsQueryable());
 
 			var storeMappings = new List<StoreMapping>
 			{
@@ -52,17 +54,33 @@ namespace SmartStore.Services.Tests.Search
 			var aclRecords = new List<AclRecord>
 			{
 				new AclRecord { Id = 1, CustomerRoleId = 3, EntityName = "Product", EntityId = 99 }
-			};			
+			};
 
 			_aclRepository.Expect(x => x.Table).Return(aclRecords.AsQueryable());
 			_aclRepository.Expect(x => x.TableUntracked).Return(aclRecords.AsQueryable());
+
+			_productService
+				.Expect(x => x.GetProductsByIds(Arg<int[]>.Is.Anything, Arg<ProductLoadFlags>.Is.Anything))
+				.WhenCalled(x =>
+				{
+					var ids = (int[])x.Arguments[0];
+					//string.Join(", ", ids).Dump();
+					var entities = products.Where(y => ids.Contains(y.Id)).ToList();
+
+					x.ReturnValue = (
+						from i in ids
+						join p in entities on i equals p.Id
+						select p).ToList();
+				});
 		}
 
-		private CatalogSearchResult Search(CatalogSearchQuery searchQuery)
+		private CatalogSearchResult Search(CatalogSearchQuery query, IEnumerable<Product> products, IEnumerable<LocalizedProperty> localized = null)
 		{
-			Trace.WriteLine(searchQuery.ToString());
+			Trace.WriteLine(query.ToString());
 
-			return _linqCatalogSearchService.Search(searchQuery);
+			InitMocks(query, products, localized);
+
+			return _linqCatalogSearchService.Search(query);
 		}
 
 		[SetUp]
@@ -70,18 +88,30 @@ namespace SmartStore.Services.Tests.Search
 		{
 			_productService = MockRepository.GenerateMock<IProductService>();
 			_productRepository = MockRepository.GenerateMock<IRepository<Product>>();
+			_productManufacturerRepository = MockRepository.GenerateMock<IRepository<ProductManufacturer>>();
+			_productCategoryRepository = MockRepository.GenerateMock<IRepository<ProductCategory>>();
+			_manufacturerRepository = MockRepository.GenerateMock<IRepository<Manufacturer>>();
+			_categoryRepository = MockRepository.GenerateMock<IRepository<Category>>();
 			_localizedPropertyRepository = MockRepository.GenerateMock<IRepository<LocalizedProperty>>();
 			_storeMappingRepository = MockRepository.GenerateMock<IRepository<StoreMapping>>();
 			_aclRepository = MockRepository.GenerateMock<IRepository<AclRecord>>();
 			_eventPublisher = MockRepository.GenerateMock<IEventPublisher>();
+			_services = MockRepository.GenerateMock<ICommonServices>();
+			_deliveryTimeService = MockRepository.GenerateMock<IDeliveryTimeService>();
 
 			_linqCatalogSearchService = new LinqCatalogSearchService(
-				_productService, 
-				_productRepository, 
+				_productService,
+				_productRepository,
+				_productManufacturerRepository,
+				_productCategoryRepository,
+				_manufacturerRepository,
+				_categoryRepository,
 				_localizedPropertyRepository, 
 				_storeMappingRepository, 
 				_aclRepository, 
-				_eventPublisher);
+				_eventPublisher,
+				_services,
+				_deliveryTimeService);
 		}
 
 		[Test]
@@ -91,15 +121,13 @@ namespace SmartStore.Services.Tests.Search
 
 			for (var i = 97; i <= 110; ++i)
 			{
-				products.Add(new SearchProduct { Name = Convert.ToChar(i).ToString(), ShortDescription = "smart" });
+				products.Add(new SearchProduct(i) { Name = Convert.ToChar(i).ToString(), ShortDescription = "smart" });
 			}
-
-			InitMocks(products);
 
 			var query = new CatalogSearchQuery(new string[] { "shortdescription" }, "smart");
 			query.SortBy(ProductSortingEnum.NameDesc);
 
-			var result = Search(query);
+			var result = Search(query, products);
 
 			Assert.That(string.Join(",", result.Hits.Select(x => x.Name)), Is.EqualTo("n,m,l,k,j,i,h,g,f,e,d,c,b,a"));
 		}
@@ -111,15 +139,10 @@ namespace SmartStore.Services.Tests.Search
 
 			for (var i = 1; i <= 20; ++i)
 			{
-				products.Add(new SearchProduct { Name = "smart", Sku = i.ToString() });
+				products.Add(new SearchProduct(i) { Name = "smart", Sku = i.ToString() });
 			}
 
-			InitMocks(products);
-
-			var query = new CatalogSearchQuery(new string[] { "name" }, "smart");
-			query.Slice(10, 5);
-
-			var result = Search(query);
+			var result = Search(new CatalogSearchQuery(new string[] { "name" }, "smart").Slice(10, 5), products);
 
 			Assert.That(result.Hits.Count(), Is.EqualTo(5));
 			Assert.That(result.Hits.Select(x => x.Sku), Is.EqualTo(new string[] { "11", "12", "13", "14", "15" }));
@@ -138,9 +161,7 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct { Name = "Rapidiously conceptualize future-proof imperatives", ShortDescription = "Shopping System powered by SmartStore" }
 			};
 
-			InitMocks(products);
-
-			var result = Search(new CatalogSearchQuery(new string[] { "name", "shortdescription" }, "cook"));
+			var result = Search(new CatalogSearchQuery(new string[] { "name", "shortdescription" }, "cook"), products);
 
 			Assert.That(result.Hits.Count, Is.EqualTo(0));
 			Assert.That(result.SpellCheckerSuggestions.Any(), Is.EqualTo(false));
@@ -151,15 +172,13 @@ namespace SmartStore.Services.Tests.Search
 		{
 			var products = new List<Product>
 			{
-				new SearchProduct { Name = "SmartStore.NET" },
-				new SearchProduct { Name = "Apple iPhone Smartphone 6" },
-				new SearchProduct { Name = "Energistically recaptiualize superior e-markets without next-generation platforms" },
-				new SearchProduct { Name = "Rapidiously conceptualize future-proof imperatives", ShortDescription = "Shopping System powered by SmartStore" }
+				new SearchProduct(1) { Name = "SmartStore.NET" },
+				new SearchProduct(2) { Name = "Apple iPhone Smartphone 6" },
+				new SearchProduct(3) { Name = "Energistically recaptiualize superior e-markets without next-generation platforms" },
+				new SearchProduct(4) { Name = "Rapidiously conceptualize future-proof imperatives", ShortDescription = "Shopping System powered by SmartStore" }
 			};
 
-			InitMocks(products);
-
-			var result = Search(new CatalogSearchQuery(new string[] { "name", "shortdescription" }, "Smart"));
+			var result = Search(new CatalogSearchQuery(new string[] { "name", "shortdescription" }, "Smart", SearchMode.Contains), products);
 
 			Assert.That(result.Hits.Count, Is.EqualTo(3));
 		}
@@ -169,41 +188,15 @@ namespace SmartStore.Services.Tests.Search
 		{
 			var products = new List<Product>
 			{
-				new SearchProduct { Name = "P-6000-2" },
-				new SearchProduct { Name = "Apple iPhone Smartphone 6" },
-				new SearchProduct { Name = "Energistically recaptiualize superior e-markets without next-generation platforms" },
-				new SearchProduct { Name = "Rapidiously conceptualize future-proof imperatives", ShortDescription = "Shopping System powered by SmartStore", Sku = "P-6000-2" }
+				new SearchProduct(1) { Name = "P-6000-2" },
+				new SearchProduct(2) { Name = "Apple iPhone Smartphone 6" },
+				new SearchProduct(3) { Name = "Energistically recaptiualize superior e-markets without next-generation platforms" },
+				new SearchProduct(4) { Name = "Rapidiously conceptualize future-proof imperatives", ShortDescription = "Shopping System powered by SmartStore", Sku = "P-6000-2" }
 			};
 
-			InitMocks(products);
-
-			var result = Search(new CatalogSearchQuery(new string[] { "name", "sku" }, "P-6000-2", SearchMode.ExactMatch));
+			var result = Search(new CatalogSearchQuery(new string[] { "name", "sku" }, "P-6000-2", SearchMode.ExactMatch), products);
 
 			Assert.That(result.Hits.Count, Is.EqualTo(2));
-		}
-
-		#endregion
-
-		#region Spell Checking
-
-		[Test]
-		public void LinqSearch_can_spellchecking()
-		{
-			var products = new List<Product>
-			{
-				new SearchProduct { Name = "SmartStore.NET" },
-				new SearchProduct { Name = "Apple iPhone Smartphone 6" },
-				new SearchProduct { Name = "Energistically recaptiualize superior e-markets without next-generation platforms" },
-				new SearchProduct { Name = "Rapidiously SmartPhone conceptualize future-proof imperatives" },
-				new SearchProduct { Name = "Apple iPhone Smartphone 5", LimitedToStores = true, Id = 99 },
-			};
-
-			InitMocks(products);
-
-			var result = Search(new CatalogSearchQuery(new string[] { "name" }, "Smart").CheckSpelling(10).Slice(0, 0).HasStoreId(1));
-
-			Assert.That(result.SpellCheckerSuggestions.Length, Is.EqualTo(2));
-			Assert.That(result.SpellCheckerSuggestions[0].IsCaseInsensitiveEqual("Smartphone"));
 		}
 
 		#endregion
@@ -215,16 +208,17 @@ namespace SmartStore.Services.Tests.Search
 		{
 			var products = new List<Product>
 			{
-				new SearchProduct { Published = true },
-				new SearchProduct { Published = false },
-				new SearchProduct { Published = true, AvailableStartDateTimeUtc = new DateTime(2016, 1, 1), AvailableEndDateTimeUtc = new DateTime(2016, 1, 20) },
-				new SearchProduct { Published = true, Id = 99, SubjectToAcl = true }
+				new SearchProduct(1) { Published = true },
+				new SearchProduct(2) { Published = false },
+				new SearchProduct(3) { Published = true, AvailableStartDateTimeUtc = new DateTime(2016, 1, 1), AvailableEndDateTimeUtc = new DateTime(2016, 1, 20) },
+				new SearchProduct(4) { Published = true, Id = 99, SubjectToAcl = true }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().VisibleOnly(new int[0]), products);
+			Assert.That(result.Hits.Count, Is.EqualTo(2));
 
-			Assert.That(Search(new CatalogSearchQuery().VisibleOnly(new int[0])).Hits.Count, Is.EqualTo(2));
-			Assert.That(Search(new CatalogSearchQuery().VisibleOnly(new int[] { 1, 5, 6 })).Hits.Count, Is.EqualTo(1));
+			result = Search(new CatalogSearchQuery().VisibleOnly(new int[] { 1, 5, 6 }), products);
+			Assert.That(result.Hits.Count, Is.EqualTo(1));
 		}
 
 		[Test]
@@ -232,14 +226,12 @@ namespace SmartStore.Services.Tests.Search
 		{
 			var products = new List<Product>
 			{
-				new SearchProduct { Published = true },
-				new SearchProduct { Published = false },
-				new SearchProduct { Published = true }
+				new SearchProduct(1) { Published = true },
+				new SearchProduct(2) { Published = false },
+				new SearchProduct(3) { Published = true }
 			};
 
-			InitMocks(products);
-
-			var result = Search(new CatalogSearchQuery().PublishedOnly(true));
+			var result = Search(new CatalogSearchQuery().PublishedOnly(true), products);
 
 			Assert.That(result.Hits.Count, Is.EqualTo(2));
 		}
@@ -249,14 +241,12 @@ namespace SmartStore.Services.Tests.Search
 		{
 			var products = new List<Product>
 			{
-				new SearchProduct { },
-				new SearchProduct { VisibleIndividually = false },
-				new SearchProduct { }
+				new SearchProduct(1),
+				new SearchProduct(2) { VisibleIndividually = false },
+				new SearchProduct(3)
 			};
 
-			InitMocks(products);
-
-			var result = Search(new CatalogSearchQuery().VisibleIndividuallyOnly(true));
+			var result = Search(new CatalogSearchQuery().VisibleIndividuallyOnly(true), products);
 
 			Assert.That(result.Hits.Count, Is.EqualTo(2));
 		}
@@ -266,14 +256,12 @@ namespace SmartStore.Services.Tests.Search
 		{
 			var products = new List<Product>
 			{
-				new SearchProduct { },
-				new SearchProduct { ShowOnHomePage = true },
-				new SearchProduct { }
+				new SearchProduct(1),
+				new SearchProduct(2) { ShowOnHomePage = true },
+				new SearchProduct(3)
 			};
 
-			InitMocks(products);
-
-			var result = Search(new CatalogSearchQuery().HomePageProductsOnly(true));
+			var result = Search(new CatalogSearchQuery().HomePageProductsOnly(true), products);
 
 			Assert.That(result.Hits.Count, Is.EqualTo(1));
 		}
@@ -283,16 +271,14 @@ namespace SmartStore.Services.Tests.Search
 		{
 			var products = new List<Product>
 			{
-				new SearchProduct { },
-				new SearchProduct { ParentGroupedProductId = 16, VisibleIndividually = false },
-				new SearchProduct { ParentGroupedProductId = 36, VisibleIndividually = false },
-				new SearchProduct { ParentGroupedProductId = 9 },
-				new SearchProduct { ParentGroupedProductId = 36 }
+				new SearchProduct(1),
+				new SearchProduct(2) { ParentGroupedProductId = 16, VisibleIndividually = false },
+				new SearchProduct(3) { ParentGroupedProductId = 36, VisibleIndividually = false },
+				new SearchProduct(4) { ParentGroupedProductId = 9 },
+				new SearchProduct(5) { ParentGroupedProductId = 36 }
 			};
 
-			InitMocks(products);
-
-			var result = Search(new CatalogSearchQuery().HasParentGroupedProductId(36));
+			var result = Search(new CatalogSearchQuery().HasParentGroupedProductId(36), products);
 
 			Assert.That(result.Hits.Count, Is.EqualTo(2));
 		}
@@ -306,10 +292,11 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct { LimitedToStores = true, Id = 99 }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().HasStoreId(1), products);
+			Assert.That(result.Hits.Count, Is.EqualTo(1));
 
-			Assert.That(Search(new CatalogSearchQuery().HasStoreId(1)).Hits.Count, Is.EqualTo(1));
-			Assert.That(Search(new CatalogSearchQuery().HasStoreId(3)).Hits.Count, Is.EqualTo(2));
+			result = Search(new CatalogSearchQuery().HasStoreId(3), products);
+			Assert.That(result.Hits.Count, Is.EqualTo(2));
 		}
 
 		[Test]
@@ -317,15 +304,16 @@ namespace SmartStore.Services.Tests.Search
 		{
 			var products = new List<Product>
 			{
-				new SearchProduct { },
-				new SearchProduct { ProductType = ProductType.BundledProduct },
-				new SearchProduct { ProductType = ProductType.GroupedProduct }
+				new SearchProduct(1),
+				new SearchProduct(2) { ProductType = ProductType.BundledProduct },
+				new SearchProduct(3) { ProductType = ProductType.GroupedProduct }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().IsProductType(ProductType.SimpleProduct), products);
+			Assert.That(result.Hits.Count, Is.EqualTo(1));
 
-			Assert.That(Search(new CatalogSearchQuery().IsProductType(ProductType.SimpleProduct)).Hits.Count, Is.EqualTo(1));
-			Assert.That(Search(new CatalogSearchQuery().IsProductType(ProductType.GroupedProduct)).Hits.Count, Is.EqualTo(1));
+			result = Search(new CatalogSearchQuery().IsProductType(ProductType.GroupedProduct), products);
+			Assert.That(result.Hits.Count, Is.EqualTo(1));
 		}
 
 		[Test]
@@ -340,10 +328,11 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(5)
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().WithProductIds(2, 3, 4, 99), products);
+			Assert.That(result.Hits.Count, Is.EqualTo(3));
 
-			Assert.That(Search(new CatalogSearchQuery().WithProductIds(2, 3, 4, 99)).Hits.Count, Is.EqualTo(3));
-			Assert.IsNull(Search(new CatalogSearchQuery().WithProductIds(98)).Hits.FirstOrDefault());
+			result = Search(new CatalogSearchQuery().WithProductIds(98), products);
+			Assert.IsNull(result.Hits.FirstOrDefault());
 		}
 
 		[Test]
@@ -363,11 +352,14 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(10)
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().WithProductId(4, 7), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(4));
 
-			Assert.That(Search(new CatalogSearchQuery().WithProductId(4, 7)).Hits.Count(), Is.EqualTo(4));
-			Assert.That(Search(new CatalogSearchQuery().WithProductId(6, null)).Hits.Count(), Is.EqualTo(5));
-			Assert.That(Search(new CatalogSearchQuery().WithProductId(null, 3)).Hits.Count(), Is.EqualTo(3));
+			result = Search(new CatalogSearchQuery().WithProductId(6, null), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(5));
+
+			result = Search(new CatalogSearchQuery().WithProductId(null, 3), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(3));
 		}
 
 		[Test]
@@ -385,12 +377,17 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 18 } }) { Id = 8 }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().WithCategoryIds(null, 68, 98), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(0));
 
-			Assert.That(Search(new CatalogSearchQuery().WithCategoryIds(null, 68, 98)).Hits.Count(), Is.EqualTo(0));
-			Assert.That(Search(new CatalogSearchQuery().WithCategoryIds(null, 12, 15, 18, 24)).Hits.Count(), Is.EqualTo(3));
-			Assert.That(Search(new CatalogSearchQuery().WithCategoryIds(true, 12, 15, 18, 24)).Hits.Count(), Is.EqualTo(1));
-			Assert.That(Search(new CatalogSearchQuery().WithCategoryIds(false, 12, 15, 18, 24)).Hits.Count(), Is.EqualTo(2));
+			result = Search(new CatalogSearchQuery().WithCategoryIds(null, 12, 15, 18, 24), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(3));
+
+			result = Search(new CatalogSearchQuery().WithCategoryIds(true, 12, 15, 18, 24), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(1));
+
+			result = Search(new CatalogSearchQuery().WithCategoryIds(false, 12, 15, 18, 24), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(2));
 		}
 
 		[Test]
@@ -408,10 +405,11 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 18 } }) { Id = 8 }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().HasAnyCategory(true), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(5));
 
-			Assert.That(Search(new CatalogSearchQuery().HasAnyCategory(true)).Hits.Count(), Is.EqualTo(5));
-			Assert.That(Search(new CatalogSearchQuery().HasAnyCategory(false)).Hits.Count(), Is.EqualTo(3));
+			result = Search(new CatalogSearchQuery().HasAnyCategory(false), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(3));
 		}
 
 		[Test]
@@ -429,12 +427,17 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(new ProductManufacturer[] { new ProductManufacturer { ManufacturerId = 18 } }) { Id = 8 }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().WithManufacturerIds(null, 68, 98), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(0));
 
-			Assert.That(Search(new CatalogSearchQuery().WithManufacturerIds(null, 68, 98)).Hits.Count(), Is.EqualTo(0));
-			Assert.That(Search(new CatalogSearchQuery().WithManufacturerIds(null, 12, 15, 18, 24)).Hits.Count(), Is.EqualTo(3));
-			Assert.That(Search(new CatalogSearchQuery().WithManufacturerIds(true, 12, 15, 18, 24)).Hits.Count(), Is.EqualTo(1));
-			Assert.That(Search(new CatalogSearchQuery().WithManufacturerIds(false, 12, 15, 18, 24)).Hits.Count(), Is.EqualTo(2));
+			result = Search(new CatalogSearchQuery().WithManufacturerIds(null, 12, 15, 18, 24), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(3));
+
+			result = Search(new CatalogSearchQuery().WithManufacturerIds(true, 12, 15, 18, 24), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(1));
+
+			result = Search(new CatalogSearchQuery().WithManufacturerIds(false, 12, 15, 18, 24), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(2));
 		}
 
 		[Test]
@@ -452,10 +455,11 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(new ProductManufacturer[] { new ProductManufacturer { ManufacturerId = 18 } }) { Id = 8 }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().HasAnyManufacturer(true), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(5));
 
-			Assert.That(Search(new CatalogSearchQuery().HasAnyManufacturer(true)).Hits.Count(), Is.EqualTo(5));
-			Assert.That(Search(new CatalogSearchQuery().HasAnyManufacturer(false)).Hits.Count(), Is.EqualTo(3));
+			result = Search(new CatalogSearchQuery().HasAnyManufacturer(false), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(3));
 		}
 
 		[Test]
@@ -470,10 +474,11 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(new ProductTag[] { }) { Id = 5 }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().WithProductTagIds(16, 32), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(3));
 
-			Assert.That(Search(new CatalogSearchQuery().WithProductTagIds(16, 32)).Hits.Count(), Is.EqualTo(3));
-			Assert.IsNull(Search(new CatalogSearchQuery().WithProductTagIds(22)).Hits.FirstOrDefault());
+			result = Search(new CatalogSearchQuery().WithProductTagIds(22), products);
+			Assert.IsNull(result.Hits.FirstOrDefault());
 		}
 
 		[Test]
@@ -491,11 +496,14 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(8) { StockQuantity = 0 }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().WithStockQuantity(10001, 10003), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(3));
 
-			Assert.That(Search(new CatalogSearchQuery().WithStockQuantity(10001, 10003)).Hits.Count(), Is.EqualTo(3));
-			Assert.That(Search(new CatalogSearchQuery().WithStockQuantity(10003, null)).Hits.Count(), Is.EqualTo(2));
-			Assert.That(Search(new CatalogSearchQuery().WithStockQuantity(null, 10002)).Hits.Count(), Is.EqualTo(6));
+			result = Search(new CatalogSearchQuery().WithStockQuantity(10003, null), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(2));
+
+			result = Search(new CatalogSearchQuery().WithStockQuantity(null, 10002), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(6));
 		}
 
 		[Test]
@@ -510,13 +518,16 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(5) { Price = 14.9M }
 			};
 
-			InitMocks(products);
-
 			var eur = new Currency { CurrencyCode = "EUR" };
 
-			Assert.That(Search(new CatalogSearchQuery().PriceBetween(100M, 200M, eur)).Hits.Count(), Is.EqualTo(1));
-			Assert.That(Search(new CatalogSearchQuery().PriceBetween(100M, null, eur)).Hits.Count(), Is.EqualTo(2));
-			Assert.That(Search(new CatalogSearchQuery().PriceBetween(null, 100M, eur)).Hits.Count(), Is.EqualTo(3));
+			var result = Search(new CatalogSearchQuery().WithCurrency(eur).PriceBetween(100M, 200M), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(1));
+
+			result = Search(new CatalogSearchQuery().WithCurrency(eur).PriceBetween(100M, null), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(2));
+
+			result = Search(new CatalogSearchQuery().WithCurrency(eur).PriceBetween(null, 100M), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(3));
 		}
 
 		[Test]
@@ -532,11 +543,14 @@ namespace SmartStore.Services.Tests.Search
 				new SearchProduct(6) { CreatedOnUtc = new DateTime(2016, 8, 4) }
 			};
 
-			InitMocks(products);
+			var result = Search(new CatalogSearchQuery().CreatedBetween(new DateTime(2016, 1, 1), new DateTime(2016, 3, 1)), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(2));
 
-			Assert.That(Search(new CatalogSearchQuery().CreatedBetween(new DateTime(2016, 1, 1), new DateTime(2016, 3, 1))).Hits.Count(), Is.EqualTo(2));
-			Assert.That(Search(new CatalogSearchQuery().CreatedBetween(new DateTime(2016, 4, 1), null)).Hits.Count(), Is.EqualTo(3));
-			Assert.That(Search(new CatalogSearchQuery().CreatedBetween(null, new DateTime(2016, 7, 1))).Hits.Count(), Is.EqualTo(5));
+			result = Search(new CatalogSearchQuery().CreatedBetween(new DateTime(2016, 4, 1), null), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(3));
+
+			result = Search(new CatalogSearchQuery().CreatedBetween(null, new DateTime(2016, 7, 1)), products);
+			Assert.That(result.Hits.Count(), Is.EqualTo(5));
 		}
 
 		#endregion

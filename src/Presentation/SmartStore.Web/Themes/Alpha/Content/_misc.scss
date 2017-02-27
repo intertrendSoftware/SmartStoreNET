@@ -4,10 +4,6 @@
 // Misc Styles
 // --------------------------------------------------
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
-
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
     font-weight: initial;
@@ -39,24 +35,10 @@ h1, h2, h3, h4, h5, h6,
     margin-bottom: 2rem;
 }
 
-// delivery times
-// TODO: (mc) Remove this later
-.delivery-time {
-	padding-bottom: 5px;
-	@include smaller();
-	.delivery-time-label {
-		padding-right: 4px;
-		font-weight: bold;
-	}
-	.delivery-time-color {
-		height: 8px;
-		width: 32px;
-		display: inline-block;
-        border: 1px solid rgba(0,0,0, .25);
-        background-image: url('images/deliv-bg-aero.png');
-	}
-}
-
+.deliverytime-group .delivery-time { 
+    vertical-align: top; 
+    padding-left: 0.25rem;
+} 
 .delivery-time {
     display: inline-block;
     color: $brand-danger;
@@ -74,7 +56,7 @@ h1, h2, h3, h4, h5, h6,
 // Breadcrumb Styles
 // --------------------------------------------------
 #breadcrumb {
-    border: 1px solid #DDDDDD;
+    padding: 0;
     background: none;
 }
 
@@ -169,6 +151,23 @@ fieldset legend {
     }
 }
 
+/* All manufacturers
+================================================ */
+.manufacturer-nav {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 2rem;
+}
+.manufacturer-nav .navbar-nav .nav-item {
+    margin: 0 1rem;
+}
+.manufacturer-nav .navbar-nav .nav-link {
+    font-size: 1.25rem;
+}
+.manufacturer-list-title {
+    font-weight: bold;
+    padding-bottom: 0.5rem;
+}
+
 /* recently viewed products
 ================================================ */
 .block-recently-viewed-products li {
@@ -196,17 +195,6 @@ fieldset legend {
 .block-recently-viewed-products .listbox {
 	padding: 2px;
 }
-
-
-//
-
-.star-rating-parent {
-    padding-left: 0 !important;
-}
-.star-rating {
-    display: inline-block !important;
-}
-
 
 
 
@@ -240,9 +228,9 @@ fieldset legend {
 // menu
 .dropdown {
     display: inline;
-    a {
+    /*a {
         font-size: $font-size-sm;
-    }
+    }*/
     .label {
         font-size: $font-size-xs;
     }

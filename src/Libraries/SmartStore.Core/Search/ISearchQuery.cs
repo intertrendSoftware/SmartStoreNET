@@ -5,9 +5,10 @@ namespace SmartStore.Core.Search
 {
 	public interface ISearchQuery
 	{
-		// Language & STore
+		// Language, Currency & Store
 		int? LanguageId { get; }
-		string LanguageSeoCode { get; }
+		string LanguageCulture { get; }
+		string CurrencyCode { get; }
 		int? StoreId { get; }
 
 		// Search term
@@ -39,6 +40,11 @@ namespace SmartStore.Core.Search
 		/// Defines how many characters must be in the query before suggestions are provided
 		/// </summary>
 		int SpellCheckerMinQueryLength { get; }
+
+		/// <summary>
+		/// The maximum number of product hits up to which suggestions are provided
+		/// </summary>
+		int SpellCheckerMaxHitCount { get; }
 
 		// Misc
 		string Origin { get; }

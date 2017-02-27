@@ -40,6 +40,8 @@ using SmartStore.Web.Framework.Pdf;
 using SmartStore.Web.Framework.Plugins;
 using SmartStore.Web.Framework.Security;
 using Telerik.Web.Mvc;
+using SmartStore.Web.Framework.Theming;
+using SmartStore.Utilities;
 
 namespace SmartStore.Admin.Controllers
 {
@@ -457,10 +459,23 @@ namespace SmartStore.Admin.Controllers
                 model.ShippingAddress.FaxRequired = _addressSettings.FaxRequired;
 
                 model.ShippingMethod = order.ShippingMethod;
+				model.CanAddNewShipments = order.CanAddItemsToShipment();
 
-                model.ShippingAddressGoogleMapsUrl = string.Format("http://maps.google.com/maps?f=q&hl=en&ie=UTF8&oe=UTF8&geocode=&q={0}", Server.UrlEncode(order.ShippingAddress.Address1 + " " + order.ShippingAddress.ZipPostalCode + " " + order.ShippingAddress.City + " " + (order.ShippingAddress.Country != null ? order.ShippingAddress.Country.Name : "")));
-                model.CanAddNewShipments = order.HasItemsToAddToShipment();
-            }
+				var googleAddressQuery = string.Concat(
+					order.ShippingAddress.Address1,
+					" ",
+					order.ShippingAddress.ZipPostalCode,
+					" ",
+					order.ShippingAddress.City,
+					" ",
+					order.ShippingAddress.Country != null ? order.ShippingAddress.Country.Name : "");
+
+				var googleMapsUrl = CommonHelper.GetAppSetting<string>("g:MapsUrl");
+
+				model.ShippingAddressGoogleMapsUrl = googleMapsUrl.FormatInvariant(
+					Services.WorkContext.WorkingLanguage.UniqueSeoCode.EmptyNull().ToLower(),
+					Server.UrlEncode(googleAddressQuery));
+			}
 
             #endregion
 
@@ -699,9 +714,9 @@ namespace SmartStore.Admin.Controllers
 
                     //quantities
                     var qtyInThisShipment = shipmentItem.Quantity;
-                    var maxQtyToAdd = orderItem.GetTotalNumberOfItemsCanBeAddedToShipment();
+                    var maxQtyToAdd = orderItem.GetItemsCanBeAddedToShipmentCount();
                     var qtyOrdered = orderItem.Quantity;
-                    var qtyInAllShipments = orderItem.GetTotalNumberOfItemsInAllShipment();
+                    var qtyInAllShipments = orderItem.GetShipmentItemsCount();
 
                     orderItem.Product.MergeWithCombination(orderItem.AttributesXml);
                     var shipmentItemModel = new ShipmentModel.ShipmentItemModel()
@@ -713,6 +728,7 @@ namespace SmartStore.Admin.Controllers
 						ProductTypeName = orderItem.Product.GetProductTypeLabel(_localizationService),
 						ProductTypeLabelHint = orderItem.Product.ProductTypeLabelHint,
                         Sku = orderItem.Product.Sku,
+                        Gtin = orderItem.Product.Gtin,
                         AttributeInfo = orderItem.AttributeDescription,
                         ItemWeight = orderItem.ItemWeight.HasValue ? string.Format("{0:F2} [{1}]", orderItem.ItemWeight, baseWeightIn) : "",
                         ItemDimensions = string.Format("{0:F2} x {1:F2} x {2:F2} [{3}]", orderItem.Product.Length, orderItem.Product.Width, orderItem.Product.Height, baseDimensionIn),
@@ -1687,13 +1703,12 @@ namespace SmartStore.Admin.Controllers
 					CategoryIds = new List<int> { model.SearchCategoryId },
 					ManufacturerId = model.SearchManufacturerId,
 					Keywords = model.SearchProductName,
-					PageIndex = command.Page - 1,
-					PageSize = command.PageSize,
 					ShowHidden = true,
 					ProductType = model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null
 				};
 
-				var products = _productService.SearchProducts(searchContext);
+				var query = _productService.PrepareProductSearchQuery(searchContext);
+				var products = new PagedList<Product>(query.OrderBy(x => x.Name), command.Page - 1, command.PageSize);
 
 				gridModel.Data = products.Select(x =>
 				{
@@ -2087,9 +2102,9 @@ namespace SmartStore.Admin.Controllers
 
                 //quantities
                 var qtyInThisShipment = 0;
-                var maxQtyToAdd = orderItem.GetTotalNumberOfItemsCanBeAddedToShipment();
+                var maxQtyToAdd = orderItem.GetItemsCanBeAddedToShipmentCount();
                 var qtyOrdered = orderItem.Quantity;
-                var qtyInAllShipments = orderItem.GetTotalNumberOfItemsInAllShipment();
+                var qtyInAllShipments = orderItem.GetShipmentItemsCount();
 
                 //ensure that this product can be added to a shipment
                 if (maxQtyToAdd <= 0)
@@ -2104,6 +2119,7 @@ namespace SmartStore.Admin.Controllers
 					ProductTypeName = orderItem.Product.GetProductTypeLabel(_localizationService),
 					ProductTypeLabelHint = orderItem.Product.ProductTypeLabelHint,
                     Sku = orderItem.Product.Sku,
+                    Gtin = orderItem.Product.Gtin,
                     AttributeInfo = orderItem.AttributeDescription,
                     ItemWeight = orderItem.ItemWeight.HasValue ? string.Format("{0:F2} [{1}]", orderItem.ItemWeight, baseWeightIn) : "",
                     ItemDimensions = string.Format("{0:F2} x {1:F2} x {2:F2} [{3}]", orderItem.Product.Length, orderItem.Product.Width, orderItem.Product.Height, baseDimensionIn),
@@ -2263,7 +2279,7 @@ namespace SmartStore.Admin.Controllers
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
         }
-
+        
 		public ActionResult PdfPackagingSlips(bool all, string selectedIds = null)
 		{
 			if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
@@ -2319,7 +2335,7 @@ namespace SmartStore.Admin.Controllers
 			{
 				Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
 				Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
-				Page = new PdfViewContent("ShipmentDetails.Print", model, this.ControllerContext),
+				Page = new PdfViewContent("~/Administration/Views/Order/ShipmentDetails.Print.cshtml", model, this.ControllerContext),
 				Header = new PdfRouteContent("PdfReceiptHeader", "Common", routeValues, this.ControllerContext),
 				Footer = new PdfRouteContent("PdfReceiptFooter", "Common", routeValues, this.ControllerContext)
 			};

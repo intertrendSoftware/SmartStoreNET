@@ -22,12 +22,12 @@
 			@(Model.InstantSearchEnabled ? Html.Raw(" autocomplete=\"off\"") : null) />
 
 	<button type="submit" class="btn btn-primary btn-icon instasearch-button" title="@T("Search")">
-		<i class="fa fa-search instasearch-icon"></i>
+		<i class="lnr lnr-magnifier instasearch-icon"></i>
 	</button>
 
 	<div id="instasearch-drop">
 		<div class="instasearch-drop-body clearfix"></div>
 	</div>
 
-    @Html.Widget("searchbox")
+    Html.RenderWidget("searchbox");
 }

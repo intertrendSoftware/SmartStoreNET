@@ -1,16 +1,23 @@
-﻿namespace SmartStore.Core.Search.Facets
+﻿using System.Collections.Generic;
+
+namespace SmartStore.Core.Search.Facets
 {
 	public class Facet
 	{
-		public Facet(string key, FacetValue value, long hitCount)
+		public Facet(FacetValue value)
+			: this(value.ToString(), value)
+		{
+		}
+
+		public Facet(string key, FacetValue value)
 		{
 			Guard.NotEmpty(key, nameof(key));
 			Guard.NotNull(value, nameof(value));
-			Guard.NotNull(value.Value, nameof(value.Value));
 
 			Key = key;
 			Value = value;
-			HitCount = hitCount;
+			Children = new List<Facet>();
+			IsChoice = true;
 		}
 
 		public string Key
@@ -25,16 +32,31 @@
 			private set;
 		}
 
+		/// <summary>
+		/// Gets or sets whether the facet can be selected
+		/// </summary>
+		public bool IsChoice
+		{
+			get;
+			set;
+		}
+
 		public long HitCount
 		{
 			get;
-			private set;
+			set;
 		}
 
 		public FacetGroup FacetGroup
 		{
 			get;
 			internal set;
+		}
+
+		public IList<Facet> Children
+		{
+			get;
+			set;
 		}
 	}
 }

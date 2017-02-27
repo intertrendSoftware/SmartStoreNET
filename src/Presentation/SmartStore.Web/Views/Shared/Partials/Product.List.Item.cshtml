@@ -9,7 +9,7 @@
 	var picture = Model.Picture;
 
 	var showButtons = list.ShowButtons && (!Model.Price.DisableWishlistButton || list.CompareEnabled || (!Model.Price.DisableBuyButton && list.BuyEnabled));
-	var showVariants = Model.ColorAttribute != null || (Model.Attributes != null && Model.Attributes.Any());
+	var showVariants = (Model.ColorAttributes != null && Model.ColorAttributes.Any()) || (Model.Attributes != null && Model.Attributes.Any());
 	var showDrop = showButtons || showVariants;
 	var showAttrs = list.ViewMode == ProductSummaryViewMode.List && (list.ShowSku || list.ShowWeight || list.ShowDimensions);
 }
@@ -18,7 +18,7 @@
 	<div class="art-picture-block">
 		@if (picture.Title.HasValue())
 		{
-			<a class="art-picture" href="@artDetailUrl" title="@picture.Title">
+			<a class='art-picture img-center-container@(picture.PictureId == 0 ? " no-picture" : "")' href="@artDetailUrl" title="@picture.Title" @Html.Attr("data-content", T("Common.NoImageAvail"), picture.PictureId == 0)>
 				<img src="@picture.ImageUrl" alt="@picture.AlternateText" title="@picture.Title" />
 			</a>
 		}
@@ -33,7 +33,6 @@
 				@* TODO: (mc) Move BS4 label/tag class definitions to art-badge.art-badge-[style] (?)  *@
 				<span class="label label-@badge.Style.ToString().ToLowerInvariant() art-badge">@Html.Raw(badge.Label)</span>
 			}
-			<span class="label label-warning art-badge">Neu</span>
 		</div>
 	}
 
@@ -43,7 +42,7 @@
 			{
 				if (list.ViewMode == ProductSummaryViewMode.List)
 				{
-					<div class="art-info-group clearfix">
+					<div class="art-info-group@(list.ShowRatings && list.ShowBrand ? " floating" : "")">
 						@if (list.ShowBrand) { Html.RenderPartial("Product.List.Item.Brand", Model); }
 						@if (list.ShowRatings) { Html.RenderPartial("Product.List.Item.Rating", Model); }
 					</div>
@@ -64,7 +63,6 @@
 			@if (list.ShowDescription)
 			{
 				<div class="art-description" title="@Model.ShortDescription">
-					@* TODO: (mc) Only render description block when merchant wishes so and only when at least one description is specified *@
 					@Html.Raw(Model.ShortDescription.Truncate(160, "..."))
 				</div>
 			}

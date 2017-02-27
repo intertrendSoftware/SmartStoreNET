@@ -1810,7 +1810,7 @@
 		<Value>Produkte</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Acl">
-		<Value>Zugriffbeschränkung</Value>
+		<Value>Zugriffsbeschränkung</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Added">
 		<Value>Das Produkt wurde erfolgreich hinzugefügt</Value>
@@ -2297,7 +2297,7 @@
 		<Value>Ist Abo</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.IsRecurring.Hint">
-		<Value>Legt fest, ob das Produkt wiederkehrend ist.</Value>
+		<Value>Legt fest, ob das Produkt ein Abonnement ist.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.IsShipEnabled">
 		<Value>Versand erforderlich</Value>
@@ -2702,7 +2702,7 @@
 		<Value>Bild</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Pictures.Fields.Picture.Hint">
-		<Value>Wählen Sie ein Bild für den Upload. Falls die tatsächlichen Bildabmessungen die Voreinstellungen überschreiten, wird das Bild automatisch skaliert werden.</Value>
+		<Value>Wählen Sie ein Bild für den Upload. Falls die tatsächlichen Bildabmessungen die Voreinstellungen überschreiten, wird das Bild automatisch skaliert.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Pictures.SaveBeforeEdit">
 		<Value>Sie müssen das Produkt speichern, bevor Sie Bilder hochladen können.</Value>
@@ -6260,7 +6260,7 @@
 		<Value>Geschenkgutschein ist eingelöst, wenn Auftragsstatus...</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Order.GiftCards_Activated.Hint">
-		<Value>Legt fest zu welchem Zeitpunkt der Bestellung Geschenkgutscheine aktiviert werden. Zur Auswahl stehen folgende Auftrags-Stati: - unerledigt, - wird bearbeitet, - komplett, - abgebrochen.</Value>
+		<Value>Legt den Auftragsstatus einer Bestellung fest, bei dem in der Bestellung enthaltene Geschenkgutscheine automatisch aktiviert werden. Zur Auswahl stehen folgende Auftrags-Stati: unerledigt, wird bearbeitet, komplett, abgebrochen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Order.GiftCards_Activated.Pending">
 		<Value>Der Auftragsstatus konnte nicht auf "in Bearbeitung" gesetzt werden</Value>
@@ -6528,12 +6528,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.MiniShoppingCartEnabled.Hint">
 		<Value>Aktiviert den Mini-Warenkorb.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.MiniShoppingCartProductNumber">
-		<Value>Maximale Anzahl angezeigter Produkte im Mini-Warenkorb</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.MiniShoppingCartProductNumber.Hint">
-		<Value>Legt die maximale Anzahl an Produkten im Mini-Warenkorb fest.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.MoveItemsFromWishlistToCart">
 		<Value>Artikel aus der Wunschliste in den Warenkorb verschieben</Value>
@@ -6941,7 +6935,7 @@
 		<Value>HOST Werte</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Fields.Hosts.Hint">
-		<Value>Kommagetrennte Liste mit möglichen HTTP_POTS Werten (z.B. "mein-shop.com,www.mein-shop.de"). Diese Einstellung wird nur in einer Multi-Shop Umgebung benötigt, um den aktuellen Shop zu ermitteln.</Value>
+		<Value>Kommagetrennte Liste mit möglichen HTTP_HOST Werten (z.B. "mein-shop.com,www.mein-shop.de"). Diese Einstellung wird nur in einer Multi-Shop Umgebung benötigt, um den aktuellen Shop zu ermitteln.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Fields.HtmlBodyId">
 		<Value>ID des HTML-Body</Value>
@@ -7214,7 +7208,7 @@
 		<Value>Kommentare</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.Blog.BlogPosts.Fields.CreatedOn">
-		<Value>Eerstellt am</Value>
+		<Value>Erstellt am</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.Blog.BlogPosts.Fields.EndDate">
 		<Value>Enddatum</Value>
@@ -7862,7 +7856,7 @@
 		<Value>Widget Zone</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.Topics.Fields.WidgetZone.Hint">
-		<Value>Ein oder mehrere Widget Zonen, in denen der Content dargestellt werden soll. Hinweis: ein Theme definiert deutlich mehr Zonen als hier angeboten. Suchen Sie die View-Dateien nach "@Html.Widget(...)" ab, um alle verfügbaren Zonen-Namen zu ermitteln.</Value>
+		<Value>Ein oder mehrere Widget Zonen, in denen der Content dargestellt werden soll. Hinweis: ein Theme definiert deutlich mehr Zonen als hier angeboten. Schalten Sie im Plugin Devloper Tools die Option Widget-Zonen anzeigen ein um alle Widget-Zonen direkt anzuzeigen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.Topics.Info">
 		<Value>Seiten-Informationen</Value>
@@ -14394,7 +14388,7 @@
 		<Value>Für die wiederkehrende Zahlung existiert kein Ausgangsauftrag.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.NoRecurringProducts">
-		<Value>Keine wiederkehrenden Produkte.</Value>
+		<Value>Keine Abonnements.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.Notes">
 		<Value>Notizen</Value>

@@ -13,6 +13,7 @@ namespace SmartStore.Web
 	{		
 		public static string UpdateProductDetailsUrl(this ProductDetailsModel model, string itemType = null)
 		{
+			// TODO: (mc) Remove
 			var urlHelper = new UrlHelper(HttpContext.Current.Request.RequestContext);
 
 			string url = urlHelper.Action("UpdateProductDetails", "Product", new
@@ -27,6 +28,7 @@ namespace SmartStore.Web
 
 		public static bool RenderBundleTitle(this ProductDetailsModel model)
 		{
+			// TODO: (mc) Remove
 			return model.BundleTitleText.HasValue() && model.BundledItems.Where(x => x.BundleItem.Visible).Count() > 0;
 		}
 
@@ -59,7 +61,7 @@ namespace SmartStore.Web
 			string result = "";
 
 			if (model.PriceAdjustment.HasValue())
-				result = " [{0}]".FormatWith(model.PriceAdjustment);
+				result = " ({0})".FormatWith(model.PriceAdjustment);
 
 			if (model.QuantityInfo > 1)
 				return " × {1}".FormatWith(result, model.QuantityInfo) + result;
@@ -83,15 +85,7 @@ namespace SmartStore.Web
 
 		public static bool ShouldBeRendered(this IEnumerable<ProductDetailsModel.ProductVariantAttributeModel> variantAttributes)
 		{
-			if (variantAttributes != null)
-			{
-				foreach (var item in variantAttributes)
-				{
-					if (item.ShouldBeRendered())
-						return true;
-				}
-			}
-			return false;
+			return variantAttributes?.FirstOrDefault(x => x.ShouldBeRendered()) != null;
 		}
 	}
 }

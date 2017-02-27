@@ -52,7 +52,7 @@
 			<td class="productpicture text-nowrap">
 				@if (item.Picture.ImageUrl.HasValue())
 				{
-					<img class="img-polaroid" alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" style="max-width:@(Model.MediaDimensions)px;max-height:@(Model.MediaDimensions)px"/>
+					<img alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" />
 				}
 			</td>
 		}
@@ -75,10 +75,12 @@
 
 			@if (Model.DisplayDeliveryTime && item.IsShipEnabled && (!String.IsNullOrEmpty(item.DeliveryTimeName) && !String.IsNullOrEmpty(item.DeliveryTimeHexValue)))
 			{
-				<div class="delivery-time">
-					<span class="delivery-time-label">@T("Products.DeliveryTime")</span>
-					<span class="delivery-time-color" style="background-color:@item.DeliveryTimeHexValue" title="@item.DeliveryTimeName"></span>
-					<span class="delivery-time-value">@item.DeliveryTimeName</span>
+				<div class="deliverytime-group">
+					<span>@T("Products.DeliveryTime")</span>
+					<span class="delivery-time" style="color:@item.DeliveryTimeHexValue" title="@item.DeliveryTimeName">
+                        <i class="fa fa-circle delivery-time-status"></i>
+                        @item.DeliveryTimeName
+                    </span>
 				</div>
 			}
 
@@ -118,7 +120,7 @@
 			}
 			@if (item.Warnings.Count > 0)
 			{
-				<div class="alert alert-error">
+				<div class="alert alert-danger">
 					@for (int i = 0; i < item.Warnings.Count; i++)
 					{
 						<p>@item.Warnings[i]</p>
@@ -129,9 +131,9 @@
 
         @if (Model.DisplayWeight)
 		{
-        <td class="weight text-nowrap">
-            <span class="product-weight">@((item.Weight * item.Quantity).ToString("N2")) kg</span>
-        </td>
+            <td class="weight text-nowrap">
+                <span class="product-weight">@((item.Weight * item.EnteredQuantity).ToString("N2")) kg</span>
+            </td>
         }
 
 		<td class="unit-price text-nowrap">
@@ -139,37 +141,13 @@
 		</td>
 		<td class="text-nowrap" style="width:170px">
 			@if (Model.IsEditable)
-			{
-				if (item.AllowedQuantities.Count > 0)
-				{
-				<select name="itemquantity@(item.Id)" class="qty-dropdown noskin">
-					@foreach (var qty in item.AllowedQuantities)
-					{
-						<option selected="@qty.Selected" value="@qty.Value">@qty.Value</option>
-					}
-				</select>
-				}
-				else
-				{
-                    <input id="qty-input-@(item.Id)" name="itemquantity@(item.Id)" type="text" value="@(item.Quantity)" class="qty-input text-xs-right form-control" />   
-
-                    <script type="text/javascript">
-                        $(function () {
-                            //TODO NewAlpha: implement step in admin product detail
-                            $("#qty-input-@(item.Id)").TouchSpin({
-                                min: @item.MinOrderAmount,
-                                max: @item.MaxOrderAmount,
-                                step: 1
-                            });
-                        });
-                    </script>
-                }
+            {
+                @Html.EditorFor(x => item, "QtyInput", new { htmlAttributes = new { id = "itemquantity{0}".FormatWith(item.Id), Name = "itemquantity{0}".FormatWith(item.Id) } })
             }
             else
             {
-				<span>@item.Quantity</span>
+				<span>@item.EnteredQuantity</span>
 			}
-            <span class="measure-unit">@item.QuantityUnit</span>
 		</td>
 		<td class="text-nowrap omega">
 			<span class="product-subtotal">@item.SubTotal</span>
@@ -216,7 +194,7 @@
 							<div class="bundle-item-image" style="@("min-width: {0}px; min-height: {0}px;".FormatInvariant(Model.BundleThumbSize + 10))">
 								@if (item.Picture.ImageUrl.HasValue() && !item.BundleItem.HideThumbnail)
 								{
-									<img class="img-polaroid" src="@item.Picture.ImageUrl" alt="@item.Picture.AlternateText" title="@item.Picture.Title" />
+									<img src="@item.Picture.ImageUrl" alt="@item.Picture.AlternateText" title="@item.Picture.Title" />
 								}
 							</div>
 						}						
@@ -230,10 +208,10 @@
 								{
 									@item.ProductName
 								}
-								@if (item.Quantity > 1 && item.BundlePerItemShoppingCart)
+								@if (item.EnteredQuantity > 1 && item.BundlePerItemShoppingCart)
 								{
 									<text>
-										&#215;&nbsp;@item.Quantity
+										&#215;&nbsp;@item.EnteredQuantity
 									</text>
 								}
 							</div>
@@ -257,7 +235,7 @@
 							}
 							@if (item.Warnings.Count > 0)
 							{
-								<div class="alert alert-error">
+								<div class="alert alert-danger">
 									@foreach (var warning in item.Warnings)
 									{
 										<p>@warning</p>
@@ -291,7 +269,9 @@
 }
 
 <div class="order-summary-content">
-	@Html.Widget("order_summary_content_before")
+	
+    @{ Html.RenderWidget("order_summary_content_before"); }
+
 	@{ Html.RenderPartial("_OrderReviewData", Model.OrderReviewData); }
    
     @if (Model.DisplayCommentBox && !Model.IsEditable)
@@ -303,7 +283,7 @@
 	{
 		<div class="block block-bordered newsletter-subscription">
 			<div class="block-title">
-				@T("Common.Options")
+				<h3>@T("Common.Options")</h3>
 			</div>
 			<div class="block-body">
 				@if (Model.NewsLetterSubscription != CheckoutNewsLetterSubscription.None)
@@ -339,7 +319,7 @@
 	{
 		if (Model.Warnings.Count > 0)
 		{
-			<div class="alert alert-error">
+			<div class="alert alert-danger">
 				@for (int i = 0; i < Model.Warnings.Count; i++)
 				{
 					<p>@Model.Warnings[i]</p>
@@ -409,8 +389,8 @@
 			}
 		</table>
 
-                if (Model.IsEditable)
-                {
+        if (Model.IsEditable)
+        {
 			<div class="common-buttons clearfix">
 				<button type="submit" name="updatecart" value="updatecart" class="btn btn-secondary pull-right update-cart-button">
 					<i class="fa fa-refresh"></i>&nbsp;@T("ShoppingCart.UpdateCart")
@@ -420,12 +400,13 @@
                 </button>
 				<input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" style="display: none;" />
 			</div>
-                }
+        }
 
 		<div class="cart-footer row m-t-3">
 
 			<div class="col-sm-8 order-totals-left">
-				@Html.Widget("order_summary_content_totals_left")
+
+				@{ Html.RenderWidget("order_summary_content_totals_left"); }
 
 				@if (Model.IsEditable)
                 {
@@ -436,7 +417,7 @@
                                 Html.RenderPartial("_DiscountBox", Model.DiscountBox);
                                 Html.RenderPartial("_GiftCardBox", Model.GiftCardBox);
                             }
-                            @Html.Widget("order_summary_content_deals")
+                            @{ Html.RenderWidget("order_summary_content_deals"); }
                         </div>
 
                         <!-- Checkout attributes -->
@@ -461,7 +442,7 @@
 
 				@{ Html.RenderAction("OrderTotals", "ShoppingCart", new { isEditable = Model.IsEditable }); }
 
-				@Html.Widget("order_summary_content_totals_bottom")
+				@{ Html.RenderWidget("order_summary_content_totals_bottom"); }
 
 				@if (Model.IsEditable)
 				{
@@ -493,7 +474,7 @@
 		</div>
 		}
         
-		@Html.Widget("order_summary_content_after")
+		Html.RenderWidget("order_summary_content_after");
 
 		if (Model.IsEditable)
 		{

@@ -70,9 +70,13 @@ namespace SmartStore.Web.Controllers
 			var searchFields = new List<string> { "name", "shortdescription", "tagname" };
 
 			if (_searchSettings.SearchFields.Contains("sku"))
-			{
 				searchFields.Add("sku");
-			}
+
+			if (_searchSettings.SearchFields.Contains("gtin"))
+				searchFields.Add("gtin");
+
+			if (_searchSettings.SearchFields.Contains("mpn"))
+				searchFields.Add("mpn");
 
 			query.Fields = searchFields.ToArray();
 
@@ -106,10 +110,6 @@ namespace SmartStore.Web.Controllers
 			// Add spell checker suggestions (if any)
 			AddSpellCheckerSuggestionsToModel(result.SpellCheckerSuggestions, model);
 
-			// Add top hits (if any)
-			AddTopHitsToModel(result.TopCategories, model, "TopCategories", T("Search.TopCategories"), x => new { q = model.Term, c = x.EntityId });
-			AddTopHitsToModel(result.TopManufacturers, model, "TopManufacturers", T("Search.TopManufacturers"), x => new { q = model.Term, m = x.EntityId });
-
 			return PartialView(model);
 		}
 
@@ -118,6 +118,7 @@ namespace SmartStore.Web.Controllers
 		public ActionResult Search(CatalogSearchQuery query)
 		{
 			var model = new SearchResultModel(query);
+			CatalogSearchResult result = null;
 
 			if (query.Term == null || query.Term.Length < _searchSettings.InstantSearchTermMinLength)
 			{
@@ -130,8 +131,16 @@ namespace SmartStore.Web.Controllers
 				SystemCustomerAttributeNames.LastContinueShoppingPage,
 				Services.WebHelper.GetThisPageUrl(false),
 				Services.StoreContext.CurrentStore.Id);
-			
-			var result = _catalogSearchService.Search(query);
+
+			try
+			{
+				result = _catalogSearchService.Search(query);
+			}
+			catch (Exception exception)
+			{
+				model.Error = exception.ToString();
+				result = new CatalogSearchResult(null, query, 0, () => new List<Product>(), null, null);
+			}
 
 			if (result.TotalHitsCount == 0 && result.SpellCheckerSuggestions.Any())
 			{
@@ -171,10 +180,6 @@ namespace SmartStore.Web.Controllers
 			// Add spell checker suggestions (if any)
 			AddSpellCheckerSuggestionsToModel(result.SpellCheckerSuggestions, model);
 
-			// Add top hits (if any)
-			AddTopHitsToModel(result.TopCategories, model, "TopCategories", T("Search.TopCategories"), x => new { q = model.Term, c = x.EntityId });
-			AddTopHitsToModel(result.TopManufacturers, model, "TopManufacturers", T("Search.TopManufacturers"), x => new { q = model.Term, m = x.EntityId });
-
 			return View(model);
 		}
 
@@ -193,48 +198,9 @@ namespace SmartStore.Web.Controllers
 			hitGroup.Hits.AddRange(suggestions.Select(x => new SearchResultModel.HitItem
 			{
 				Label = x,
-				Url = Url.RouteUrl("Search", new { q = x })
+				Url = Url.RouteUrl("Search", new { q = x }),
+				NoHighlight = true
 			}));
-
-			model.HitGroups.Add(hitGroup);
-		}
-
-		private void AddTopHitsToModel(
-			IEnumerable<ISearchHit> hits,
-			SearchResultModel model,
-			string name,
-			string displayName,
-			Func<ISearchHit, object> routeValues)
-		{
-			if (!hits.Any())
-				return;
-
-			var hitGroup = new SearchResultModel.HitGroup(model)
-			{
-				Name = name,
-				DisplayName = displayName,
-				Ordinal = -100
-			};
-
-			foreach (var hit in hits)
-			{
-				string label = null;
-
-				if (model.Query.LanguageSeoCode.HasValue())
-				{
-					label = hit.GetString("name", model.Query.LanguageSeoCode);
-				}
-				if (label.IsEmpty())
-				{
-					label = hit.GetString("name");
-				}
-
-				hitGroup.Hits.Add(new SearchResultModel.HitItem
-				{
-					Label = label,
-					Url = Url.RouteUrl("Search", routeValues(hit))
-				});
-			}
 
 			model.HitGroups.Add(hitGroup);
 		}

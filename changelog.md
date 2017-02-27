@@ -1,4 +1,4 @@
-﻿# Release Notes
+# Release Notes
 
 ## SmartStore.NET 3.0
 
@@ -21,10 +21,23 @@
 * Added option to skip shipping method selection in checkout process when only one shipping method is active
 * Added options to capture salutation and title in addresses and customer info
 * Added projection to control the export of individually visible associated products
-* #1002 Web API: Add support for addresses and customer roles navigation property of customer entity
 * #966 Implement new tax calculation logic for shipping and payment fees (Calculate with rate of highest cart amount)
 * #922 New option whether to include the weight of free shipping products in shipping by weight calculation
 * #724 Allow discounts to be applied to manufacturers
+* Option to display manufacturers sorted in alphabetical order
+* #1093 New product properties required for selling abroad
+* Web API:
+	* #1002 Add support for addresses and customer roles navigation property of customer entity
+	* #1062 Add filter options for user grid on configuration page
+	* #1072 Add support for TaxCategory
+	* #1073 Settings for maximum pagesize ($top) and maximum expansion depth ($expand)
+	* #1074 Extend product image upload to allow updating of images
+	* #1064 Deleting all product categories/manufacturers per product in one go
+	* #1063 Adding product category/manufacturer ignores any other property like DisplayOrder
+	* Added endpoint "Infos" for order and order item entity for additional information like aggregated data.
+* Added setting to specify whether the product manufacturer should be displayed in product detail
+* #271 Implemented support for attribute images/icons
+
 
 ### Improvements
 * Updated .NET Target Framework from 4.5.1 to 4.5.2
@@ -35,6 +48,7 @@
 * Updated Elmar shop info XML from version 1.1 to 2.0
 * (Perf) Application start faster by ~20%
 * (Perf) Lower memory consumption
+* (Perf) #1098 Reduce number of created guest accounts (more reliable bot detection)
 * #1008 Export: Add support for description projection to all product exporting providers
 * #1015 Implement Entity Picker in discount requirements
 * Debitoor improvements:
@@ -42,7 +56,16 @@
 	* Option to append customer email address to invoice address
 	* Additional order notes for tax exemption within and outside EU
 * #1048 Add meta tags to contact us page
-* #1062 Web API: Add filter options for user grid on configuration page
+* Order XML export includes more customer data like title and salutation
+* #1080 Do not resolve Order.OrderURLForCustomer token for guest customers
+* #1051 Display EAN in PDF packaging slip
+* #806 Can't create a user in the admin section without "Manage Customer Roles" permission 
+* #491 Implemented option to determine a default delivery time
+* #1078 Implemented options for "Add to Cart" quantity input field on product level. Quantity control can now be hidden and can be configured to be increased and decreased in steps.
+* #696 Added textual resources for meta title and description for blog per month and by tag pages and enriched them with corresponding month plus year respectivly tag name
+* #1025 Added token for customer number to MessageTokenProvider 
+* #1016 Implemented choosing of MessageTokens for newsletter campaigns with dropdown menu
+
 
 ### Bugfixes
 * Currency wasn't displayed at shipping estimation
@@ -61,6 +84,9 @@
 * Guest user cannot be deleted if he has a private message
 * #1029 Biz-Importer: Imports fixed tax rates as zero percentage
 * #1055 Checkout: Localized shipping method names are not displayed if shipping by total is activated
+* #1071 NewsLetterSubscription.ActivationUrl not working if the store if SSL secured
+* #1086 Gift cards can be earned in one store and applied in another
+* Whishlist: Products with minimum order amount greater then 1 can be added to the whishlist without any warning
 
 ## SmartStore.NET 2.6
 

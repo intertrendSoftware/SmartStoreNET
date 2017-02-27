@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Newtonsoft.Json;
 using SmartStore.Admin.Models.Common;
 using SmartStore.Admin.Models.Settings;
 using SmartStore.Admin.Validators.Settings;
-using SmartStore.Core;
 using SmartStore.Core.Domain;
 using SmartStore.Core.Domain.Blogs;
 using SmartStore.Core.Domain.Catalog;
@@ -25,6 +25,7 @@ using SmartStore.Core.Domain.Tax;
 using SmartStore.Core.Logging;
 using SmartStore.Core.Plugins;
 using SmartStore.Core.Search;
+using SmartStore.Core.Search.Facets;
 using SmartStore.Core.Search.Filter;
 using SmartStore.Core.Themes;
 using SmartStore.Services;
@@ -67,7 +68,6 @@ namespace SmartStore.Admin.Controllers
 		private readonly IThemeRegistry _themeRegistry;
 		private readonly ICustomerService _customerService;
 		private readonly ICustomerActivityService _customerActivityService;
-		private readonly IFulltextService _fulltextService;
 		private readonly IMaintenanceService _maintenanceService;
 		private readonly IGenericAttributeService _genericAttributeService;
 		private readonly ILocalizedEntityService _localizedEntityService;
@@ -76,6 +76,7 @@ namespace SmartStore.Admin.Controllers
 		private readonly ICommonServices _services;
 		private readonly IProviderManager _providerManager;
 		private readonly PluginMediator _pluginMediator;
+		private readonly IPluginFinder _pluginFinder;
 		private readonly IMediaMover _mediaMover;
 
 		private StoreDependingSettingHelper _storeDependingSettings;
@@ -97,7 +98,6 @@ namespace SmartStore.Admin.Controllers
             IThemeRegistry themeRegistry,
 			ICustomerService customerService, 
             ICustomerActivityService customerActivityService,
-            IFulltextService fulltextService,
 			IMaintenanceService maintenanceService,
 			IGenericAttributeService genericAttributeService,
 			ILocalizedEntityService localizedEntityService,
@@ -106,29 +106,30 @@ namespace SmartStore.Admin.Controllers
 			ICommonServices services,
 			IProviderManager providerManager,
 			PluginMediator pluginMediator,
+			IPluginFinder pluginFinder,
 			IMediaMover mediaMover)
         {
-            this._countryService = countryService;
-            this._stateProvinceService = stateProvinceService;
-            this._addressService = addressService;
-            this._taxCategoryService = taxCategoryService;
-            this._pictureService = pictureService;
-            this._dateTimeHelper = dateTimeHelper;
-            this._orderService = orderService;
-            this._encryptionService = encryptionService;
-            this._themeRegistry = themeRegistry;
-            this._customerService = customerService;
-            this._customerActivityService = customerActivityService;
-            this._fulltextService = fulltextService;
-            this._maintenanceService = maintenanceService;
-			this._genericAttributeService = genericAttributeService;
-			this._localizedEntityService = localizedEntityService;
-			this._languageService = languageService;
-			this._deliveryTimesService = deliveryTimesService;
-			this._services = services;
-			this._providerManager = providerManager;
-			this._pluginMediator = pluginMediator;
-			this._mediaMover = mediaMover;
+            _countryService = countryService;
+            _stateProvinceService = stateProvinceService;
+            _addressService = addressService;
+            _taxCategoryService = taxCategoryService;
+            _pictureService = pictureService;
+            _dateTimeHelper = dateTimeHelper;
+            _orderService = orderService;
+            _encryptionService = encryptionService;
+            _themeRegistry = themeRegistry;
+            _customerService = customerService;
+            _customerActivityService = customerActivityService;
+            _maintenanceService = maintenanceService;
+			_genericAttributeService = genericAttributeService;
+			_localizedEntityService = localizedEntityService;
+			_languageService = languageService;
+			_deliveryTimesService = deliveryTimesService;
+			_services = services;
+			_providerManager = providerManager;
+			_pluginMediator = pluginMediator;
+			_pluginFinder = pluginFinder;
+			_mediaMover = mediaMover;
         }
 
 		#endregion
@@ -143,6 +144,12 @@ namespace SmartStore.Admin.Controllers
 					_storeDependingSettings = new StoreDependingSettingHelper(this.ViewData);
 				return _storeDependingSettings;
 			}
+		}
+
+		private SelectListItem ResToSelectListItem(string resourceKey)
+		{
+			string value = _services.Localization.GetResource(resourceKey).EmptyNull();
+			return new SelectListItem() { Text = value, Value = value };
 		}
 
 		#endregion
@@ -580,7 +587,7 @@ namespace SmartStore.Admin.Controllers
 			var deliveryTimes = _deliveryTimesService.GetAllDeliveryTimes();
 			foreach (var dt in deliveryTimes)
 			{
-				model.AvailableDeliveryTimes.Add(new SelectListItem()
+				model.AvailableDeliveryTimes.Add(new SelectListItem
 				{
 					Text = dt.Name,
 					Value = dt.Id.ToString(),
@@ -597,7 +604,7 @@ namespace SmartStore.Admin.Controllers
             if (!_services.Permissions.Authorize(StandardPermissionProvider.ManageSettings))
                 return AccessDeniedView();
 
-			//load settings for a chosen store scope
+			// Load settings for a chosen store scope
 			var storeScope = this.GetActiveStoreScopeConfiguration(_services.StoreService, _services.WorkContext);
 			var catalogSettings = _services.Settings.LoadSetting<CatalogSettings>(storeScope);
 			catalogSettings = model.ToEntity(catalogSettings);
@@ -1091,13 +1098,6 @@ namespace SmartStore.Admin.Controllers
 
 			StoreDependingSettings.GetOverrideKeys(localizationSettings, model.LocalizationSettings, storeScope, _services.Settings, false);
 
-			//full-text support
-			var commonSettings = _services.Settings.LoadSetting<CommonSettings>(storeScope);
-			model.FullTextSettings.Supported = _fulltextService.IsFullTextSupported();
-			model.FullTextSettings.Enabled = commonSettings.UseFullTextSearch;
-			model.FullTextSettings.SearchMode = commonSettings.FullTextMode;
-			model.FullTextSettings.SearchModeValues = commonSettings.FullTextMode.ToSelectList();
-
 			//company information
 			var companySettings = _services.Settings.LoadSetting<CompanyInformationSettings>(storeScope);
 			model.CompanyInformationSettings.CompanyName = companySettings.CompanyName;
@@ -1180,12 +1180,6 @@ namespace SmartStore.Admin.Controllers
 			StoreDependingSettings.GetOverrideKeys(socialSettings, model.SocialSettings, storeScope, _services.Settings, false);
 
             return View(model);
-        }
-
-        private SelectListItem ResToSelectListItem(string resourceKey)
-        {
-            string value = _services.Localization.GetResource(resourceKey).EmptyNull();
-            return new SelectListItem() { Text = value, Value = value };
         }
 
         [HttpPost]
@@ -1297,12 +1291,6 @@ namespace SmartStore.Admin.Controllers
 				System.Web.Routing.RouteTable.Routes.ClearSeoFriendlyUrlsCachedValueForRoutes();	// clear cached values of routes
 			}
 
-			//full-text
-			var commonSettings = _services.Settings.LoadSetting<CommonSettings>(storeScope);
-			commonSettings.FullTextMode = model.FullTextSettings.SearchMode;
-
-			_services.Settings.SaveSetting(commonSettings);
-
 			//company information
 			var companySettings = _services.Settings.LoadSetting<CompanyInformationSettings>(storeScope);
 			companySettings.CompanyName = model.CompanyInformationSettings.CompanyName;
@@ -1369,6 +1357,7 @@ namespace SmartStore.Admin.Controllers
             NotifySuccess(_services.Localization.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("GeneralCommon");
         }
+
         [HttpPost, ActionName("GeneralCommon")]
         [FormValueRequired("changeencryptionkey")]
         public ActionResult ChangeEnryptionKey(GeneralCommonSettingsModel model)
@@ -1476,46 +1465,6 @@ namespace SmartStore.Admin.Controllers
             }
 			return RedirectToAction("GeneralCommon");
         }
-        [HttpPost, ActionName("GeneralCommon")]
-        [FormValueRequired("togglefulltext")]
-        public ActionResult ToggleFullText(GeneralCommonSettingsModel model)
-        {
-            if (!_services.Permissions.Authorize(StandardPermissionProvider.ManageSettings))
-                return AccessDeniedView();
-
-			var storeScope = this.GetActiveStoreScopeConfiguration(_services.StoreService, _services.WorkContext);
-			var commonSettings = _services.Settings.LoadSetting<CommonSettings>(storeScope);
-
-            try
-            {
-                if (! _fulltextService.IsFullTextSupported())
-                    throw new SmartException(_services.Localization.GetResource("Admin.Configuration.Settings.GeneralCommon.FullTextSettings.NotSupported"));
-
-                if (commonSettings.UseFullTextSearch)
-                {
-                    _fulltextService.DisableFullText();
-
-                    commonSettings.UseFullTextSearch = false;
-                    _services.Settings.SaveSetting(commonSettings, storeScope);
-
-                    NotifySuccess(_services.Localization.GetResource("Admin.Configuration.Settings.GeneralCommon.FullTextSettings.Disabled"));
-                }
-                else
-                {
-                    _fulltextService.EnableFullText();
-
-                    commonSettings.UseFullTextSearch = true;
-                    _services.Settings.SaveSetting(commonSettings, storeScope);
-
-                    NotifySuccess(_services.Localization.GetResource("Admin.Configuration.Settings.GeneralCommon.FullTextSettings.Enabled"));
-                }
-            }
-            catch (Exception exc)
-            {
-                NotifyError(exc);
-            }
-			return RedirectToAction("GeneralCommon");
-        }
 
 		[HttpPost]
 		public ActionResult TestSeoNameCreation(GeneralCommonSettingsModel model)
@@ -1587,6 +1536,7 @@ namespace SmartStore.Admin.Controllers
 
 			var storeScope = this.GetActiveStoreScopeConfiguration(Services.StoreService, Services.WorkContext);
 			var settings = Services.Settings.LoadSetting<SearchSettings>(storeScope);
+			var megaSearchDescriptor = _pluginFinder.GetPluginDescriptorBySystemName("SmartStore.MegaSearch");
 
 			var model = new SearchSettingsModel();
 			model.SearchMode = settings.SearchMode;
@@ -1595,39 +1545,12 @@ namespace SmartStore.Admin.Controllers
 			model.InstantSearchNumberOfProducts = settings.InstantSearchNumberOfProducts;
 			model.InstantSearchTermMinLength = settings.InstantSearchTermMinLength;
 			model.ShowProductImagesInInstantSearch = settings.ShowProductImagesInInstantSearch;
-
-			model.GlobalFilters = XmlHelper.Deserialize<List<SearchFilterDescriptor>>(settings.GlobalFilters);
-
-			// set default global filters
-			if (model.GlobalFilters == null || !model.GlobalFilters.Any())
+			model.FilterMinHitCount = settings.FilterMinHitCount;
+			model.FilterMaxChoicesCount = settings.FilterMaxChoicesCount;
+			
+			if (megaSearchDescriptor == null)
 			{
-				model.GlobalFilters = new List<SearchFilterDescriptor>
-				{
-					new SearchFilterDescriptor { Enabled = true, DisplayOrder = 1, FieldName = "manufacturer" },
-					new SearchFilterDescriptor { Enabled = true, DisplayOrder = 2, FieldName = "rate" },
-					new SearchFilterDescriptor { Enabled = true, DisplayOrder = 3, FieldName = "price" },
-					new SearchFilterDescriptor { Enabled = true, DisplayOrder = 4, FieldName = "availability" }
-				};
-			}
-
-			// set friendly names for global filters
-			foreach (var filter in model.GlobalFilters)
-			{
-				switch (filter.FieldName)
-				{
-					case "manufacturer":
-						filter.FriendlyName = T("Admin.Catalog.Manufacturers");
-						break;
-					case "rate":
-						filter.FriendlyName = T("Admin.Catalog.ProductReviews");
-						break;
-					case "price":
-						filter.FriendlyName = T("Admin.Catalog.Products.Price");
-						break;
-					case "availability":
-						filter.FriendlyName = T("Products.Availability");
-						break;
-				}
+				model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
 			}
 
 			model.AvailableSearchModes = settings.SearchMode.ToSelectList().ToList();
@@ -1637,10 +1560,32 @@ namespace SmartStore.Admin.Controllers
 				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
 				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
 				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
-				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
 				new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
-				new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" }
+				new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
+				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
+				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
 			};
+
+			// global filters
+			var globalFilters = settings.GlobalFilters.HasValue()
+				? JsonConvert.DeserializeObject<List<GlobalSearchFilterDescriptor>>(settings.GlobalFilters)
+				: new List<GlobalSearchFilterDescriptor>();
+
+			var displayOrder = (globalFilters.Any() ? globalFilters.Max(x => x.DisplayOrder) : 0);
+
+			foreach (var fieldName in new string[] { "manufacturerid", "price", "rate", "deliveryid" })
+			{
+				var filter = globalFilters.FirstOrDefault(x => x.FieldName.IsCaseInsensitiveEqual(fieldName));
+
+				model.GlobalFilters.Add(new GlobalSearchFilterDescriptor
+				{
+					FieldName = fieldName,
+					Disabled = filter != null ? filter.Disabled : false,
+					DisplayOrder = filter != null ? filter.DisplayOrder : ++displayOrder,
+					FriendlyName = T(FacetDescriptor.GetLabelResourceKey(fieldName))
+				});
+			}
 
 			StoreDependingSettings.GetOverrideKeys(settings, model, storeScope, Services.Settings);
 
@@ -1675,7 +1620,9 @@ namespace SmartStore.Admin.Controllers
 			settings.InstantSearchNumberOfProducts = model.InstantSearchNumberOfProducts;
 			settings.InstantSearchTermMinLength = model.InstantSearchTermMinLength;
 			settings.ShowProductImagesInInstantSearch = model.ShowProductImagesInInstantSearch;
-			settings.GlobalFilters = XmlHelper.Serialize(model.GlobalFilters);
+			settings.GlobalFilters = JsonConvert.SerializeObject(model.GlobalFilters);
+			settings.FilterMinHitCount = model.FilterMinHitCount;
+			settings.FilterMaxChoicesCount = model.FilterMaxChoicesCount;
 
 			StoreDependingSettings.UpdateSettings(settings, form, storeScope, Services.Settings);
 

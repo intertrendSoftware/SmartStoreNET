@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data.Entity.Infrastructure;
+﻿using System.Data.Entity.Infrastructure;
 
 namespace SmartStore.Core.Data.Hooks
 {
@@ -58,6 +57,28 @@ namespace SmartStore.Core.Data.Hooks
 			{
 				return InitialState != State;
 			}
+		}
+
+		/// <summary>
+		/// Gets a value indicating whether a property has been modified.
+		/// </summary>
+		/// <param name="propertyName">Name of the property</param>
+		public bool IsPropertyModified(string propertyName)
+		{
+			Guard.NotEmpty(propertyName, nameof(propertyName));
+
+			if (State == EntityState.Modified)
+			{
+				var prop = Entry.Property(propertyName);
+				if (prop == null)
+				{
+					throw new SmartException($"An entity property '{propertyName}' does not exist.");
+				}
+
+				return prop.CurrentValue != null && !prop.CurrentValue.Equals(prop.OriginalValue);
+			}
+
+			return false;
 		}
 	}
 }

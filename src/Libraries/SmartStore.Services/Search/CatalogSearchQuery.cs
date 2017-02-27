@@ -27,16 +27,6 @@ namespace SmartStore.Services.Search
 		{
 		}
 
-		/// <summary>
-		/// Maximum number of top categories
-		/// </summary>
-		public int MaxTopCategories { get; protected set; }
-
-		/// <summary>
-		/// Maximum number of top manufacturers
-		/// </summary>
-		public int MaxTopManufacturers { get; protected set; }
-
 		public CatalogSearchQuery Clone()
 		{
 			return (CatalogSearchQuery)this.MemberwiseClone();
@@ -188,6 +178,7 @@ namespace SmartStore.Services.Search
 			return WithFilter(SearchFilter.Combined(ids.Select(x => SearchFilter.ByField(fieldName, x).ExactMatch().NotAnalyzed()).ToArray()));
 		}
 
+		/// <remarks>Includes only published categories</remarks>
 		public CatalogSearchQuery HasAnyCategory(bool value)
 		{
 			if (value)
@@ -212,6 +203,7 @@ namespace SmartStore.Services.Search
 			return WithFilter(SearchFilter.Combined(ids.Select(x => SearchFilter.ByField(fieldName, x).ExactMatch().NotAnalyzed()).ToArray()));
 		}
 
+		/// <remarks>Includes only published manufacturers</remarks>
 		public CatalogSearchQuery HasAnyManufacturer(bool value)
 		{
 			if (value)
@@ -234,17 +226,18 @@ namespace SmartStore.Services.Search
 			return WithFilter(SearchFilter.ByRange("stockquantity", fromQuantity, toQuantity, fromQuantity.HasValue, toQuantity.HasValue).Mandatory().ExactMatch().NotAnalyzed());
 		}
 
-		public CatalogSearchQuery PriceBetween(decimal? fromPrice, decimal? toPrice, Currency currency)
+		public CatalogSearchQuery PriceBetween(decimal? fromPrice, decimal? toPrice)
 		{
-			Guard.NotNull(currency, nameof(currency));
+			Guard.NotEmpty(CurrencyCode, nameof(CurrencyCode));
 
-			var fieldName = "price_c-" + currency.CurrencyCode.EmptyNull().ToLower();
+			var fieldName = "price_c-" + CurrencyCode.EmptyNull().ToLower();
 
 			return WithFilter(SearchFilter.ByRange(fieldName,
 				fromPrice.HasValue ? decimal.ToDouble(fromPrice.Value) : (double?)null,
 				toPrice.HasValue ? decimal.ToDouble(toPrice.Value) : (double?)null,
 				fromPrice.HasValue,
-				toPrice.HasValue).Mandatory().ExactMatch().NotAnalyzed());
+				toPrice.HasValue).Mandatory().ExactMatch().NotAnalyzed()
+			);
 		}
 
 		public CatalogSearchQuery CreatedBetween(DateTime? fromUtc, DateTime? toUtc)
@@ -266,22 +259,9 @@ namespace SmartStore.Services.Search
 			return WithFilter(SearchFilter.ByRange("rate", fromRate, toRate, fromRate.HasValue, toRate.HasValue).Mandatory().ExactMatch().NotAnalyzed());
 		}
 
-		public CatalogSearchQuery WithTopCategories(int maxTopCategories)
+		public CatalogSearchQuery WithDeliveryTimeIds(params int[] ids)
 		{
-			Guard.IsPositive(maxTopCategories, nameof(maxTopCategories));
-
-			MaxTopCategories = maxTopCategories;
-
-			return this;
-		}
-
-		public CatalogSearchQuery WithTopManufacturers(int maxTopManufacturers)
-		{
-			Guard.IsPositive(maxTopManufacturers, nameof(maxTopManufacturers));
-
-			MaxTopManufacturers = maxTopManufacturers;
-
-			return this;
+			return WithFilter(SearchFilter.Combined(ids.Select(x => SearchFilter.ByField("deliveryid", x).ExactMatch().NotAnalyzed()).ToArray()));
 		}
 
 		#endregion

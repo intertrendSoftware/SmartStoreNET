@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -366,8 +367,9 @@ namespace SmartStore.Services.Catalog.Importer
 				row.SetProperty(context.Result, (x) => x.BackorderModeId);
 				row.SetProperty(context.Result, (x) => x.AllowBackInStockSubscriptions);
 				row.SetProperty(context.Result, (x) => x.OrderMinimumQuantity, 1);
-				row.SetProperty(context.Result, (x) => x.OrderMaximumQuantity, 10000);
-				row.SetProperty(context.Result, (x) => x.AllowedQuantities);
+				row.SetProperty(context.Result, (x) => x.OrderMaximumQuantity, 100);
+                row.SetProperty(context.Result, (x) => x.HideQuantityControl);
+                row.SetProperty(context.Result, (x) => x.AllowedQuantities);
 				row.SetProperty(context.Result, (x) => x.DisableBuyButton);
 				row.SetProperty(context.Result, (x) => x.DisableWishlistButton);
 				row.SetProperty(context.Result, (x) => x.AvailableForPreOrder);
@@ -403,6 +405,8 @@ namespace SmartStore.Services.Catalog.Importer
 				// With new entities, "LimitedToStores" is an implicit field, meaning
 				// it has to be set to true by code if it's absent but "StoreIds" exists.
 				row.SetProperty(context.Result, (x) => x.LimitedToStores, !row.GetDataValue<List<int>>("StoreIds").IsNullOrEmpty());
+				row.SetProperty(context.Result, (x) => x.CustomsTariffNumber);
+				row.SetProperty(context.Result, (x) => x.CountryOfOriginId);
 
 				string tvp;
 				if (row.TryGetDataValue("ProductTemplateViewPath", out tvp, row.IsTransient))
@@ -551,7 +555,8 @@ namespace SmartStore.Services.Catalog.Importer
 									displayOrder = (currentProductPictures.Any() ? currentProductPictures.Select(x => x.DisplayOrder).Max() : 0);
 								}
 
-								pictureBinary = _pictureService.ValidatePicture(pictureBinary);
+								var size = Size.Empty;
+								pictureBinary = _pictureService.ValidatePicture(pictureBinary, out size);
 								pictureBinary = _pictureService.FindEqualPicture(pictureBinary, currentPictures, out equalPictureId);
 
 								if (pictureBinary != null && pictureBinary.Length > 0)
@@ -560,6 +565,9 @@ namespace SmartStore.Services.Catalog.Importer
 									var newPicture = _pictureService.InsertPicture(pictureBinary, image.MimeType, seoName, true, false, false);
 									if (newPicture != null)
 									{
+										newPicture.Width = size.Width;
+										newPicture.Height = size.Height;
+
 										var mapping = new ProductPicture
 										{
 											ProductId = row.Entity.Id,

@@ -5,7 +5,7 @@ $btn-wide-padding-x-lg: 2.5rem;
 $btn-wide-padding-x-sm: 1.2rem;
 
 $btn-size:              ($btn-padding-y * 2) + ($font-size-base * $line-height);
-$btn-size-lg:           ($btn-padding-y-lg * 2) + ($font-size-base * $line-height-lg);
+$btn-size-lg:           ($btn-padding-y-lg * 2) + ($font-size-lg * $line-height-lg);
 $btn-size-sm:           ($btn-padding-y-sm * 2) + ($font-size-sm * $line-height-sm);
 
 /*$btn-size:              $input-height;
@@ -91,6 +91,13 @@ $btn-grey-bg: #f2f2f2;
         height: $btn-size-sm;
         line-height: $btn-size-sm;
     }
+
+    // Move caret to bottom right corner
+    &.dropdown-toggle:after {
+        position: absolute;
+        right: 0;
+        bottom: 0.5em;
+    }
 }
 
 .btn-circle {
@@ -135,6 +142,23 @@ $btn-grey-bg: #f2f2f2;
         //border-color: rgba(255,255,255, 0);
     }
 }
+
+.btn-clear-dark {
+    color: rgba(0, 0, 0, 0.6);
+    background: transparent;
+    border-color: rgba(0, 0, 0, 0.3);
+    box-shadow: none !important;
+
+    &:hover {
+        color: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.08);
+    }
+    &:focus, &.focus, &:active, &.active {
+        color: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.15);
+    }
+}
+
 
 
 // btn-labeled
@@ -282,7 +306,7 @@ $btn-grey-bg: #f2f2f2;
 }
 
 
-// btn-to-danger
+// btn-to-[danger|primary]
 // --------------------------------------------------
 
 .btn.btn-to-danger {
@@ -295,6 +319,19 @@ $btn-grey-bg: #f2f2f2;
     }
     &:focus, &.focus {
         @extend .btn-danger:focus;
+    }
+}
+
+.btn.btn-to-primary {
+    transition: none;
+    &:hover {
+        @extend .btn-primary:hover;
+    }
+    &:active, &.active {
+        @extend .btn-primary:active;
+    }
+    &:focus, &.focus {
+        @extend .btn-primary:focus;
     }
 }
 

@@ -232,8 +232,8 @@ $mm-dark-hover-color:                   scale-color($mm-bg, $lightness: 15%); //
     height: 98%;
 } 
 
-.touch .megamenu-section .navbar:hover .megamenu-nav--prev i,
-.touch .megamenu-section .navbar:hover .megamenu-nav--next i,
+.touchevents .megamenu-section .navbar:hover .megamenu-nav--prev i,
+.touchevents .megamenu-section .navbar:hover .megamenu-nav--next i,
 .megamenu .megamenu-nav i {
     // TODO: (mh) adapt $mm-(light|dark)-color
     color: #000;
@@ -246,7 +246,7 @@ $mm-dark-hover-color:                   scale-color($mm-bg, $lightness: 15%); //
 
 
 
-/* TODO: correct enum BadgeStyle, determine valid entries for bs4 */
+/* TODO: (mc) > (mh) correct enum BadgeStyle, determine valid entries for bs4 */
 .megamenu .label-important {
     background: #0275d8; /* $brand-primary */
 }
@@ -282,9 +282,20 @@ $mm-dark-hover-color:                   scale-color($mm-bg, $lightness: 15%); //
 }
 
 /* Product rotator */
-.megamenu-container .rotator-content {
-    border: 1px solid rgba(0, 0, 0, 0.12);
+.megamenu-container .rotator-container {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba($dropdown-bg, 0.92);
     overflow: hidden;
+}
+
+.megamenu-container .rotator-heading {
+    padding: 0.5rem 0;
+}
+
+.megamenu-container .rotator-content {
+    /*border: 1px solid rgba(0, 0, 0, 0.12);
+    background: rgba($dropdown-bg, 0.92);
+    overflow: hidden;*/
 }
 .megamenu-container .rotator-content > div.placeholder {
     height: 280px;
@@ -293,33 +304,10 @@ $mm-dark-hover-color:                   scale-color($mm-bg, $lightness: 15%); //
 .megamenu-container .rotator-content > div.placeholder.empty {
     background-color: transparent;
 }
-.mega-menu-product-rotator .pl-row,
-.mega-menu-product-rotator .item-box {
-    width: 100%;
-    border: none;
-}
-.mega-menu-product-rotator.scroll .item-box {
-    min-width: 245px;
-    max-width: 245px;
-    margin-bottom: 0;
-}
-.mega-menu-product-rotator.scroll .btn-group {
-    width: 100%;
-}
-.mega-menu-product-rotator.scroll .scroll-button {
-    top: initial !important;
-    position: initial;
-    margin-left: 0;
-}
-.mega-menu-product-rotator.scroll .scroll-button i {
-    width: initial;
-}
 
 
 
-
-
-.touch .megamenu .nav-slider {
+.touchevents .megamenu .nav-slider {
 	overflow-x: auto !important;
 }
 
@@ -349,7 +337,7 @@ $mm-dark-hover-color:                   scale-color($mm-bg, $lightness: 15%); //
 
 
 @include media-breakpoint-down(md) {
-    .picture-container {
+    .megamenu-dropdown-container .picture-container {
         display: none;
     }
 }

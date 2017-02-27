@@ -7,12 +7,14 @@ namespace SmartStore.Core.Search
 	{
 		public SearchSettings()
 		{
-			SearchMode = SearchMode.StartsWith;
+			SearchMode = SearchMode.Contains;
 			SearchFields = new List<string> { "shortdescription", "tagname", "manufacturer", "category" };
 			InstantSearchEnabled = true;
 			ShowProductImagesInInstantSearch = true;
 			InstantSearchNumberOfProducts = 10;
 			InstantSearchTermMinLength = 2;
+			FilterMinHitCount = 1;
+			FilterMaxChoicesCount = 20;
 		}
 
 		/// <summary>
@@ -31,7 +33,7 @@ namespace SmartStore.Core.Search
 		public bool InstantSearchEnabled { get; set; }
 
 		/// <summary>
-		/// Gets or sets a value indicating whether to show product images in instant-search rwesult
+		/// Gets or sets a value indicating whether to show product images in instant-search result
 		/// </summary>
 		public bool ShowProductImagesInInstantSearch { get; set; }
 
@@ -46,10 +48,19 @@ namespace SmartStore.Core.Search
 		public int InstantSearchTermMinLength { get; set; }
 
 		/// <summary>
-		/// XML serialized information about global search filters
+		/// Json serialized information about global search filters
 		/// </summary>
 		public string GlobalFilters { get; set; }
 
+		/// <summary>
+		/// Gets or sets the minimum hit count for a filter value. Values with a lower hit count are not displayed.
+		/// </summary>
+		public int FilterMinHitCount { get; set; }
+
+		/// <summary>
+		/// Gets or sets the maximum number of filter values to be displayed.
+		/// </summary>
+		public int FilterMaxChoicesCount { get; set; }
 
 		// TBD: what about area specific searchin setting (product, blog, etc.)
 	}

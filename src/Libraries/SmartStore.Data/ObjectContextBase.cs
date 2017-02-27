@@ -12,6 +12,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using SmartStore.Core;
 using SmartStore.Core.Data;
+using SmartStore.Core.Data.Hooks;
 using SmartStore.Core.Events;
 
 namespace SmartStore.Data
@@ -38,6 +39,7 @@ namespace SmartStore.Data
 			this.HooksEnabled = true;
 			this.AutoCommitEnabled = true;
             this.Alias = null;
+			this.DbHookHandler = NullDbHookHandler.Instance;
 
 			if (DataSettings.DatabaseIsInstalled())
 			{
@@ -282,7 +284,9 @@ namespace SmartStore.Data
 
 		private static bool PropIsModified(DbPropertyEntry prop)
 		{
+			// TODO: "CurrentValues cannot be used for entities in the Deleted state."
 			var cur = prop.CurrentValue;
+			// TODO: "OriginalValues cannot be used for entities in the Added state."
 			var orig = prop.OriginalValue;
 
 			if (cur == null && orig == null)

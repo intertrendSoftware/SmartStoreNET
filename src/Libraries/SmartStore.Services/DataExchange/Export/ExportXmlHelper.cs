@@ -211,6 +211,38 @@ namespace SmartStore.Services.DataExchange.Export
 			}
 		}
 
+		public void WriteCountry(dynamic country, string node)
+		{
+			if (country == null)
+				return;
+
+			Country entity = country.Entity;
+
+			if (node.HasValue())
+			{
+				_writer.WriteStartElement(node);
+			}
+
+			_writer.Write("Id", entity.Id.ToString());
+			_writer.Write("Name", entity.Name);
+			_writer.Write("AllowsBilling", entity.AllowsBilling.ToString());
+			_writer.Write("AllowsShipping", entity.AllowsShipping.ToString());
+			_writer.Write("TwoLetterIsoCode", entity.TwoLetterIsoCode);
+			_writer.Write("ThreeLetterIsoCode", entity.ThreeLetterIsoCode);
+			_writer.Write("NumericIsoCode", entity.NumericIsoCode.ToString());
+			_writer.Write("SubjectToVat", entity.SubjectToVat.ToString());
+			_writer.Write("Published", entity.Published.ToString());
+			_writer.Write("DisplayOrder", entity.DisplayOrder.ToString());
+			_writer.Write("LimitedToStores", entity.LimitedToStores.ToString());
+
+			WriteLocalized(country);
+
+			if (node.HasValue())
+			{
+				_writer.WriteEndElement();
+			}
+		}
+
 		public void WriteRewardPointsHistory(dynamic rewardPoints, string node)
 		{
 			if (rewardPoints == null)
@@ -495,7 +527,8 @@ namespace SmartStore.Services.DataExchange.Export
 			_writer.Write("AllowBackInStockSubscriptions", entity.AllowBackInStockSubscriptions.ToString());
 			_writer.Write("OrderMinimumQuantity", entity.OrderMinimumQuantity.ToString());
 			_writer.Write("OrderMaximumQuantity", entity.OrderMaximumQuantity.ToString());
-			_writer.Write("AllowedQuantities", entity.AllowedQuantities);
+            _writer.Write("HideQuantityControl", entity.HideQuantityControl.ToString());
+            _writer.Write("AllowedQuantities", entity.AllowedQuantities);
 			_writer.Write("DisableBuyButton", entity.DisableBuyButton.ToString());
 			_writer.Write("DisableWishlistButton", entity.DisableWishlistButton.ToString());
 			_writer.Write("AvailableForPreOrder", entity.AvailableForPreOrder.ToString());
@@ -531,12 +564,15 @@ namespace SmartStore.Services.DataExchange.Export
 			_writer.Write("BundlePerItemShoppingCart", entity.BundlePerItemShoppingCart.ToString());
 			_writer.Write("LowestAttributeCombinationPrice", lowestAttributeCombinationPrice.HasValue ? lowestAttributeCombinationPrice.Value.ToString(_culture) : "");
 			_writer.Write("IsEsd", entity.IsEsd.ToString());
+			_writer.Write("CustomsTariffNumber", entity.CustomsTariffNumber);
 
 			WriteLocalized(product);
 
 			WriteDeliveryTime(product.DeliveryTime, "DeliveryTime");
 
 			WriteQuantityUnit(product.QuantityUnit, "QuantityUnit");
+
+			WriteCountry(product.CountryOfOrigin, "CountryOfOrigin");
 
 			if (product.AppliedDiscounts != null)
 			{
@@ -775,12 +811,14 @@ namespace SmartStore.Services.DataExchange.Export
 					_writer.Write("SpecificationAttributeId", entitySao.SpecificationAttributeId.ToString());
 					_writer.Write("DisplayOrder", entitySao.DisplayOrder.ToString());
 					_writer.Write("Name", (string)option.Name);
+					_writer.Write("Alias", (string)option.Alias);
 
 					WriteLocalized(option);
 
 					_writer.WriteStartElement("SpecificationAttribute");
 					_writer.Write("Id", entitySa.Id.ToString());
 					_writer.Write("Name", (string)option.SpecificationAttribute.Name);
+					_writer.Write("Alias", (string)option.SpecificationAttribute.Alias);
 					_writer.Write("DisplayOrder", entitySa.DisplayOrder.ToString());
 
 					WriteLocalized(option.SpecificationAttribute);

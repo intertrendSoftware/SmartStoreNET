@@ -25,7 +25,7 @@
 
     // add js assets (Head)
     Html.AppendScriptParts(ResourceLocation.Head,
-        "~/Scripts/modernizr-2.7.2.js",
+        //"~/Scripts/modernizr.js", // TODO: (mc) Modernizr freezes in admin (maybe old jQuery version?)
         // Telerik doesn't like jQuery 1.9+, a shame!
         "~/Administration/Scripts/jquery-1.8.3.js",
         "~/Scripts/globalize/globalize.js",
@@ -88,7 +88,6 @@
         "~/Scripts/smartstore.tabselector.js",
         "~/Scripts/jquery.pnotify.js",
         "~/Scripts/jquery.scrollTo.js",
-        "~/Scripts/jquery.serialScroll.js",
         "~/Scripts/jquery.sortable.js",
         // Admin
         "~/Administration/Scripts/admin.common.js",
@@ -103,7 +102,8 @@
 
     <script>
         window.Res = {
-            "Common.Notification": "@T("Common.Notification").ToString().EncodeJsString()",
+        	"Common.Notification": "@T("Common.Notification").ToString().EncodeJsString()",
+        	"Common.Close": "@T("Common.Close").ToString()",
         }
     </script>
     

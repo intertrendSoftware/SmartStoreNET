@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SmartStore.Core;
 using SmartStore.Core.Domain.Catalog;
 using SmartStore.Core.Search;
+using SmartStore.Core.Search.Facets;
 
 namespace SmartStore.Services.Search
 {
@@ -14,23 +15,21 @@ namespace SmartStore.Services.Search
 
 		public CatalogSearchResult(
 			ISearchEngine engine,
+			CatalogSearchQuery query,
 			int totalHitsCount,
 			Func<IList<Product>> hitsFactory,
-			CatalogSearchQuery query,
 			string[] spellCheckerSuggestions,
-			IEnumerable<ISearchHit> topCategories,
-			IEnumerable<ISearchHit> topManufacturers)
+			IDictionary<string, FacetGroup> facets)
 		{
 			Guard.NotNull(query, nameof(query));
 
 			Engine = engine;
 			Query = query;
 			SpellCheckerSuggestions = spellCheckerSuggestions ?? new string[0];
+			Facets = facets ?? new Dictionary<string, FacetGroup>();
 
 			_hitsFactory = hitsFactory ?? (() => new List<Product>());
 			_totalHitsCount = totalHitsCount;
-			TopCategories = topCategories ?? new List<ISearchHit>();
-			TopManufacturers = topManufacturers ?? new List<ISearchHit>();
 		}
 
 		/// <summary>
@@ -76,19 +75,7 @@ namespace SmartStore.Services.Search
 			set;
 		}
 
-		/// <summary>
-		/// Gets top categories
-		/// </summary>
-		public IEnumerable<ISearchHit> TopCategories
-		{
-			get;
-			private set;
-		}
-
-		/// <summary>
-		/// Gets top manufacturers
-		/// </summary>
-		public IEnumerable<ISearchHit> TopManufacturers
+		public IDictionary<string, FacetGroup> Facets
 		{
 			get;
 			private set;
@@ -105,14 +92,14 @@ namespace SmartStore.Services.Search
 		/// </summary>
 		/// <param name="input">Text to highlight terms in</param>
 		/// <returns>Highlighted text fragments </returns>
-		public string Highlight(string input, string preMatch = "<strong>", string postMatch = "</strong>")
+		public string Highlight(string input, string preMatch = "<strong>", string postMatch = "</strong>", bool useSearchEngine = true)
 		{
 			if (Query?.Term == null || input.IsEmpty())
 				return input;
 
 			string hilite = null;
 
-			if (Engine != null)
+			if (useSearchEngine && Engine != null)
 			{
 				try
 				{
