@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Dynamic;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
+using SmartStore;
 using SmartStore.Core.Domain.Catalog;
 using SmartStore.Core.Domain.Customers;
 using SmartStore.Core.Domain.Localization;
@@ -13,6 +12,8 @@ using SmartStore.Core.Domain.Orders;
 using SmartStore.Core.Domain.Seo;
 using SmartStore.Services;
 using SmartStore.Services.Catalog;
+using SmartStore.Services.Catalog.Extensions;
+using SmartStore.Services.Catalog.Modelling;
 using SmartStore.Services.Common;
 using SmartStore.Services.Customers;
 using SmartStore.Services.Directory;
@@ -27,6 +28,7 @@ using SmartStore.Services.Tax;
 using SmartStore.Web.Framework.Controllers;
 using SmartStore.Web.Framework.Filters;
 using SmartStore.Web.Framework.Security;
+using SmartStore.Web.Framework.UI;
 using SmartStore.Web.Framework.UI.Captcha;
 using SmartStore.Web.Infrastructure.Cache;
 using SmartStore.Web.Models.Catalog;
@@ -64,6 +66,7 @@ namespace SmartStore.Web.Controllers
 		private readonly CatalogHelper _helper;
         private readonly IDownloadService _downloadService;
         private readonly ILocalizationService _localizationService;
+		private readonly IBreadcrumb _breadcrumb;
 
 		public ProductController(
 			ICommonServices services,
@@ -94,51 +97,52 @@ namespace SmartStore.Web.Controllers
 			CaptchaSettings captchaSettings,
 			CatalogHelper helper,
             IDownloadService downloadService,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+			IBreadcrumb breadcrumb)
         {
-			this._services = services;
-			this._manufacturerService = manufacturerService;
-			this._productService = productService;
-			this._productAttributeService = productAttributeService;
-			this._productAttributeParser = productAttributeParser;
-			this._taxService = taxService;
-			this._currencyService = currencyService;
-			this._pictureService = pictureService;
-			this._priceCalculationService = priceCalculationService;
-			this._priceFormatter = priceFormatter;
-			this._customerContentService = customerContentService;
-			this._customerService = customerService;
-			this._shoppingCartService = shoppingCartService;
-			this._recentlyViewedProductsService = recentlyViewedProductsService;
-			this._workflowMessageService = workflowMessageService;
-			this._productTagService = productTagService;
-			this._orderReportService = orderReportService;
-			this._backInStockSubscriptionService = backInStockSubscriptionService;
-			this._aclService = aclService;
-			this._storeMappingService = storeMappingService;
-			this._mediaSettings = mediaSettings;
-			this._seoSettings = seoSettings;
-			this._catalogSettings = catalogSettings;
-			this._shoppingCartSettings = shoppingCartSettings;
-			this._localizationSettings = localizationSettings;
-			this._captchaSettings = captchaSettings;
-			this._helper = helper;
-			this._downloadService = downloadService;
-			this._localizationService = localizationService;
+			_services = services;
+			_manufacturerService = manufacturerService;
+			_productService = productService;
+			_productAttributeService = productAttributeService;
+			_productAttributeParser = productAttributeParser;
+			_taxService = taxService;
+			_currencyService = currencyService;
+			_pictureService = pictureService;
+			_priceCalculationService = priceCalculationService;
+			_priceFormatter = priceFormatter;
+			_customerContentService = customerContentService;
+			_customerService = customerService;
+			_shoppingCartService = shoppingCartService;
+			_recentlyViewedProductsService = recentlyViewedProductsService;
+			_workflowMessageService = workflowMessageService;
+			_productTagService = productTagService;
+			_orderReportService = orderReportService;
+			_backInStockSubscriptionService = backInStockSubscriptionService;
+			_aclService = aclService;
+			_storeMappingService = storeMappingService;
+			_mediaSettings = mediaSettings;
+			_seoSettings = seoSettings;
+			_catalogSettings = catalogSettings;
+			_shoppingCartSettings = shoppingCartSettings;
+			_localizationSettings = localizationSettings;
+			_captchaSettings = captchaSettings;
+			_helper = helper;
+			_downloadService = downloadService;
+			_localizationService = localizationService;
+			_breadcrumb = breadcrumb;
         }
 
 		#region Products
 
 		[RequireHttpsByConfigAttribute(SslRequirement.No)]
-		public ActionResult ProductDetails(int productId, string attributes)
+		public ActionResult ProductDetails(int productId, string attributes, ProductVariantQuery query)
 		{
 			var product = _productService.GetProductById(productId);
 			if (product == null || product.Deleted)
 				return HttpNotFound();
 
-			//Is published?
-			//Check whether the current user has a "Manage catalog" permission
-			//It allows him to preview a product before publishing
+			// Is published? Check whether the current user has a "Manage catalog" permission.
+			// It allows him to preview a product before publishing.
 			if (!product.Published && !_services.Permissions.Authorize(StandardPermissionProvider.ManageCatalog))
 				return HttpNotFound();
 
@@ -150,10 +154,10 @@ namespace SmartStore.Web.Controllers
 			if (!_storeMappingService.Authorize(product))
 				return HttpNotFound();
 
-			// is product individually visible?
+			// Is product individually visible?
 			if (!product.VisibleIndividually)
 			{
-				// find parent grouped product
+				// Find parent grouped product.
 				var parentGroupedProduct = _productService.GetProductById(product.ParentGroupedProductId);
 
 				if (parentGroupedProduct == null)
@@ -162,25 +166,14 @@ namespace SmartStore.Web.Controllers
 				var routeValues = new RouteValueDictionary();
 				routeValues.Add("SeName", parentGroupedProduct.GetSeName());
 
-				// add query string parameters
+				// Add query string parameters.
 				Request.QueryString.AllKeys.Each(x => routeValues.Add(x, Request.QueryString[x]));
 
 				return RedirectToRoute("Product", routeValues);
 			}
 
-			var selectedAttributes = new NameValueCollection();
-			var attributesForProductId = 0;
-
-			if (product.ProductType == ProductType.GroupedProduct || (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
-				attributesForProductId = 0;
-			else
-				attributesForProductId = product.Id;
-
-			// Get selected attributes from query string
-			selectedAttributes.GetSelectedAttributes(Request.QueryString, _productAttributeParser.DeserializeQueryData(attributes),	attributesForProductId);
-
 			// Prepare the view model
-			var model = _helper.PrepareProductDetailsPageModel(product, selectedAttributes: selectedAttributes, queryData: Request.QueryString);
+			var model = _helper.PrepareProductDetailsPageModel(product, query);
 
 			// Some cargo data
 			model.PictureSize = _mediaSettings.ProductDetailsPictureSize;
@@ -191,6 +184,18 @@ namespace SmartStore.Web.Controllers
 
 			// Activity log
 			_services.CustomerActivity.InsertActivity("PublicStore.ViewProduct", T("ActivityLog.PublicStore.ViewProduct"), product.Name);
+
+			// Breadcrumb
+			if (_catalogSettings.CategoryBreadcrumbEnabled)
+			{
+				_helper.GetCategoryBreadCrumb(0, productId).Select(x => x.Value).Each(x => _breadcrumb.Track(x));
+				_breadcrumb.Track(new MenuItem
+				{
+					Text = model.Name,
+					EntityId = product.Id,
+					Url = Url.RouteUrl("Product", new { productId = product.Id, SeName = model.SeName })
+				});
+			}
 
 			return View(model.ProductTemplateViewPath, model);
 		}
@@ -418,7 +423,6 @@ namespace SmartStore.Web.Controllers
 					x.ForceRedirectionAfterAddingToCart = true;
 				});
 
-				// TODO: (mc) Display this as carousel/slider
 				var model = _helper.MapProductSummaryModel(products, settings);
 
 				return PartialView(model);
@@ -507,10 +511,8 @@ namespace SmartStore.Web.Controllers
 		}
 
 		[HttpPost]
-		public ActionResult UpdateProductDetails3(int productId, string itemType, int bundleItemId, FormCollection form)
+		public ActionResult UpdateProductDetails(int productId, string itemType, int bundleItemId, ProductVariantQuery query, FormCollection form)
 		{
-			// TODO: (mc) Remove action "UpdateProductDetails" later
-
 			int quantity = 1;
 			int galleryStartIndex = -1;
 			string galleryHtml = null;
@@ -526,8 +528,8 @@ namespace SmartStore.Web.Controllers
 			var warnings = new List<string>();
 			var attributes = _productAttributeService.GetProductVariantAttributesByProductId(productId);
 
-			string attributeXml = form.CreateSelectedAttributesXml(productId, attributes, _productAttributeParser,
-				_localizationService, _downloadService, _catalogSettings, this.Request, warnings, true);
+			var attributeXml = query.CreateSelectedAttributesXml(productId, 0, attributes, _productAttributeParser,
+				_localizationService, _downloadService, _catalogSettings, this.Request, warnings);
 
 			var areAllAttributesForCombinationSelected = _shoppingCartService.AreAllAttributesForCombinationSelected(attributeXml, product);
 
@@ -539,18 +541,18 @@ namespace SmartStore.Web.Controllers
 			if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
 			{
 				bundleItems = _productService.GetBundleItems(product.Id);
-				if (form.Count > 0)
+				if (query.Variants.Count > 0)
 				{
-					// may add elements to form if they are preselected by bundle item filter
+					// may add elements to query object if they are preselected by bundle item filter
 					foreach (var itemData in bundleItems)
 					{
-						var unused = _helper.PrepareProductDetailsPageModel(itemData.Item.Product, false, itemData, null, form);
+						_helper.PrepareProductDetailsPageModel(itemData.Item.Product, query, false, itemData, null);
 					}
 				}
 			}
 
 			// get merged model data
-			_helper.PrepareProductDetailModel(m, product, isAssociated, bundleItem, bundleItems, form, quantity);
+			_helper.PrepareProductDetailModel(m, product, query, isAssociated, bundleItem, bundleItems, quantity);
 
 			if (bundleItem != null) // update bundle item thumbnail
 			{
@@ -620,162 +622,6 @@ namespace SmartStore.Web.Controllers
 				GalleryStartIndex = galleryStartIndex,
 				GalleryHtml = galleryHtml
 			};
-
-			return new JsonResult { Data = data };
-		}
-
-		[HttpPost]
-		public ActionResult UpdateProductDetails(int productId, string itemType, int bundleItemId, FormCollection form)
-		{
-			int quantity = 1;
-			int galleryStartIndex = -1;
-			string galleryHtml = null;
-			string dynamicThumbUrl = null;
-			bool isAssociated = itemType.IsCaseInsensitiveEqual("associateditem");
-			var pictureModel = new ProductDetailsPictureModel();
-			var m = new ProductDetailsModel();
-			var product = _productService.GetProductById(productId);
-			var bItem = _productService.GetBundleItemById(bundleItemId);
-			IList<ProductBundleItemData> bundleItems = null;
-			ProductBundleItemData bundleItem = (bItem == null ? null : new ProductBundleItemData(bItem));
-
-			var warnings = new List<string>();
-			var attributes = _productAttributeService.GetProductVariantAttributesByProductId(productId);
-
-			string attributeXml = form.CreateSelectedAttributesXml(productId, attributes, _productAttributeParser,
-				_localizationService, _downloadService, _catalogSettings, this.Request, warnings, true);
-
-			var areAllAttributesForCombinationSelected = _shoppingCartService.AreAllAttributesForCombinationSelected(attributeXml, product);
-
-			// quantity required for tier prices
-			string quantityKey = form.AllKeys.FirstOrDefault(k => k.EndsWith("EnteredQuantity"));
-			if (quantityKey.HasValue())
-				int.TryParse(form[quantityKey], out quantity);
-
-			if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
-			{
-				bundleItems = _productService.GetBundleItems(product.Id);
-				if (form.Count > 0)
-				{
-					// may add elements to form if they are preselected by bundle item filter
-					foreach (var itemData in bundleItems)
-					{
-						var unused = _helper.PrepareProductDetailsPageModel(itemData.Item.Product, false, itemData, null, form);
-					}
-				}
-			}
-
-			// get merged model data
-			_helper.PrepareProductDetailModel(m, product, isAssociated, bundleItem, bundleItems, form, quantity);
-
-			if (bundleItem != null)	// update bundle item thumbnail
-			{
-				if (!bundleItem.Item.HideThumbnail)
-				{
-					var picture = m.GetAssignedPicture(_pictureService, null, bundleItem.Item.ProductId);
-					dynamicThumbUrl = _pictureService.GetPictureUrl(picture, _mediaSettings.BundledProductPictureSize, false);
-				}
-			}
-			else if (isAssociated) // update associated product thumbnail
-			{
-				var picture = m.GetAssignedPicture(_pictureService, null, productId);
-				dynamicThumbUrl = _pictureService.GetPictureUrl(picture, _mediaSettings.AssociatedProductPictureSize, false);
-			}
-			else if (product.ProductType != ProductType.BundledProduct)		// update image gallery
-			{
-				var pictures = _pictureService.GetPicturesByProductId(productId);
-
-				if (pictures.Count <= _catalogSettings.DisplayAllImagesNumber)	// all pictures rendered... only index is required
-				{
-					var picture = m.GetAssignedPicture(_pictureService, pictures);
-					galleryStartIndex = (picture == null ? 0 : pictures.IndexOf(picture));
-				}
-				else
-				{
-					var allCombinationPictureIds = _productAttributeService.GetAllProductVariantAttributeCombinationPictureIds(product.Id);	
-
-					_helper.PrepareProductDetailsPictureModel(
-						pictureModel, 
-						pictures, 
-						product.GetLocalized(x => x.Name), 
-						allCombinationPictureIds,
-						false, 
-						bundleItem, 
-						m.SelectedCombination);
-
-					galleryStartIndex = pictureModel.GalleryStartIndex;
-					galleryHtml = this.RenderPartialViewToString("_PictureGallery", pictureModel);
-				}
-			}
- 
-			#region data object
-
-            object data = new
-            {
-                Delivery = new
-                {
-                    Id = 0,
-                    Name = m.DeliveryTimeName,
-                    Color = m.DeliveryTimeHexValue,
-                    DisplayAccordingToStock = m.DisplayDeliveryTimeAccordingToStock
-                },
-                Measure = new
-                {
-                    Weight = new { Value = m.WeightValue, Text = m.Weight },
-                    Height = new { Value = product.Height, Text = m.Height },
-                    Width = new { Value = product.Width, Text = m.Width },
-                    Length = new { Value = product.Length, Text = m.Length }
-                },
-                Number = new
-                {
-                    Sku = new { Value = m.Sku, Show = m.ShowSku },
-                    Gtin = new { Value = m.Gtin, Show = m.ShowGtin },
-                    Mpn = new { Value = m.ManufacturerPartNumber, Show = m.ShowManufacturerPartNumber }
-                },
-                Price = new
-                {
-                    Base = new
-                    {
-                        Enabled = m.IsBasePriceEnabled,
-                        Info = m.BasePriceInfo
-                    },
-                    Old = new
-                    {
-                        Value = decimal.Zero,
-                        Text = m.ProductPrice.OldPrice
-                    },
-                    WithoutDiscount = new
-                    {
-                        Value = m.ProductPrice.PriceValue,
-                        Text = m.ProductPrice.Price
-                    },
-                    WithDiscount = new
-                    {
-                        Value = m.ProductPrice.PriceWithDiscountValue,
-                        Text = m.ProductPrice.PriceWithDiscount
-                    }
-                },
-                Stock = new
-                {
-                    Quantity = new
-					{ 
-                        Value = product.StockQuantity,
-						Show = areAllAttributesForCombinationSelected ? product.DisplayStockQuantity : false
-                    },
-                    Availability = new
-					{ 
-                        Text = m.StockAvailability,
-						Show = areAllAttributesForCombinationSelected ? product.DisplayStockAvailability : false, 
-                        Available = m.IsAvailable
-					}
-                },
-
-                DynamicThumblUrl = dynamicThumbUrl,
-                GalleryStartIndex = galleryStartIndex,
-                GalleryHtml = galleryHtml
-            };
-
-			#endregion
 
 			return new JsonResult { Data = data };
 		}

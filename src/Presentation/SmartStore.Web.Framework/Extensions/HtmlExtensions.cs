@@ -67,20 +67,26 @@ namespace SmartStore.Web.Framework
                     writer.Write("<div class='well well-small'>");
                     var tabStrip = helper.SmartStore().TabStrip().Name(name).SmartTabSelection(false).Style(TabsStyle.Pills).Items(x =>
                     {
-                        x.Add().Text("Standard").Content(standardTemplate(helper.ViewData.Model).ToHtmlString()).Selected(true);
+						if (standardTemplate != null)
+						{
+							x.Add().Text("Standard").Content(standardTemplate(helper.ViewData.Model).ToHtmlString()).Selected(true);
+						}
+
                         for (int i = 0; i < helper.ViewData.Model.Locales.Count; i++)
                         {
                             var locale = helper.ViewData.Model.Locales[i];
                             var language = EngineContext.Current.Resolve<ILanguageService>().GetLanguageById(locale.LanguageId);
-                            x.Add().Text(language.Name)
-                                .Content(localizedTemplate(i).ToHtmlString())
-                                .ImageUrl("~/Content/images/flags/" + language.FlagImageFileName);
+
+ 							x.Add().Text(language.Name)
+								.Content(localizedTemplate(i).ToHtmlString())
+								.ImageUrl("~/Content/images/flags/" + language.FlagImageFileName)
+								.Selected(i == 0 && standardTemplate == null);
                         }
                     }).ToHtmlString();
                     writer.Write(tabStrip);
                     writer.Write("</div>");
                 }
-                else
+                else if (standardTemplate != null)
                 {
                     standardTemplate(helper.ViewData.Model).WriteTo(writer);
                 }
@@ -263,16 +269,16 @@ namespace SmartStore.Web.Framework
             int? selectedDay = null, int? selectedMonth = null, int? selectedYear = null, bool localizeLabels = true, bool disabled = false)
         {
 			var row = new TagBuilder("div");
-			row.AddCssClass("row no-space");
+			row.AddCssClass("row xs-gutters");
 
 			var daysCol = new TagBuilder("div");
-			daysCol.AddCssClass("col-xs p-r-05");
+			daysCol.AddCssClass("col");
 
 			var monthsCol = new TagBuilder("div");
-			monthsCol.AddCssClass("col-xs p-r-05");
+			monthsCol.AddCssClass("col");
 
 			var yearsCol = new TagBuilder("div");
-			yearsCol.AddCssClass("col-xs");
+			yearsCol.AddCssClass("col");
 
 			var daysList = new TagBuilder("select");
             var monthsList = new TagBuilder("select");
@@ -480,7 +486,8 @@ namespace SmartStore.Web.Framework
             Expression<Func<TModel, TValue>> expression, 
             InputEditorType editorType = InputEditorType.TextBox,
             bool required = false,
-            string helpHint = null)
+            string helpHint = null,
+			string breakpoint = "md")
         {
             if (editorType == InputEditorType.Hidden)
             {
@@ -491,8 +498,8 @@ namespace SmartStore.Web.Framework
 			var htmlAttributes = new RouteValueDictionary();
 			var dataTypeName = ModelMetadata.FromLambdaExpression(expression, html.ViewData).DataTypeName.EmptyNull();
             var groupClass = "form-group row";
-            var labelClass = "col-sm-3";
-            var controlsClass = "col-sm-9";
+            var labelClass = "col-{0}-3 col-form-label".FormatInvariant(breakpoint.NullEmpty() ?? "md");
+            var controlsClass = "col-{0}-9".FormatInvariant(breakpoint.NullEmpty() ?? "md");
             var sb = new StringBuilder("<div class='{0}'>".FormatWith(groupClass));
 
             if (editorType != InputEditorType.Checkbox)
@@ -524,7 +531,7 @@ namespace SmartStore.Web.Framework
             switch (editorType)
             {
                 case InputEditorType.Checkbox:
-                    inputHtml = string.Format("<label class='checkbox'>{0} {1}</label>",
+                    inputHtml = string.Format("<div class='form-check'><label class='form-check-label'>{0} {1}</label></div>",
                         html.EditorFor(expression).ToString(),
                         ModelMetadata.FromLambdaExpression(expression, html.ViewData).DisplayName); // TBD: ist das OK so?
                     break;
@@ -535,12 +542,12 @@ namespace SmartStore.Web.Framework
                     inputHtml = html.TextBoxFor(expression, htmlAttributes).ToString();
                     break;
             }
-
+			
             sb.AppendLine(inputHtml);
             sb.AppendLine(html.ValidationMessageFor(expression).ToString());
             if (helpHint.HasValue())
             {
-                sb.AppendLine(string.Format("<div class='help-block muted'>{0}</div>", helpHint));
+                sb.AppendLine(string.Format("<div class='form-text text-muted'>{0}</div>", helpHint));
             }
             sb.AppendLine("</div>"); // div.controls
 
@@ -603,39 +610,43 @@ namespace SmartStore.Web.Framework
 			return MvcHtmlString.Create(sb.ToString());
 		}
 
-		public static MvcHtmlString SettingOverrideCheckbox<TModel, TValue>(this HtmlHelper<TModel> helper,
-			Expression<Func<TModel, TValue>> expression, string parentSelector = null)
+		public static MvcHtmlString SettingOverrideCheckbox<TModel, TValue>(
+			this HtmlHelper<TModel> helper,
+			Expression<Func<TModel, TValue>> expression,
+			string parentSelector = null)
 		{
 			var data = helper.ViewData[StoreDependingSettingHelper.ViewDataKey] as StoreDependingSettingData;
 
-			if (data != null && data.ActiveStoreScopeConfiguration > 0)
-			{
-				var settingKey = ExpressionHelper.GetExpressionText(expression);
-				var localizeService = EngineContext.Current.Resolve<ILocalizationService>();
+			if (data == null || data.ActiveStoreScopeConfiguration <= 0)
+				return MvcHtmlString.Empty;
 
-				if (!settingKey.Contains("."))
-					settingKey = data.RootSettingClass + "." + settingKey;
+			var fieldPrefix = helper.ViewData.TemplateInfo.HtmlFieldPrefix;
+			var settingKey = ExpressionHelper.GetExpressionText(expression);
+			var localizeService = EngineContext.Current.Resolve<ILocalizationService>();
 
-				var overrideForStore = (data.OverrideSettingKeys.FirstOrDefault(x => x.IsCaseInsensitiveEqual(settingKey)) != null);
-				var fieldId = settingKey + (settingKey.EndsWith("_OverrideForStore") ? "" : "_OverrideForStore");
+			if (fieldPrefix.HasValue())
+				settingKey = string.Concat(fieldPrefix, ".", settingKey);
+			else if (!settingKey.Contains("."))
+				settingKey = string.Concat(data.RootSettingClass, ".", settingKey);
 
-				var sb = new StringBuilder();
-				sb.Append("<div class=\"onoffswitch-container\"><div class=\"onoffswitch\">");
+			var overrideForStore = (data.OverrideSettingKeys.FirstOrDefault(x => x.IsCaseInsensitiveEqual(settingKey)) != null);
+			var fieldId = settingKey + (settingKey.EndsWith("_OverrideForStore") ? "" : "_OverrideForStore");
 
-				sb.AppendFormat("<input type=\"checkbox\" id=\"{0}\" name=\"{0}\" class=\"onoffswitch-checkbox multi-store-override-option\"", fieldId);
-				sb.AppendFormat(" onclick=\"Admin.checkOverriddenStoreValue(this)\" data-parent-selector=\"{0}\"{1} />", parentSelector.EmptyNull(), overrideForStore ? " checked=\"checked\"" : "");
+			var sb = new StringBuilder();
+			sb.Append("<label class='switch multi-store-override-switch'>");
 
-				sb.AppendFormat("<label class=\"onoffswitch-label\" for=\"{0}\">", fieldId);
-				sb.AppendFormat("<span class=\"onoffswitch-on\">{0}</span>", localizeService.GetResource("Common.On").Truncate(3).ToUpper());
-				sb.AppendFormat("<span class=\"onoffswitch-off\">{0}</span>", localizeService.GetResource("Common.Off").Truncate(3).ToUpper());
-				sb.Append("<span class=\"onoffswitch-switch\"></span>");
-				sb.Append("<span class=\"onoffswitch-inner\"></span>");
-				sb.Append("</label>");
-				sb.Append("</div></div>\r\n");		// controls are not floating, so line-break prevents different distances between them
+			sb.AppendFormat("<input type=\"checkbox\" id=\"{0}\" name=\"{0}\" class=\"multi-store-override-option\"", fieldId);
+			sb.AppendFormat(" onclick=\"Admin.checkOverriddenStoreValue(this)\" data-parent-selector=\"{0}\"{1} />",
+				parentSelector.EmptyNull(), overrideForStore ? " checked=\"checked\"" : "");
 
-				return MvcHtmlString.Create(sb.ToString());
-			}
-			return MvcHtmlString.Empty;
+			sb.AppendFormat("<span class=\"switch-toggle\" data-on='{0}' data-off='{1}'></span>", 
+				localizeService.GetResource("Common.On").Truncate(3), 
+				localizeService.GetResource("Common.Off").Truncate(3));
+			sb.Append("</label>");
+			// Controls are not floating, so line-break prevents different distances between them.
+			sb.Append("</label>\r\n");
+
+			return MvcHtmlString.Create(sb.ToString());
 		}
 
 		public static MvcHtmlString SettingEditorFor<TModel, TValue>(

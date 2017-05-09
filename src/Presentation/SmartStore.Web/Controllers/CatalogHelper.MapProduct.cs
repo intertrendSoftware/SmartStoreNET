@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using SmartStore.Collections;
 using SmartStore.Core;
 using SmartStore.Core.Caching;
 using SmartStore.Core.Data;
@@ -13,6 +14,7 @@ using SmartStore.Core.Domain.Tax;
 using SmartStore.Core.Localization;
 using SmartStore.Core.Logging;
 using SmartStore.Services.Catalog;
+using SmartStore.Services.Catalog.Extensions;
 using SmartStore.Services.DataExchange.Export;
 using SmartStore.Services.Localization;
 using SmartStore.Services.Search;
@@ -69,6 +71,8 @@ namespace SmartStore.Web.Controllers
 					model.AvailablePageSizes = new int[] { 12, 24, 36, 48, 72, 120 };
 				}
 			}
+
+			model.AllowFiltering = true;
 		}
 
 		public ProductSummaryMappingSettings GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode viewMode)
@@ -179,7 +183,7 @@ namespace SmartStore.Web.Controllers
 					}
 				}
 
-				using (var scope = new DbContextScope(ctx: _services.DbContext, autoCommit: false))
+				using (var scope = new DbContextScope(ctx: _services.DbContext, autoCommit: false, validateOnSave: false))
 				{
 					// Run in uncommitting scope, because pictures could be updated (IsNew property) 
 					var batchContext = _dataExporter.Value.CreateProductExportContext(products);
@@ -189,7 +193,7 @@ namespace SmartStore.Web.Controllers
 						batchContext.AppliedDiscounts.LoadAll();
 						batchContext.TierPrices.LoadAll();
 					}
-
+					
 					if (settings.MapAttributes || settings.MapColorAttributes)
 					{
 						batchContext.Attributes.LoadAll();
@@ -257,6 +261,8 @@ namespace SmartStore.Web.Controllers
 
 					scope.Commit();
 
+					batchContext.Clear();
+
 					// don't show stuff without data at all
 					model.ShowDescription = model.ShowDescription && model.Items.Any(x => x.ShortDescription.HasValue());
 					model.ShowBrand = model.ShowBrand && model.Items.Any(x => x.Manufacturer != null);
@@ -311,7 +317,7 @@ namespace SmartStore.Web.Controllers
 					var colorAttributes = attributes
 						.Where(x => x.IsListTypeAttribute())
 						.SelectMany(x => x.ProductVariantAttributeValues)
-						.Where(x => x.ColorSquaresRgb.HasValue() && !x.ColorSquaresRgb.IsCaseInsensitiveEqual("transparent"))
+						.Where(x => x.Color.HasValue() && !x.Color.IsCaseInsensitiveEqual("transparent"))
 						.Distinct()
 						.Take(20) // limit results
 						.Select(x => 
@@ -322,11 +328,13 @@ namespace SmartStore.Web.Controllers
 							return new ProductSummaryModel.ColorAttributeValue
 							{
 								Id = x.Id,
-								Color = x.ColorSquaresRgb,
+								Color = x.Color,
 								Alias = x.Alias,
 								FriendlyName = x.GetLocalized(l => l.Name),
 								AttributeId = x.ProductVariantAttributeId,
-								AttributeName = attrName
+								AttributeName = attrName,
+								ProductAttributeId = attr.Id,
+								ProductUrl = _productUrlHelper.GetProductUrl(product.Id, item.SeName, 0, x)
 							};
 						})
 						.ToList();
@@ -467,21 +475,17 @@ namespace SmartStore.Web.Controllers
 
 			if (model.ShowWeight && contextProduct.Weight > 0)
 			{
-				item.Weight = "{0} {1}".FormatCurrent(contextProduct.Weight.ToString("F2"), _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId).Name);
+				item.Weight = "{0} {1}".FormatCurrent(contextProduct.Weight.ToString("N2"), _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId).Name);
 			}
 
 			// New Badge
-			if (model.ShowNewBadge)
+			if (product.IsNew(_catalogSettings))
 			{
-				var isNew = ((DateTime.UtcNow - product.CreatedOnUtc).Days <= _catalogSettings.LabelAsNewForMaxDays.Value);
-				if (isNew)
+				item.Badges.Add(new ProductSummaryModel.Badge
 				{
-					item.Badges.Add(new ProductSummaryModel.Badge
-					{
-						Label = T("Common.New"),
-						Style = BadgeStyle.Success
-					});
-				}
+					Label = T("Common.New"),
+					Style = BadgeStyle.Success
+				});
 			}
 
 			model.Items.Add(item);
@@ -503,17 +507,33 @@ namespace SmartStore.Web.Controllers
 			if (product.ProductType == ProductType.GroupedProduct)
 			{
 				#region Grouped product
+				
+				if (ctx.GroupedProducts == null)
+				{
+					// One-time batched retrieval of all associated products
+					var searchQuery = new CatalogSearchQuery()
+						.PublishedOnly(true)
+						.HasStoreId(ctx.Store.Id)
+						.HasParentGroupedProduct(ctx.BatchContext.ProductIds.ToArray());
+
+					// Get all associated products for this batch grouped by ParentGroupedProductId
+					var allAssociatedProducts = _catalogSearchService.Search(searchQuery).Hits
+						.OrderBy(x => x.ParentGroupedProductId)
+						.ThenBy(x => x.DisplayOrder);
+
+					ctx.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
+
+					if (ctx.GroupedProducts.Any())
+					{
+						ctx.BatchContext.AppliedDiscounts.Collect(allAssociatedProducts.Select(x => x.Id));
+					}
+				}
+
+				var associatedProducts = ctx.GroupedProducts[product.Id];
 
 				priceModel.DisableBuyButton = true;
 				priceModel.DisableWishlistButton = true;
 				priceModel.AvailableForPreOrder = false;
-
-				var searchQuery = new CatalogSearchQuery()
-					.HasStoreId(ctx.Store.Id)
-					.VisibleIndividuallyOnly(false)
-					.HasParentGroupedProductId(product.Id);
-
-				var associatedProducts = _catalogSearchService.Search(searchQuery).Hits;
 
 				if (associatedProducts.Count > 0)
 				{
@@ -723,6 +743,7 @@ namespace SmartStore.Web.Controllers
 			public ProductSummaryModel Model { get; set; }
 			public ProductSummaryMappingSettings Settings { get; set; }
 			public ProductExportContext BatchContext { get; set; }
+			public Multimap<int, Product> GroupedProducts { get; set; }
 			public Dictionary<int, ManufacturerOverviewModel> CachedManufacturerModels { get; set; }
 			public Dictionary<string, LocalizedString> Resources { get; set; }
 			public string LegalInfo { get; set; }

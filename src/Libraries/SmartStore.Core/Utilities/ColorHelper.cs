@@ -7,9 +7,10 @@ namespace SmartStore.Utilities
 	{
 		public static int GetPerceivedBrightness(string htmlColor)
 		{
-			Guard.NotEmpty(htmlColor, nameof(htmlColor));
-
-			return GetPerceivedBrightness(ColorTranslator.FromHtml(htmlColor));
+            if (String.IsNullOrEmpty(htmlColor))
+                htmlColor = "#ffffff";
+            
+            return GetPerceivedBrightness(ColorTranslator.FromHtml(htmlColor));
 		}
 
 		/// <summary>
@@ -17,7 +18,7 @@ namespace SmartStore.Utilities
 		/// </summary>
 		/// <param name="color">The color</param>
 		/// <returns>
-		/// A number in the rage of 0 (black) to 255 (White). 
+		/// A number in the range of 0 (black) to 255 (White). 
 		/// For text contrast colors, an optimal cutoff value is 130.
 		/// </returns>
 		public static int GetPerceivedBrightness(Color color)

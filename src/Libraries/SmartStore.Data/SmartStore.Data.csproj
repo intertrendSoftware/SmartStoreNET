@@ -62,8 +62,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=4.3.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Autofac.4.3.0\lib\net45\Autofac.dll</HintPath>
+    <Reference Include="Autofac, Version=4.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Autofac.4.5.0\lib\net45\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -90,8 +90,8 @@
       <Private>True</Private>
       <HintPath>..\..\packages\Microsoft.SqlServer.Scripting.11.0.2100.61\lib\Microsoft.SqlServer.Smo.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -132,6 +132,7 @@
     <Compile Include="Caching\SingletonQueries.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Mapping\Catalog\ProductAttributeOptionMap.cs" />
+    <Compile Include="Mapping\Catalog\ProductAttributeOptionsSetMap.cs" />
     <Compile Include="Mapping\DataExchange\ImportProfileMap.cs" />
     <Compile Include="Mapping\DataExchange\SyncMappingMap.cs" />
     <Compile Include="Mapping\DataExchange\ExportDeploymentMap.cs" />
@@ -472,9 +473,21 @@
     <Compile Include="Migrations\201702202112266_VariantAttributeAllowFiltering.Designer.cs">
       <DependentUpon>201702202112266_VariantAttributeAllowFiltering.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201702271156594_ProductAttributeOption.cs" />
-    <Compile Include="Migrations\201702271156594_ProductAttributeOption.Designer.cs">
-      <DependentUpon>201702271156594_ProductAttributeOption.cs</DependentUpon>
+    <Compile Include="Migrations\201703021146527_ProductAttributeOptionsSet.cs" />
+    <Compile Include="Migrations\201703021146527_ProductAttributeOptionsSet.Designer.cs">
+      <DependentUpon>201703021146527_ProductAttributeOptionsSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201703161013248_FacetTemplateHint.cs" />
+    <Compile Include="Migrations\201703161013248_FacetTemplateHint.Designer.cs">
+      <DependentUpon>201703161013248_FacetTemplateHint.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201704031946479_SpecificationAttributeAllowFiltering.cs" />
+    <Compile Include="Migrations\201704031946479_SpecificationAttributeAllowFiltering.Designer.cs">
+      <DependentUpon>201704031946479_SpecificationAttributeAllowFiltering.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201705032238367_RenameColorSquaresRgb.cs" />
+    <Compile Include="Migrations\201705032238367_RenameColorSquaresRgb.Designer.cs">
+      <DependentUpon>201705032238367_RenameColorSquaresRgb.cs</DependentUpon>
     </Compile>
     <Compile Include="ObjectContextBase.SaveChanges.cs" />
     <Compile Include="Setup\Builder\ActivityLogTypeMigrator.cs" />
@@ -867,8 +880,17 @@
     <EmbeddedResource Include="Migrations\201702202112266_VariantAttributeAllowFiltering.resx">
       <DependentUpon>201702202112266_VariantAttributeAllowFiltering.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201702271156594_ProductAttributeOption.resx">
-      <DependentUpon>201702271156594_ProductAttributeOption.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201703021146527_ProductAttributeOptionsSet.resx">
+      <DependentUpon>201703021146527_ProductAttributeOptionsSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703161013248_FacetTemplateHint.resx">
+      <DependentUpon>201703161013248_FacetTemplateHint.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201704031946479_SpecificationAttributeAllowFiltering.resx">
+      <DependentUpon>201704031946479_SpecificationAttributeAllowFiltering.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201705032238367_RenameColorSquaresRgb.resx">
+      <DependentUpon>201705032238367_RenameColorSquaresRgb.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Sql\Indexes.sql" />
     <EmbeddedResource Include="Sql\StoredProcedures.sql" />
@@ -886,7 +908,7 @@
     <EmbeddedResource Include="Sql\StoredProcedures.Inverse.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Caching\Creadits.txt" />
+    <Content Include="Caching\Credits.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

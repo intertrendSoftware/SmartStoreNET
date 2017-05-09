@@ -137,7 +137,7 @@ namespace SmartStore.Services.Discounts
                 {
                     // The function 'CurrentUtcDateTime' is not supported by SQL Server Compact. 
                     // That's why we pass the date value
-                    var nowUtc = DateTime.UtcNow;
+                    var nowUtc = DateTime.UtcNow.Date;
                     query = query.Where(d =>
                         (!d.StartDateUtc.HasValue || d.StartDateUtc <= nowUtc)
                         && (!d.EndDateUtc.HasValue || d.EndDateUtc >= nowUtc));
@@ -227,23 +227,23 @@ namespace SmartStore.Services.Discounts
 
         public virtual bool IsDiscountValid(Discount discount, Customer customer)
         {
-            if (discount == null)
-                throw new ArgumentNullException("discount");
+			Guard.NotNull(discount, nameof(discount));
 
             var couponCodeToValidate = "";
             if (customer != null)
+			{
 				couponCodeToValidate = customer.GetAttribute<string>(SystemCustomerAttributeNames.DiscountCouponCode, _genericAttributeService);
+			}			
 
             return IsDiscountValid(discount, customer, couponCodeToValidate);
         }
 
         public virtual bool IsDiscountValid(Discount discount, Customer customer, string couponCodeToValidate)
         {
-            if (discount == null)
-                throw new ArgumentNullException("discount");
+			Guard.NotNull(discount, nameof(discount));
 
-            //check coupon code
-            if (discount.RequiresCouponCode)
+			// Check coupon code
+			if (discount.RequiresCouponCode)
             {
                 if (String.IsNullOrEmpty(discount.CouponCode))
                     return false;
@@ -274,8 +274,8 @@ namespace SmartStore.Services.Discounts
 			// better not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
 			if (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
 			{
-				var cart = customer.ShoppingCartItems
-					.Filter(ShoppingCartType.ShoppingCart, store.Id)
+				var cart = customer.GetCartItems(ShoppingCartType.ShoppingCart, store.Id)
+					.Select(x => x.Item)
 					.ToList();
 
 				if (cart.Any(x => x.Product.IsGiftCard))
@@ -297,7 +297,7 @@ namespace SmartStore.Services.Discounts
 					Store = store
                 };
 
-				// TODO: cache result... CheckRequirement is very often called
+				// TODO: cache result... CheckRequirement is called very often
 				if (!requirementRule.Value.CheckRequirement(request))
                     return false;
             }

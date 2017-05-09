@@ -1,4 +1,4 @@
-﻿@using SmartStore.Core.Search
+﻿@using SmartStore.Core.Search;
 @model SearchSettingsModel
 @{
     ViewBag.Title = T("Search.Title").Text;
@@ -108,39 +108,43 @@
 				</div>
 			</td>
 		</tr>
-		<tr>
-			<td colspan="2">
+	</table>
 
-				<table class="table admin-table" style="width: 560px;">
-					<thead>
-						<tr>
-							<th>@T("Search.FilterBy")</th>
-							<th class="ac">@T("Common.Deactivated")</th>
-							<th>@T("Common.DisplayOrder")</th>
-						</tr>
-					</thead>
-					<tbody>
-						@foreach (var filter in Model.GlobalFilters.OrderByDescending(x => !x.Disabled).ThenBy(x => x.DisplayOrder))
-						{
-							var filterIndex = Model.GlobalFilters.IndexOf(filter);
-							<tr>
-								<td>
-									@(filter.FriendlyName ?? filter.FieldName)
-									@Html.HiddenFor(model => model.GlobalFilters[filterIndex].FieldName)
-								</td>
-								<td class="ac">
-									@Html.SettingEditorFor(model => model.GlobalFilters[filterIndex].Disabled)
-								</td>
-								<td>
-									@Html.SettingEditorFor(model => model.GlobalFilters[filterIndex].DisplayOrder, null, new { small = true })
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
+@Html.SmartStore().TabStrip().Name("common-facets-settings").Style(TabsStyle.Tabs).Position(TabsPosition.Left).Items(x =>
+{
+	x.Add()
+		.Text(T("Search.Facet.Category").Text)
+		.Content(Html.Partial("Partials/CommonFacet", Model.CategoryFacet, CreateFacetViewData("CategoryFacet")).ToHtmlString())
+		.Selected(true);
 
-			</td>
-		</tr>
+	x.Add()
+		.Text(T("Search.Facet.Manufacturer").Text)
+		.Content(Html.Partial("Partials/CommonFacet", Model.BrandFacet, CreateFacetViewData("BrandFacet")).ToHtmlString());
+
+	x.Add()
+		.Text(T("Search.Facet.Price").Text)
+		.Content(Html.Partial("Partials/CommonFacet", Model.PriceFacet, CreateFacetViewData("PriceFacet")).ToHtmlString());
+
+	x.Add()
+		.Text(T("Search.Facet.Rating").Text)
+		.Content(Html.Partial("Partials/CommonFacet", Model.RatingFacet, CreateFacetViewData("RatingFacet")).ToHtmlString());
+
+	x.Add()
+		.Text(T("Search.Facet.DeliveryTime").Text)
+		.Content(Html.Partial("Partials/CommonFacet", Model.DeliveryTimeFacet, CreateFacetViewData("DeliveryTimeFacet")).ToHtmlString());
+
+	x.Add()
+		.Text(T("Search.Facet.Availability").Text)
+		.Content(Html.Partial("Partials/CommonFacet", Model.AvailabilityFacet, CreateFacetViewData("AvailabilityFacet")).ToHtmlString());
+
+	x.Add()
+		.Text(T("Search.Facet.NewArrivals").Text)
+		.Content(Html.Partial("Partials/CommonFacet", Model.NewArrivalsFacet, CreateFacetViewData("NewArrivalsFacet")).ToHtmlString());
+})
+	<p></p>
+	<table class="adminContent">
+		@if (Model.IsMegaSearchInstalled)
+		{
 		<tr>
 			<td class="adminTitle">
 				@Html.SmartLabelFor(model => model.FilterMinHitCount)
@@ -150,6 +154,7 @@
 				@Html.ValidationMessageFor(model => model.FilterMinHitCount)
 			</td>
 		</tr>
+		}
 		<tr>
 			<td class="adminTitle">
 				@Html.SmartLabelFor(model => model.FilterMaxChoicesCount)
@@ -160,6 +165,19 @@
 			</td>
 		</tr>
 	</table>
+}
+
+@functions
+{
+	private ViewDataDictionary CreateFacetViewData(string fieldPrefix)
+	{
+		// Do not change field prefix of this.ViewData.
+		var viewData = new ViewDataDictionary(ViewData)
+		{
+			TemplateInfo = new TemplateInfo { HtmlFieldPrefix = fieldPrefix }
+		};
+		return viewData;
+	}
 }
 
 <script type="text/javascript">

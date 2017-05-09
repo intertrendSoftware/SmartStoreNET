@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SmartStore.Core.Search.Facets
 {
+	[DebuggerDisplay("Key: {Key}, IsChoice: {IsChoice}, HitCount: {HitCount}, Value: {Value}")]
 	public class Facet
 	{
 		public Facet(FacetValue value)
@@ -18,6 +20,7 @@ namespace SmartStore.Core.Search.Facets
 			Value = value;
 			Children = new List<Facet>();
 			IsChoice = true;
+			Published = true;
 		}
 
 		public string Key
@@ -36,6 +39,12 @@ namespace SmartStore.Core.Search.Facets
 		/// Gets or sets whether the facet can be selected
 		/// </summary>
 		public bool IsChoice
+		{
+			get;
+			set;
+		}
+
+		public bool Published
 		{
 			get;
 			set;

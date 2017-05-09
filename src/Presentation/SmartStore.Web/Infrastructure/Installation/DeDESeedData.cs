@@ -2028,7 +2028,7 @@ namespace SmartStore.Web.Infrastructure.Installation
                 .Alter("LoginRegistrationInfo", x =>
                 {
                     x.Title = "Anmeldung/Registrierung";
-                    x.Body = "<p>Fügen Sie Informationen zur Anmeldung hier ein.</p><p>Diesen Text können Sie auch im Administrations-Bereich editieren.</p>";
+                    x.Body = "<p><strong>Noch nicht registriert?</strong></p><p>Erstellen Sie jetzt Ihr Kunden-Konto und erleben Sie unsere Vielfalt. Mit einem Konto können Sie künftig schneller bestellen und haben stets eine optimale Übersicht über Ihre laufenden sowie bisherigen Bestellungen.</p>";
                 })
                 .Alter("PrivacyInfo", x =>
                 {
@@ -2773,75 +2773,111 @@ namespace SmartStore.Web.Infrastructure.Installation
         {
             base.Alter(entities);
 
-            //entities.Clear();
-
             entities.WithKey(x => x.Alias)
-                .Alter("Color", x =>
+                .Alter("color", x =>
                 {
                     x.Name = "Farbe";
                 })
-                .Alter("Custom Text", x =>
+                .Alter("custom-text", x =>
                 {
                     x.Name = "eigener Text";
                 })
-                .Alter("HDD", x =>
+                .Alter("hdd", x =>
                 {
                     x.Name = "HDD";
                 })
-                .Alter("OS", x =>
+                .Alter("os", x =>
                 {
                     x.Name = "Betriebssystem";
                 })
-                .Alter("Processor", x =>
+                .Alter("processor", x =>
                 {
                     x.Name = "Prozessor";
                 })
-                .Alter("RAM", x =>
+                .Alter("ram", x =>
                 {
                     x.Name = "Arbeitsspeicher";
                 })
-                .Alter("Size", x =>
+                .Alter("size", x =>
                 {
                     x.Name = "Größe";
                 })
-                .Alter("Software", x =>
+                .Alter("software", x =>
                 {
                     x.Name = "Software";
                 })
-				.Alter("Game", x =>
+				.Alter("game", x =>
 				{
 					x.Name = "Spiel";
 				})
-				.Alter("iPhone color", x =>
+				.Alter("iphone-color", x =>
 				{
 					x.Name = "Farbe";
 				})
-				.Alter("Memory capacity", x =>
+				.Alter("memory-capacity", x =>
 				{
 					x.Name = "Speicherkapazität";
+				})
+				.Alter("width", x =>
+				{
+					x.Name = "Weite";
+				})
+				.Alter("length", x =>
+				{
+					x.Name = "Länge";
 				});
         }
+
+		protected override void Alter(IList<ProductAttributeOptionsSet> entities)
+		{
+			base.Alter(entities);
+
+			entities.WithKey(x => x.Name)
+				.Alter("General colors", x => x.Name = "Allgemeine Farben");
+		}
+
+		protected override void Alter(IList<ProductAttributeOption> entities)
+		{
+			base.Alter(entities);
+
+			entities.Where(x => x.Alias == "red").Each(x => x.Name = "Rot");
+			entities.Where(x => x.Alias == "green").Each(x => x.Name = "Grün");
+			entities.Where(x => x.Alias == "blue").Each(x => x.Name = "Blau");
+			entities.Where(x => x.Alias == "yellow").Each(x => x.Name = "Gelb");
+			entities.Where(x => x.Alias == "black").Each(x => x.Name = "Schwarz");
+			entities.Where(x => x.Alias == "white").Each(x => x.Name = "Weiß");
+			entities.Where(x => x.Alias == "gray").Each(x => x.Name = "Grau");
+			entities.Where(x => x.Alias == "silver").Each(x => x.Name = "Silber");
+			entities.Where(x => x.Alias == "brown").Each(x => x.Name = "Braun");
+		}
 
 		protected override void Alter(IList<ProductVariantAttribute> entities)
 		{
 			base.Alter(entities);
-			
 
-			entities.WithKey(x => x.ProductAttribute.Alias)
-				.Alter("Color", x =>
-					{
-						x.ProductVariantAttributeValues.First(v => v.Alias == "black").Name = "Schwarz";
-						x.ProductVariantAttributeValues.First(v => v.Alias == "white").Name = "Weiß";
-					})
-				.Alter("iPhone color", x =>
-				{
-					x.ProductVariantAttributeValues.First(v => v.Alias == "silver").Name = "Silber";
-					x.ProductVariantAttributeValues.First(v => v.Alias == "spacegray").Name = "Space-Grau";
-				})
-				.Alter("Game", x =>
-					{
-						x.ProductVariantAttributeValues.First(v => v.Alias == "Prince of Persia \"The Forgotten Sands\"").Name = "Prince of Persia \"Die vergessene Zeit\"";
-					});
+			entities.Where(x => x.ProductAttribute.Alias == "color").Each(x =>
+			{
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "black").Each(y => y.Name = "Schwarz");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "white").Each(y => y.Name = "Weiß");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "silver").Each(y => y.Name = "Silber");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "red").Each(y => y.Name = "Rot");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "gray" || y.Alias == "charcoal").Each(y => y.Name = "Grau");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "maroon").Each(y => y.Name = "Rotbraun");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "blue").Each(y => y.Name = "Blau");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "purple").Each(y => y.Name = "Violett");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "green").Each(y => y.Name = "Grün");
+			});
+
+			entities.Where(x => x.ProductAttribute.Alias == "iphone-color").Each(x =>
+			{
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "silver").Each(y => y.Name = "Silber");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "spacegray").Each(y => y.Name = "Space-Grau");
+			});
+
+			entities.Where(x => x.ProductAttribute.Alias == "game").Each(x =>
+			{
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "prince-of-persia-the-forgotten-sands").Each(y => y.Name = "Prince of Persia \"Die vergessene Zeit\"");
+			});
 		}
 
         protected override void Alter(IList<ProductTemplate> entities)
@@ -2886,6 +2922,38 @@ namespace SmartStore.Web.Infrastructure.Installation
             base.Alter(entities);
 
             entities.WithKey(x => x.MetaTitle)
+            .Alter("Furniture", x =>
+            {
+                x.Name = "Möbel";
+            })
+            .Alter("Lounger", x =>
+            {
+                x.Name = "Liegen";
+            })
+            .Alter("Chairs", x =>
+            {
+                x.Name = "Stühle";
+            })
+            .Alter("Lamps", x =>
+            {
+                x.Name = "Lampen";
+            })
+            .Alter("Fashion", x =>
+            {
+                x.Name = "Mode";
+            })
+            .Alter("Sports", x =>
+             {
+                 x.Name = "Sport";
+             })
+            .Alter("Sunglasses", x =>
+            {
+                x.Name = "Sonnenbrillen";
+            })
+            .Alter("Soccer", x =>
+            {
+                x.Name = "Fußball";
+            })
             .Alter("Books", x =>
             {
                 x.Name = "Bücher";
@@ -2914,9 +2982,9 @@ namespace SmartStore.Web.Infrastructure.Installation
             {
                 x.Name = "Smartphones";
             })
-            .Alter("Instant music", x =>
+            .Alter("Digital Products", x =>
             {
-                x.Name = "Musik kaufen & sofort herunterladen";
+                x.Name = "Digitale Produkte";
             })
             .Alter("Gift cards", x =>
             {
@@ -2936,7 +3004,38 @@ namespace SmartStore.Web.Infrastructure.Installation
 			});
         }
 
-        protected override void Alter(IList<Product> entities)
+		private void AlterFashionProducts(IList<Product> entities)
+		{
+			entities.WithKey(x => x.Sku)
+				.Alter("Fashion-112345", x =>
+				{
+					x.Name = "Herren Shirt";
+					x.ShortDescription = "Herren Shirt mit trendigem Rollsaum";
+					x.FullDescription = "<p>Oberstoff (140 g/m²): 100% Baumwolle 100% Bio-Baumwolle, Single Jersey Rundhalsausschnitt und Ärmel mit Rollsaum. In den Trendfarben Heather Grey und Red</p>";
+				})
+				.Alter("Fashion-112355", x =>
+				{
+					x.ShortDescription = "Der Sneaker-Klassiker!";
+					x.FullDescription = "<p>Seit 1912 und bis heute unerreicht: Der Converse All Star Sneaker. Ein Schuh für jede Gelegenheit.</p>";
+				})
+				.Alter("Fashion-987693502", x =>
+				{
+					x.Name = "Ärmelloses Shirt Meccanica";
+					x.FullDescription = "<p>Auch im Sommer geht der Ducati Stil mit der Mode! Mit dem ärmellosen Shirt Meccanica kann jede Frau ihrer Leidenschaft für Ducati mit einem bequemen und vielseitigen Kleidungsstück Ausdruck verleihen. Das Shirt gibt es in schwarz und vintagerot. Es trägt auf der Vorderseite den traditionellen Schriftzug in Plastisoldruck, wodurch er noch deutlicher und strahlender wird, während sich auf der Rückseite im Nackenbereich das berühmte Logo mit den typischen \"Flügeln\" der fünfziger Jahre befindet.</p>";
+				})
+				.Alter("Fashion-JN1107", x =>
+				{
+					x.Name = "Damen Sport-Jacke";
+					x.FullDescription = "<p>Leichtes wind- und wasserabweisendes Gewebe, Futter aus weichem Single-Jersey Strickbündchen an Arm und Bund, 2 seitliche Taschen mit Reißverschluss, Kapuze in leicht tailliertem Schnitt.</p><ul><li>Oberstoff: 100%</li><li>Polyamid Futterstoff: 65% Polyester, 35% Baumwolle</li><li>Futterstoff 2: 100% Polyester</li></ul>";
+				})
+				.Alter("Fashion-65986524", x =>
+				 {
+					 x.ShortDescription = "Moderne Jeans in Easy Comfort Fit";
+					 x.FullDescription = "<p>Echte Five-Pocket-Jeans von Joker mit zusätzlicher, aufgesetzter Uhrentasche. Dank Easy Comfort Fit mit normaler Leibhöhe und bequemer Beinweite passend für jeden Figurtyp. Gerader Beinverlauf.</p><ul><li>Material: weicher, leichterer Premium-Denim aus 100% Baumwolle</li><li>Bundweite (Zoll): 29-46</li><li>Beinlänge (Zoll): 30 bis 38</li></ul>";
+				 });
+		}
+
+		protected override void Alter(IList<Product> entities)
         {
             base.Alter(entities);
 
@@ -3355,6 +3454,7 @@ namespace SmartStore.Web.Infrastructure.Installation
 
 				#endregion gaming
 
+				AlterFashionProducts(entities);
 			}
             catch (Exception ex)
             {

@@ -10,7 +10,7 @@ namespace SmartStore.Core.Domain.Catalog
     /// </summary>
     [DataContract]
 	public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity
-    {
+	{
         private ICollection<ProductVariantAttributeValue> _productVariantAttributeValues;
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace SmartStore.Core.Domain.Catalog
 			switch (AttributeControlType)
 			{
 				case AttributeControlType.Checkboxes:
-				case AttributeControlType.ColorSquares:
+				case AttributeControlType.Boxes:
 				case AttributeControlType.DropdownList:
 				case AttributeControlType.RadioList:
 					return true;

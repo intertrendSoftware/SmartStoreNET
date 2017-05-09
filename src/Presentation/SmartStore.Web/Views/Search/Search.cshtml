@@ -3,8 +3,6 @@
 
 @model SearchResultModel
 @{
-	Layout = "_ColumnsTwo";
-
 	if (Model.Term.HasValue())
 	{
 		Html.AddTitleParts(T("Search.PageTitle", "\"" + Model.Term + "\""));
@@ -22,6 +20,19 @@
 		firstItemIndex = Model.SearchResult.Hits.FirstItemIndex;
 		lastItemIndex = Model.SearchResult.Hits.LastItemIndex;
 		suggestions = Model.SearchResult.SpellCheckerSuggestions;
+	}
+
+	Layout = "_Layout";
+
+	ViewBag.HideLeftCol = true; // ...on mobile
+}
+
+@if (Model.SearchResult.Facets.Count > 0)
+{
+	@section left {
+		@{ 
+			Html.RenderAction("Filters", new { model = Model });
+		}
 	}
 }
 

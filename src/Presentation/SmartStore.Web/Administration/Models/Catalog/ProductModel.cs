@@ -411,7 +411,6 @@ namespace SmartStore.Admin.Models.Catalog
             {
                 AvailableAttributes = new List<SelectListItem>();
                 AvailableOptions = new List<SelectListItem>();
-				AllowFiltering = true;
             }
             
             [SmartResourceDisplayName("Admin.Catalog.Products.SpecificationAttributes.Fields.SpecificationAttribute")]
@@ -421,10 +420,10 @@ namespace SmartStore.Admin.Models.Catalog
             public int SpecificationAttributeOptionId { get; set; }
 
             [SmartResourceDisplayName("Admin.Catalog.Products.SpecificationAttributes.Fields.AllowFiltering")]
-            public bool AllowFiltering { get; set; }
+            public bool? AllowFiltering { get; set; }
 
             [SmartResourceDisplayName("Admin.Catalog.Products.SpecificationAttributes.Fields.ShowOnProductPage")]
-            public bool ShowOnProductPage { get; set; }
+            public bool? ShowOnProductPage { get; set; }
 
             [SmartResourceDisplayName("Admin.Catalog.Products.SpecificationAttributes.Fields.DisplayOrder")]
             public int DisplayOrder { get; set; }
@@ -612,19 +611,21 @@ namespace SmartStore.Admin.Models.Catalog
 			[SmartResourceDisplayName("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Fields.IsRequired")]
 			public bool IsRequired { get; set; }
 
-			public int AttributeControlTypeId { get; set; }
             [SmartResourceDisplayName("Admin.Catalog.Attributes.AttributeControlType")]
 			[UIHint("AttributeControlType")]
 			public string AttributeControlType { get; set; }
+			public int AttributeControlTypeId { get; set; }
 
-			[SmartResourceDisplayName("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Fields.DisplayOrder")]
 			//we don't name it DisplayOrder because Telerik has a small bug 
 			//"if we have one more editor with the same name on a page, it doesn't allow editing"
 			//in our case it's category.DisplayOrder
+			[SmartResourceDisplayName("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Fields.DisplayOrder")]
 			public int DisplayOrder1 { get; set; }
 
 			public string ViewEditUrl { get; set; }
 			public string ViewEditText { get; set; }
+			public string OptionsSets { get; set; }
+			public int ValueCount { get; set; }
 		}
 
 		public class ProductVariantAttributeValueListModel : ModelBase
@@ -656,10 +657,11 @@ namespace SmartStore.Admin.Models.Catalog
 			[SmartResourceDisplayName("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.Name")]
 			[AllowHtml]
 			public string Name { get; set; }
+			public string NameString { get; set; }
 
 			[SmartResourceDisplayName("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.ColorSquaresRgb")]
 			[AllowHtml, UIHint("Color")]
-			public string ColorSquaresRgb { get; set; }
+			public string Color { get; set; }
 			public bool IsListTypeAttribute { get; set; }
 
             [UIHint("Picture")]

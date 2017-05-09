@@ -1,17 +1,28 @@
 ﻿@model CategoryModel
 
 @{
-    Layout = "_ColumnsTwo";
-    Html.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
-    Html.AddMetaDescriptionParts(Model.MetaDescription);
-    Html.AddMetaKeywordParts(Model.MetaKeywords);
+	Html.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+	Html.AddMetaDescriptionParts(Model.MetaDescription);
+	Html.AddMetaKeywordParts(Model.MetaKeywords);
 
-    var canonicalUrlsEnabled = EngineContext.Current.Resolve<SeoSettings>().CanonicalUrlsEnabled;
-    if (canonicalUrlsEnabled)
-    {
-        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, this.Request.Url.Scheme);
-        Html.AddCanonicalUrlParts(categoryUrl);
-    }
+	var canonicalUrlsEnabled = EngineContext.Current.Resolve<SeoSettings>().CanonicalUrlsEnabled;
+	if (canonicalUrlsEnabled)
+	{
+		var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, this.Request.Url.Scheme);
+		Html.AddCanonicalUrlParts(categoryUrl);
+	}
+
+	int firstItemIndex = 0;
+	int lastItemIndex = 0;
+	if (Model.SearchResult.TotalHitsCount > 0)
+	{
+		firstItemIndex = Model.SearchResult.Hits.FirstItemIndex;
+		lastItemIndex = Model.SearchResult.Hits.LastItemIndex;
+	}
+
+	Layout = "_Layout";
+
+	ViewBag.HideLeftCol = true; // ...on mobile
 }
 
 @using SmartStore.Core.Domain.Catalog;
@@ -22,7 +33,7 @@
 
 @helper SubCategoryList()
 {
-	<div class="artlist artlist-grid artlist-4-cols artlist-boxed artlist-sub-categories">
+	<div class="artlist artlist-grid artlist-4-cols artlist-boxed artlist-sub-categories@(Model.SubCategoryDisplayType == SubCategoryDisplayType.AboveProductList ? " hide-on-active-filter" : "")">
 		@foreach (var item in Model.SubCategories)
 		{
 			var picture = item.PictureModel;
@@ -46,40 +57,22 @@
 	</div>
 }
 
-@if (Model.DisplayCategoryBreadcrumb)
-{
-    using (Html.BeginZoneContent("teaser", injectMode: ZoneInjectMode.Prepend))
-    {
-		<ul id="breadcrumb" class="breadcrumb">
-			<li>
-				<a href="@Url.RouteUrl("HomePage")" title="@T("Categories.Breadcrumb.Top")"><i class="fa fa-home"></i></a>
-			</li>
-
-			@for (int i = 0; i < Model.CategoryBreadcrumb.Count; i++)
-            {
-                var menuItem = Model.CategoryBreadcrumb[i];
-                var isLastCategory = menuItem.EntityId == Model.Id;
-				<li>
-					@if (isLastCategory)
-                    {
-						@menuItem.Text
-                    }
-                    else
-                    {
-						<a href="@menuItem.GenerateUrl(this.Url)" title="@menuItem.Text">@menuItem.Text</a>
-                    }
-				</li>
-            }
-		</ul>
-    }
+@section left {
+	@{ 
+		Html.RenderAction("CategoryMenu", "Catalog", new { currentCategoryId = this.CurrentCategoryId, area = "" });
+		Html.RenderAction("Filters", "Search", new { model = Model });
+	}
 }
 
 <div class="page category-page">
-
     <div class="page-title">
         <h1 class="h3">
 			@(Model.FullName.HasValue() ? Model.FullName : Model.Name)
 		</h1>
+		@if (Model.SearchResult.TotalHitsCount > 0)
+		{
+			<h5 class="search-hitcount">@T("Search.PagingInfo", "{0}-{1}".FormatInvariant(firstItemIndex.ToString("N0"), lastItemIndex.ToString("N0")), Model.SearchResult.TotalHitsCount.ToString("N0"))</h5>
+		}
     </div>
 
     <div class="page-body">
@@ -88,7 +81,7 @@
         @* Description *@
         @if (!String.IsNullOrWhiteSpace(Model.Description))
         {
-            <div class="category-description text-body">
+            <div class="category-description lead hide-on-active-filter">
                 @Html.Raw(Html.CollapsedText(Model.Description))
             </div>
         }
@@ -105,21 +98,23 @@
         {
             Html.RenderWidget("categorydetails_before_featured_products");
 
-			<div class="featured-product-grid">
-                <div class="section-title">
-                    @T("Products.FeaturedProducts")
+			<div class="product-grid featured-product-grid block hide-on-active-filter">
+                <div class="heading heading-center">
+                    <h3 class="heading-title fs-h1">@T("Products.FeaturedProducts")</h3>
                 </div>
-				@{ 
-                    Html.RenderPartial("Product.List", Model.FeaturedProducts);
-				}
+				<div class="block-body pt-3 artlist-no-separators">
+					@{
+						Html.RenderPartial("Product.List", Model.FeaturedProducts);
+					}
+				</div>
             </div>
-                    }
+        }
 
         @* Product list *@
         @{ Html.RenderWidget("categorydetails_before_product_list"); }
 
         <div class="product-list-container">
-            @if (Model.Products != null && Model.Products.Items.Count > 0)
+            @if (Model.Products != null)
             {
                 Html.RenderPartial("Product.List", Model.Products);
             }
@@ -127,7 +122,7 @@
 
         @if (Model.BottomDescription.HasValue())
         {
-            <div class="category-description text-body">
+            <div class="category-description lead">
                 @Html.Raw(Html.CollapsedText(Model.BottomDescription))
             </div>
         }

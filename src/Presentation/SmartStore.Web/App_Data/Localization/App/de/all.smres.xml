@@ -4618,10 +4618,10 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.LabelAsNewForMaxDays.Hint">
 		<Value>Legt die Anzahl Tage fest, die das Produkt in der Liste mit einer "NEU"-Kennzeichnung versehen werden soll. Lassen Sie das Feld leer, um die Funktion zu deaktivieren.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ManufacturersBlockItemsToDisplay">
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ManufacturerItemsToDisplayOnHomepage">
 		<Value>Anzahl der anzuzeigenen Hersteller</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ManufacturersBlockItemsToDisplay.Hint">
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ManufacturerItemsToDisplayOnHomepage.Hint">
 		<Value>Legt die Anzahl der anzuzeigenen Hersteller in der Navigationsleiste fest.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.MaxFilterItemsToDisplay">
@@ -12185,7 +12185,7 @@
 		<Value>Sonstige Einstellungen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Themes.Shopbar">
-		<Value>Shopbar/Megamenu</Value>
+		<Value>Shopbar/Mega Menu</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Themes.Tables">
 		<Value>Tabellen/Container</Value>
@@ -14675,9 +14675,6 @@
 	<LocaleResource Name="PageTitle.ShoppingCart">
 		<Value>Warenkorb</Value>
 	</LocaleResource>
-	<LocaleResource Name="PageTitle.Sitemap">
-		<Value>Sitemap</Value>
-	</LocaleResource>
 	<LocaleResource Name="PageTitle.StoreClosed">
 		<Value>Der Shop ist geschloßen.</Value>
 	</LocaleResource>
@@ -14748,7 +14745,7 @@
 		<Value>Der Typ von wiederkehrender Zahlung wird nicht unterstützt.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.SelectCreditCard">
-		<Value>Wähle Kreditkarte aus</Value>
+		<Value>Wählen Sie Ihre Kreditkarte aus</Value>
 	</LocaleResource>
 	<LocaleResource Name="Paymentinfo">
 		<Value>Zahlungsarten</Value>
@@ -15908,18 +15905,6 @@
 	<LocaleResource Name="ShoppingCart.WishlistDisabled">
 		<Value>Der Wunschzettel ist für dieses Produkt deaktiviert.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Sitemap">
-		<Value>Sitemap</Value>
-	</LocaleResource>
-	<LocaleResource Name="Sitemap.Categories">
-		<Value>Kategorien</Value>
-	</LocaleResource>
-	<LocaleResource Name="Sitemap.Manufacturers">
-		<Value>Hersteller</Value>
-	</LocaleResource>
-	<LocaleResource Name="Sitemap.Products">
-		<Value>Produkte</Value>
-	</LocaleResource>
 	<LocaleResource Name="SmartStore.Core.Domain.Seo.PageTitleSeoAdjustment.PagenameAfterStorename">
 		<Value>Seitenname kommt nach Shop-Name</Value>
 	</LocaleResource>
@@ -16086,7 +16071,7 @@
 		<Value>Container Radius</Value>
 	</LocaleResource>
 	<LocaleResource Name="ThemeVar.Alpha.DisplayNavbar">
-		<Value>Zeige Megamenu</Value>
+		<Value>Zeige Mega Menu</Value>
 	</LocaleResource>
 	<LocaleResource Name="ThemeVar.Alpha.DropdownBackground">
 		<Value>Dropdown Hintergrundfarbe</Value>
@@ -16321,9 +16306,6 @@
 	</LocaleResource>
 	<LocaleResource Name="ThemeVar.Alpha.TextColor">
 		<Value>Textfarbe</Value>
-	</LocaleResource>
-	<LocaleResource Name="ThemeVar.Alpha.WellBackground">
-		<Value>Well-Hintergrundfarbe</Value>
 	</LocaleResource>
 	<LocaleResource Name="Time.Day">
 		<Value>Tag</Value>

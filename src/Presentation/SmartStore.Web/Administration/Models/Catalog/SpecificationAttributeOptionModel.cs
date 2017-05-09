@@ -30,10 +30,12 @@ namespace SmartStore.Admin.Models.Catalog
         
         public IList<SpecificationAttributeOptionLocalizedModel> Locales { get; set; }
 
-		// codehint: sm-add
 		[SmartResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.Multiple")]
 		public bool Multiple { get; set; }
-    }
+
+		[SmartResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.NumberValue")]
+		public decimal NumberValue { get; set; }
+	}
 
     public class SpecificationAttributeOptionLocalizedModel : ILocalizedModelLocal
     {

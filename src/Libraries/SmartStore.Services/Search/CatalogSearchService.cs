@@ -1,39 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Mvc;
 using Autofac;
 using SmartStore.Core.Domain.Catalog;
-using SmartStore.Core.Events;
+using SmartStore.Core.Localization;
 using SmartStore.Core.Logging;
 using SmartStore.Core.Search;
 using SmartStore.Core.Search.Facets;
 using SmartStore.Services.Catalog;
+using SmartStore.Services.Customers;
 
 namespace SmartStore.Services.Search
 {
 	public partial class CatalogSearchService : ICatalogSearchService
 	{
-		private readonly IComponentContext _ctx;
-		private readonly ILogger _logger;
+		private readonly ICommonServices _services;
 		private readonly IIndexManager _indexManager;
 		private readonly Lazy<IProductService> _productService;
-		private readonly IChronometer _chronometer;
-		private readonly IEventPublisher _eventPublisher;
+		private readonly ILogger _logger;
+		private readonly IPriceFormatter _priceFormatter;
+		private readonly UrlHelper _urlHelper;
 
 		public CatalogSearchService(
-			IComponentContext ctx,
-			ILogger logger,
+			ICommonServices services,
 			IIndexManager indexManager,
 			Lazy<IProductService> productService,
-			IChronometer chronometer,
-			IEventPublisher eventPublisher)
+			ILogger logger,
+			IPriceFormatter priceFormatter,
+			UrlHelper urlHelper)
 		{
-			_ctx = ctx;
-			_logger = logger;
+			_services = services;
 			_indexManager = indexManager;
 			_productService = productService;
-			_chronometer = chronometer;
-			_eventPublisher = eventPublisher;
+			_logger = logger;
+			_priceFormatter = priceFormatter;
+			_urlHelper = urlHelper;
+
+			T = NullLocalizer.Instance;
+		}
+
+		public Localizer T { get; set; }
+
+		/// <summary>
+		/// Notifies admin that indexing is required to use the advanced search.
+		/// </summary>
+		protected virtual void IndexingRequiredNotification()
+		{
+			if (_services.WorkContext.CurrentCustomer.IsAdmin())
+			{
+				var notification = T("Search.IndexingRequiredNotification",
+					_urlHelper.Action("Indexing", "MegaSearch", new { area = "SmartStore.MegaSearch" }),
+					_urlHelper.Action("ConfigurePlugin", "Plugin", new { area = "admin", systemName = "SmartStore.MegaSearch" }));
+
+				_services.Notifier.Information(notification);
+			}
 		}
 
 		/// <summary>
@@ -45,11 +66,18 @@ namespace SmartStore.Services.Search
 		protected virtual CatalogSearchResult SearchDirect(CatalogSearchQuery searchQuery, ProductLoadFlags loadFlags = ProductLoadFlags.None)
 		{
 			// fallback to linq search
-			var linqCatalogSearchService = _ctx.ResolveNamed<ICatalogSearchService>("linq");
-			return linqCatalogSearchService.Search(searchQuery, loadFlags);
+			var linqCatalogSearchService = _services.Container.ResolveNamed<ICatalogSearchService>("linq");
+
+			var result = linqCatalogSearchService.Search(searchQuery, loadFlags, true);
+			ApplyFacetLabels(result.Facets);
+
+			return result;
 		}
 
-		public CatalogSearchResult Search(CatalogSearchQuery searchQuery, ProductLoadFlags loadFlags = ProductLoadFlags.None, bool direct = false)
+		public CatalogSearchResult Search(
+			CatalogSearchQuery searchQuery, 
+			ProductLoadFlags loadFlags = ProductLoadFlags.None, 
+			bool direct = false)
 		{
 			Guard.NotNull(searchQuery, nameof(searchQuery));
 			Guard.NotNegative(searchQuery.Take, nameof(searchQuery.Take));
@@ -62,40 +90,45 @@ namespace SmartStore.Services.Search
 				if (indexStore.Exists)
 				{
 					var searchEngine = provider.GetSearchEngine(indexStore, searchQuery);
+					var stepPrefix = searchEngine.GetType().Name + " - ";
 
-					using (_chronometer.Step("Search (" + searchEngine.GetType().Name + ")"))
+					int totalCount = 0;
+					string[] spellCheckerSuggestions = null;
+					IEnumerable<ISearchHit> searchHits;
+					Func<IList<Product>> hitsFactory = null;
+					IDictionary<string, FacetGroup> facets = null;
+
+					_services.EventPublisher.Publish(new CatalogSearchingEvent(searchQuery));
+
+					if (searchQuery.Take > 0)
 					{
-						int totalCount = 0;
-						string[] spellCheckerSuggestions = null;
-						IEnumerable<ISearchHit> searchHits;
-						Func<IList<Product>> hitsFactory = null;
-						IDictionary<string, FacetGroup> facets = null;
-
-						_eventPublisher.Publish(new CatalogSearchingEvent(searchQuery));
-
-						if (searchQuery.Take > 0)
+						using (_services.Chronometer.Step(stepPrefix + "Count"))
 						{
-							using (_chronometer.Step("Get total count"))
-							{
-								totalCount = searchEngine.Count();
-							}
+							totalCount = searchEngine.Count();
+						}
 
-							using (_chronometer.Step("Get hits"))
-							{
-								searchHits = searchEngine.Search();
-							}
+						using (_services.Chronometer.Step(stepPrefix + "Hits"))
+						{
+							searchHits = searchEngine.Search();
+						}
 
-							using (_chronometer.Step("Collect from DB"))
+						if (searchQuery.ResultFlags.HasFlag(SearchResultFlags.WithHits))
+						{
+							using (_services.Chronometer.Step(stepPrefix + "Collect"))
 							{
 								var productIds = searchHits.Select(x => x.EntityId).ToArray();
 								hitsFactory = () => _productService.Value.GetProductsByIds(productIds, loadFlags);
 							}
+						}
 
+						if (searchQuery.ResultFlags.HasFlag(SearchResultFlags.WithFacets))
+						{
 							try
 							{
-								using (_chronometer.Step("Get facets"))
+								using (_services.Chronometer.Step(stepPrefix + "Facets"))
 								{
 									facets = searchEngine.GetFacetMap();
+									ApplyFacetLabels(facets);
 								}
 							}
 							catch (Exception exception)
@@ -103,10 +136,13 @@ namespace SmartStore.Services.Search
 								_logger.Error(exception);
 							}
 						}
+					}
 
+					if (searchQuery.ResultFlags.HasFlag(SearchResultFlags.WithSuggestions))
+					{
 						try
 						{
-							using (_chronometer.Step("Spell checking"))
+							using (_services.Chronometer.Step(stepPrefix + "Spellcheck"))
 							{
 								spellCheckerSuggestions = searchEngine.CheckSpelling();
 							}
@@ -116,23 +152,112 @@ namespace SmartStore.Services.Search
 							// spell checking should not break the search
 							_logger.Error(exception);
 						}
-
-						var result = new CatalogSearchResult(
-							searchEngine,
-							searchQuery,
-							totalCount,
-							hitsFactory, 
-							spellCheckerSuggestions,
-							facets);
-
-						_eventPublisher.Publish(new CatalogSearchedEvent(searchQuery, result));
-
-						return result;
 					}
+
+					var result = new CatalogSearchResult(
+						searchEngine,
+						searchQuery,
+						totalCount,
+						hitsFactory,
+						spellCheckerSuggestions,
+						facets);
+
+					_services.EventPublisher.Publish(new CatalogSearchedEvent(searchQuery, result));
+
+					return result;
+				}
+				else if (searchQuery.Origin.IsCaseInsensitiveEqual("Search/Search"))
+				{
+					IndexingRequiredNotification();
 				}
 			}
 
 			return SearchDirect(searchQuery);
+		}
+
+		public IQueryable<Product> PrepareQuery(CatalogSearchQuery searchQuery, IQueryable<Product> baseQuery = null)
+		{
+			var linqCatalogSearchService = _services.Container.ResolveNamed<ICatalogSearchService>("linq");
+			return linqCatalogSearchService.PrepareQuery(searchQuery, baseQuery);
+		}
+
+		protected virtual void ApplyFacetLabels(IDictionary<string, FacetGroup> facets)
+		{
+			if (facets == null | facets.Count == 0)
+			{
+				return;
+			}
+
+			FacetGroup group;
+			var rangeMinTemplate = T("Search.Facet.RangeMin").Text;
+			var rangeMaxTemplate = T("Search.Facet.RangeMax").Text;
+			var rangeBetweenTemplate = T("Search.Facet.RangeBetween").Text;
+
+			// Apply "price" labels.
+			if (facets.TryGetValue("price", out group))
+			{
+				// TODO: formatting without decimals would be nice
+				foreach (var facet in group.Facets)
+				{
+					var val = facet.Value;
+
+					if (val.Value == null && val.UpperValue != null)
+					{
+						val.Label = rangeMaxTemplate.FormatInvariant(FormatPrice(val.UpperValue.Convert<decimal>()));
+					}
+					else if (val.Value != null && val.UpperValue == null)
+					{
+						val.Label = rangeMinTemplate.FormatInvariant(FormatPrice(val.Value.Convert<decimal>()));
+					}
+					else if (val.Value != null && val.UpperValue != null)
+					{
+						val.Label = rangeBetweenTemplate.FormatInvariant(
+							FormatPrice(val.Value.Convert<decimal>()),
+							FormatPrice(val.UpperValue.Convert<decimal>()));
+					}
+				}
+			}
+			
+			// Apply "rating" labels.
+			if (facets.TryGetValue("rating", out group))
+			{
+				foreach (var facet in group.Facets)
+				{
+					facet.Value.Label = T(facet.Key == "1" ? "Search.Facet.1StarAndMore" : "Search.Facet.XStarsAndMore", facet.Value.Value).Text;
+				}
+			}
+
+			// Apply "numeric range" labels.
+			var numericRanges = facets
+				.Where(x => x.Value.TemplateHint == FacetTemplateHint.NumericRange)
+				.Select(x => x.Value);
+
+			foreach (var numericRange in numericRanges)
+			{
+				foreach (var facet in numericRange.SelectedFacets)
+				{
+					var val = facet.Value;
+					var labels = val.Label.SplitSafe("~");
+
+					if (val.Value == null && val.UpperValue != null)
+					{
+						val.Label = rangeMaxTemplate.FormatInvariant(labels.SafeGet(0));
+					}
+					else if (val.Value != null && val.UpperValue == null)
+					{
+						val.Label = rangeMinTemplate.FormatInvariant(labels.SafeGet(0));
+					}
+					else if (val.Value != null && val.UpperValue != null)
+					{
+						val.Label = rangeBetweenTemplate.FormatInvariant(labels.SafeGet(0),	labels.SafeGet(1));
+					}
+				}
+			}
+		}
+
+		private string FormatPrice(decimal price)
+		{
+			return _priceFormatter.FormatPrice(price, true, false);
 		}
 	}
 }

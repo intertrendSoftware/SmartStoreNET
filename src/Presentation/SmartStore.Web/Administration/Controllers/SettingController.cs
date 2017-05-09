@@ -26,7 +26,6 @@ using SmartStore.Core.Logging;
 using SmartStore.Core.Plugins;
 using SmartStore.Core.Search;
 using SmartStore.Core.Search.Facets;
-using SmartStore.Core.Search.Filter;
 using SmartStore.Core.Themes;
 using SmartStore.Services;
 using SmartStore.Services.Common;
@@ -37,7 +36,9 @@ using SmartStore.Services.Localization;
 using SmartStore.Services.Media;
 using SmartStore.Services.Media.Storage;
 using SmartStore.Services.Orders;
+using SmartStore.Services.Search.Modelling;
 using SmartStore.Services.Security;
+using SmartStore.Services.Seo;
 using SmartStore.Services.Tax;
 using SmartStore.Utilities;
 using SmartStore.Web.Framework;
@@ -78,6 +79,7 @@ namespace SmartStore.Admin.Controllers
 		private readonly PluginMediator _pluginMediator;
 		private readonly IPluginFinder _pluginFinder;
 		private readonly IMediaMover _mediaMover;
+		private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
 
 		private StoreDependingSettingHelper _storeDependingSettings;
 		private IDisposable _settingsWriteBatch;
@@ -107,7 +109,8 @@ namespace SmartStore.Admin.Controllers
 			IProviderManager providerManager,
 			PluginMediator pluginMediator,
 			IPluginFinder pluginFinder,
-			IMediaMover mediaMover)
+			IMediaMover mediaMover,
+			Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper)
         {
             _countryService = countryService;
             _stateProvinceService = stateProvinceService;
@@ -130,6 +133,7 @@ namespace SmartStore.Admin.Controllers
 			_pluginMediator = pluginMediator;
 			_pluginFinder = pluginFinder;
 			_mediaMover = mediaMover;
+			_catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
         }
 
 		#endregion
@@ -150,6 +154,34 @@ namespace SmartStore.Admin.Controllers
 		{
 			string value = _services.Localization.GetResource(resourceKey).EmptyNull();
 			return new SelectListItem() { Text = value, Value = value };
+		}
+
+		private string CreateCommonFacetSettingKey(FacetGroupKind kind, int languageId)
+		{
+			return $"FacetGroupKind-{kind.ToString()}-Alias-{languageId}";
+		}
+
+		private void UpdateLocalizedFacetSetting(CommonFacetSettingsModel model, FacetGroupKind kind, ref bool clearCache)
+		{
+			foreach (var localized in model.Locales)
+			{
+				var key = CreateCommonFacetSettingKey(kind, localized.LanguageId);
+				var existingAlias = _services.Settings.GetSettingByKey<string>(key);
+
+				if (existingAlias.IsCaseInsensitiveEqual(localized.Alias))
+					continue;
+
+				if (localized.Alias.HasValue())
+				{
+					_services.Settings.SetSetting(key, localized.Alias, 0, false);
+				}
+				else
+				{
+					_services.Settings.DeleteSetting(key);
+				}
+
+				clearCache = true;
+			}
 		}
 
 		#endregion
@@ -599,13 +631,19 @@ namespace SmartStore.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateInput(false)]
         public ActionResult Catalog(CatalogSettingsModel model, FormCollection form)
         {
             if (!_services.Permissions.Authorize(StandardPermissionProvider.ManageSettings))
                 return AccessDeniedView();
 
-			// Load settings for a chosen store scope
-			var storeScope = this.GetActiveStoreScopeConfiguration(_services.StoreService, _services.WorkContext);
+            if (!ModelState.IsValid)
+                return Catalog();
+
+            ModelState.Clear();
+
+            // Load settings for a chosen store scope
+            var storeScope = this.GetActiveStoreScopeConfiguration(_services.StoreService, _services.WorkContext);
 			var catalogSettings = _services.Settings.LoadSetting<CatalogSettings>(storeScope);
 			catalogSettings = model.ToEntity(catalogSettings);
 
@@ -1061,6 +1099,7 @@ namespace SmartStore.Admin.Controllers
 				}
 			}
 			model.SecuritySettings.HideAdminMenuItemsBasedOnPermissions = securitySettings.HideAdminMenuItemsBasedOnPermissions;
+			model.SecuritySettings.ForceSslForAllPages = securitySettings.ForceSslForAllPages;
 
 			var captchaSettings = _services.Settings.LoadSetting<CaptchaSettings>(storeScope);
 			model.CaptchaSettings.Enabled = captchaSettings.Enabled;
@@ -1237,6 +1276,7 @@ namespace SmartStore.Admin.Controllers
 				}
 			}
 			securitySettings.HideAdminMenuItemsBasedOnPermissions = model.SecuritySettings.HideAdminMenuItemsBasedOnPermissions;
+			securitySettings.ForceSslForAllPages = model.SecuritySettings.ForceSslForAllPages;
 			_services.Settings.SaveSetting(securitySettings);
 
 			var captchaSettings = _services.Settings.LoadSetting<CaptchaSettings>(storeScope);
@@ -1288,7 +1328,7 @@ namespace SmartStore.Admin.Controllers
 				localizationSettings.SeoFriendlyUrlsForLanguagesEnabled = model.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled;
 				_services.Settings.SaveSetting(localizationSettings, x => x.SeoFriendlyUrlsForLanguagesEnabled, 0, false);
 
-				System.Web.Routing.RouteTable.Routes.ClearSeoFriendlyUrlsCachedValueForRoutes();	// clear cached values of routes
+				LocalizedRoute.ClearSeoFriendlyUrlsCachedValue();
 			}
 
 			//company information
@@ -1539,6 +1579,7 @@ namespace SmartStore.Admin.Controllers
 			var megaSearchDescriptor = _pluginFinder.GetPluginDescriptorBySystemName("SmartStore.MegaSearch");
 
 			var model = new SearchSettingsModel();
+			model.IsMegaSearchInstalled = megaSearchDescriptor != null;
 			model.SearchMode = settings.SearchMode;
 			model.SearchFields = settings.SearchFields;
 			model.InstantSearchEnabled = settings.InstantSearchEnabled;
@@ -1547,47 +1588,97 @@ namespace SmartStore.Admin.Controllers
 			model.ShowProductImagesInInstantSearch = settings.ShowProductImagesInInstantSearch;
 			model.FilterMinHitCount = settings.FilterMinHitCount;
 			model.FilterMaxChoicesCount = settings.FilterMaxChoicesCount;
-			
+
 			if (megaSearchDescriptor == null)
 			{
 				model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
+
+				model.AvailableSearchFields = new List<SelectListItem>
+				{
+					new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+					new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+				};
+
+				model.AvailableSearchModes = settings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
+			}
+			else
+			{
+				model.AvailableSearchFields = new List<SelectListItem>
+				{
+					new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+					new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
+					new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
+					new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
+					new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
+					new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+					new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
+					new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
+				};
+
+				model.AvailableSearchModes = settings.SearchMode.ToSelectList().ToList();
 			}
 
-			model.AvailableSearchModes = settings.SearchMode.ToSelectList().ToList();
+			// Common facets
+			model.BrandFacet.Disabled = settings.BrandDisabled;
+			model.BrandFacet.DisplayOrder = settings.BrandDisplayOrder;
+			model.PriceFacet.Disabled = settings.PriceDisabled;
+			model.PriceFacet.DisplayOrder = settings.PriceDisplayOrder;
+			model.RatingFacet.Disabled = settings.RatingDisabled;
+			model.RatingFacet.DisplayOrder = settings.RatingDisplayOrder;
+			model.DeliveryTimeFacet.Disabled = settings.DeliveryTimeDisabled;
+			model.DeliveryTimeFacet.DisplayOrder = settings.DeliveryTimeDisplayOrder;
+			model.AvailabilityFacet.Disabled = settings.AvailabilityDisabled;
+			model.AvailabilityFacet.DisplayOrder = settings.AvailabilityDisplayOrder;
+			model.NewArrivalsFacet.Disabled = settings.NewArrivalsDisabled;
+			model.NewArrivalsFacet.DisplayOrder = settings.NewArrivalsDisplayOrder;
 
-			model.AvailableSearchFields = new List<SelectListItem>
+			foreach (var language in _languageService.GetAllLanguages(true))
 			{
-				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
-				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
-				new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
-				new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
-				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
-				new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
-			};
-
-			// global filters
-			var globalFilters = settings.GlobalFilters.HasValue()
-				? JsonConvert.DeserializeObject<List<GlobalSearchFilterDescriptor>>(settings.GlobalFilters)
-				: new List<GlobalSearchFilterDescriptor>();
-
-			var displayOrder = (globalFilters.Any() ? globalFilters.Max(x => x.DisplayOrder) : 0);
-
-			foreach (var fieldName in new string[] { "manufacturerid", "price", "rate", "deliveryid" })
-			{
-				var filter = globalFilters.FirstOrDefault(x => x.FieldName.IsCaseInsensitiveEqual(fieldName));
-
-				model.GlobalFilters.Add(new GlobalSearchFilterDescriptor
+				model.CategoryFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
 				{
-					FieldName = fieldName,
-					Disabled = filter != null ? filter.Disabled : false,
-					DisplayOrder = filter != null ? filter.DisplayOrder : ++displayOrder,
-					FriendlyName = T(FacetDescriptor.GetLabelResourceKey(fieldName))
+					LanguageId = language.Id,
+					Alias = _services.Settings.GetSettingByKey<string>(CreateCommonFacetSettingKey(FacetGroupKind.Category, language.Id))
+				});
+				model.BrandFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
+				{
+					LanguageId = language.Id,
+					Alias = _services.Settings.GetSettingByKey<string>(CreateCommonFacetSettingKey(FacetGroupKind.Brand, language.Id))
+				});
+				model.PriceFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
+				{
+					LanguageId = language.Id,
+					Alias = _services.Settings.GetSettingByKey<string>(CreateCommonFacetSettingKey(FacetGroupKind.Price, language.Id))
+				});
+				model.RatingFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
+				{
+					LanguageId = language.Id,
+					Alias = _services.Settings.GetSettingByKey<string>(CreateCommonFacetSettingKey(FacetGroupKind.Rating, language.Id))
+				});
+				model.DeliveryTimeFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
+				{
+					LanguageId = language.Id,
+					Alias = _services.Settings.GetSettingByKey<string>(CreateCommonFacetSettingKey(FacetGroupKind.DeliveryTime, language.Id))
+				});
+				model.AvailabilityFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
+				{
+					LanguageId = language.Id,
+					Alias = _services.Settings.GetSettingByKey<string>(CreateCommonFacetSettingKey(FacetGroupKind.Availability, language.Id))
+				});
+				model.NewArrivalsFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
+				{
+					LanguageId = language.Id,
+					Alias = _services.Settings.GetSettingByKey<string>(CreateCommonFacetSettingKey(FacetGroupKind.NewArrivals, language.Id))
 				});
 			}
 
 			StoreDependingSettings.GetOverrideKeys(settings, model, storeScope, Services.Settings);
+
+			var keyPrefixes = new string[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" };
+			foreach (var prefix in keyPrefixes)
+			{
+				StoreDependingSettings.GetOverrideKey(prefix + "Facet.Disabled", prefix + "Disabled", settings, storeScope, Services.Settings);
+				StoreDependingSettings.GetOverrideKey(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, storeScope, Services.Settings);
+			}
 
 			return View(model);
 		}
@@ -1620,11 +1711,48 @@ namespace SmartStore.Admin.Controllers
 			settings.InstantSearchNumberOfProducts = model.InstantSearchNumberOfProducts;
 			settings.InstantSearchTermMinLength = model.InstantSearchTermMinLength;
 			settings.ShowProductImagesInInstantSearch = model.ShowProductImagesInInstantSearch;
-			settings.GlobalFilters = JsonConvert.SerializeObject(model.GlobalFilters);
 			settings.FilterMinHitCount = model.FilterMinHitCount;
 			settings.FilterMaxChoicesCount = model.FilterMaxChoicesCount;
 
+			// Common facets
+			settings.BrandDisabled = model.BrandFacet.Disabled;
+			settings.BrandDisplayOrder = model.BrandFacet.DisplayOrder;
+			settings.PriceDisabled = model.PriceFacet.Disabled;
+			settings.PriceDisplayOrder = model.PriceFacet.DisplayOrder;
+			settings.RatingDisabled = model.RatingFacet.Disabled;
+			settings.RatingDisplayOrder = model.RatingFacet.DisplayOrder;
+			settings.DeliveryTimeDisabled = model.DeliveryTimeFacet.Disabled;
+			settings.DeliveryTimeDisplayOrder = model.DeliveryTimeFacet.DisplayOrder;
+			settings.AvailabilityDisabled = model.AvailabilityFacet.Disabled;
+			settings.AvailabilityDisplayOrder = model.AvailabilityFacet.DisplayOrder;
+			settings.NewArrivalsDisabled = model.NewArrivalsFacet.Disabled;
+			settings.NewArrivalsDisplayOrder = model.NewArrivalsFacet.DisplayOrder;
+
 			StoreDependingSettings.UpdateSettings(settings, form, storeScope, Services.Settings);
+
+			var clearCache = false;
+			using (Services.Settings.BeginScope())
+			{
+				var keyPrefixes = new string[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" };
+				foreach (var prefix in keyPrefixes)
+				{
+					storeDependingSettingHelper.UpdateSetting(prefix + "Facet.Disabled", prefix + "Disabled", settings, form, storeScope, Services.Settings);
+					storeDependingSettingHelper.UpdateSetting(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, form, storeScope, Services.Settings);
+				}
+
+				UpdateLocalizedFacetSetting(model.CategoryFacet, FacetGroupKind.Category, ref clearCache);
+				UpdateLocalizedFacetSetting(model.BrandFacet, FacetGroupKind.Brand, ref clearCache);
+				UpdateLocalizedFacetSetting(model.PriceFacet, FacetGroupKind.Price, ref clearCache);
+				UpdateLocalizedFacetSetting(model.RatingFacet, FacetGroupKind.Rating, ref clearCache);
+				UpdateLocalizedFacetSetting(model.DeliveryTimeFacet, FacetGroupKind.DeliveryTime, ref clearCache);
+				UpdateLocalizedFacetSetting(model.AvailabilityFacet, FacetGroupKind.Availability, ref clearCache);
+				UpdateLocalizedFacetSetting(model.NewArrivalsFacet, FacetGroupKind.NewArrivals, ref clearCache);
+			}
+
+			if (clearCache)
+			{
+				_catalogSearchQueryAliasMapper.Value.ClearCommonFacetCache();
+			}
 
 			_customerActivityService.InsertActivity("EditSettings", T("ActivityLog.EditSettings"));
 
@@ -1634,7 +1762,6 @@ namespace SmartStore.Admin.Controllers
 		}
 
 
-		//all settings
 		public ActionResult AllSettings()
         {
             if (!_services.Permissions.Authorize(StandardPermissionProvider.ManageSettings))
@@ -1724,7 +1851,7 @@ namespace SmartStore.Admin.Controllers
 					_services.Settings.DeleteSetting(setting);
 				}
 
-				_services.Settings.SetSetting(model.Name, model.Value, storeId);
+				_services.Settings.SetSetting(model.Name, model.Value ?? "", storeId);
 
 				//activity log
 				_customerActivityService.InsertActivity("EditSettings", T("ActivityLog.EditSettings"));

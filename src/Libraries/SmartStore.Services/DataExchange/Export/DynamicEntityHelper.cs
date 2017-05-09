@@ -22,6 +22,7 @@ using SmartStore.Core.Domain.Shipping;
 using SmartStore.Core.Domain.Stores;
 using SmartStore.Core.Html;
 using SmartStore.Services.Catalog;
+using SmartStore.Services.Catalog.Modelling;
 using SmartStore.Services.DataExchange.Export.Events;
 using SmartStore.Services.DataExchange.Export.Internal;
 using SmartStore.Services.Localization;
@@ -609,7 +610,12 @@ namespace SmartStore.Services.DataExchange.Export
 			dynObject._AttributeCombination = null;
 			dynObject._AttributeCombinationValues = null;
 			dynObject._AttributeCombinationId = (combination == null ? 0 : combination.Id);
-			dynObject._DetailUrl = ctx.Store.Url.EnsureEndsWith("/") + (string)dynObject.SeName;
+			dynObject._DetailUrl = _productUrlHelper.Value.GetAbsoluteProductUrl(
+				product.Id,
+				(string)dynObject.SeName,
+				combination != null ? combination.AttributesXml : null,
+				ctx.Store,
+				ctx.ContextLanguage);
 
 			if (combination == null)
 				dynObject._UniqueId = product.Id.ToString();
@@ -641,13 +647,6 @@ namespace SmartStore.Services.DataExchange.Export
 						.ToList();
 
 					dynObject.Name = ((string)dynObject.Name).Grow(string.Join(", ", valueNames), " ");
-				}
-
-				var attributeQueryString = _productAttributeParser.Value.SerializeQueryData(combination.AttributesXml, product.Id);
-				if (attributeQueryString.HasValue())
-				{
-					var url = (string)dynObject._DetailUrl;
-					dynObject._DetailUrl = string.Concat(url, url.Contains("?") ? "&" : "?", "attributes=", attributeQueryString);
 				}
 			}
 

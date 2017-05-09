@@ -4768,10 +4768,10 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.LabelAsNewForMaxDays.Hint">
 		<Value>Specifies the number of days that a "NEW" label should be displayed in the product list. Leave the field blank to disable this feature.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ManufacturersBlockItemsToDisplay">
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ManufacturerItemsToDisplayOnHomepage">
 		<Value>Number of manufacturers to display</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ManufacturersBlockItemsToDisplay.Hint">
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ManufacturerItemsToDisplayOnHomepage.Hint">
 		<Value>Enter the number of manufacturers to display in manufacturer navigation block.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.MaxFilterItemsToDisplay">
@@ -12539,7 +12539,7 @@
 		<Value>Miscellaneous</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Themes.Shopbar">
-		<Value>Shopbar/Megamenu</Value>
+		<Value>Shopbar/Mega Menu</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Themes.Tables">
 		<Value>Tables/Container</Value>
@@ -15003,9 +15003,6 @@
 	<LocaleResource Name="PageTitle.ShoppingCart">
 		<Value>Shopping Cart</Value>
 	</LocaleResource>
-	<LocaleResource Name="PageTitle.Sitemap">
-		<Value>Sitemap</Value>
-	</LocaleResource>
 	<LocaleResource Name="PageTitle.StoreClosed">
 		<Value>Store closed</Value>
 	</LocaleResource>
@@ -15076,7 +15073,7 @@
 		<Value>The recurring payment type is not supported.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.SelectCreditCard">
-		<Value>Select credit card</Value>
+		<Value>Select your credit card</Value>
 	</LocaleResource>
 	<LocaleResource Name="Paymentinfo">
 		<Value>Payment info</Value>
@@ -16233,18 +16230,6 @@
 	<LocaleResource Name="ShoppingCart.WishlistDisabled">
 		<Value>Wishlist is disabled for this product</Value>
 	</LocaleResource>
-	<LocaleResource Name="Sitemap">
-		<Value>Sitemap</Value>
-	</LocaleResource>
-	<LocaleResource Name="Sitemap.Categories">
-		<Value>Categories</Value>
-	</LocaleResource>
-	<LocaleResource Name="Sitemap.Manufacturers">
-		<Value>Manufacturers</Value>
-	</LocaleResource>
-	<LocaleResource Name="Sitemap.Products">
-		<Value>Products</Value>
-	</LocaleResource>
 	<LocaleResource Name="SmartStore.Core.Domain.Seo.PageTitleSeoAdjustment.PagenameAfterStorename">
 		<Value>Page name comes after store name</Value>
 	</LocaleResource>
@@ -16411,7 +16396,7 @@
 		<Value>Container radius</Value>
 	</LocaleResource>
 	<LocaleResource Name="ThemeVar.Alpha.DisplayNavbar">
-		<Value>Display Megamenu</Value>
+		<Value>Display Mega Menu</Value>
 	</LocaleResource>
 	<LocaleResource Name="ThemeVar.Alpha.DropdownBackground">
 		<Value>Dropdown background color</Value>
@@ -16646,9 +16631,6 @@
 	</LocaleResource>
 	<LocaleResource Name="ThemeVar.Alpha.TextColor">
 		<Value>Text color</Value>
-	</LocaleResource>
-	<LocaleResource Name="ThemeVar.Alpha.WellBackground">
-		<Value>Well background</Value>
 	</LocaleResource>
 	<LocaleResource Name="Time.Day">
 		<Value>Day</Value>

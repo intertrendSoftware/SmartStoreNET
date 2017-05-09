@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.Entity;
 using ImageResizer;
 using SmartStore.Collections;
 using SmartStore.Core;
@@ -471,18 +471,39 @@ namespace SmartStore.Services.Media
 		{
 			if (picture.Width == null && picture.Height == null)
 			{
-				using (var stream = _storageProvider.Value.OpenRead(picture.ToMedia()))
-				{
-					var size = GetPictureSize(stream, true);
-					picture.Width = size.Width;
-					picture.Height = size.Height;
-					picture.UpdatedOnUtc = DateTime.UtcNow;
+                var mediaItem = picture.ToMedia();
+                var stream = _storageProvider.Value.OpenRead(mediaItem);
 
-					if (saveOnResolve)
-					{
-						_pictureRepository.Update(picture);
-					}
-				}
+                if (stream != null)
+                {
+                    try
+                    {
+                        var size = GetPictureSize(stream, true);
+                        picture.Width = size.Width;
+                        picture.Height = size.Height;
+                        picture.UpdatedOnUtc = DateTime.UtcNow;
+
+                        if (saveOnResolve)
+                        {
+							try
+							{
+								_pictureRepository.Update(picture);
+							}
+							catch (InvalidOperationException ioe)
+							{
+								// Ignore exception for pictures that already have been processed.
+								if (!ioe.IsAlreadyAttachedEntityException())
+								{
+									throw;
+								}
+							}
+						}
+                    }
+                    finally
+                    {
+                        stream.Dispose();
+                    }
+                }
 			}
 		}
 
@@ -625,14 +646,42 @@ namespace SmartStore.Services.Media
 			string mimeType,
 			string seoFilename,
 			bool isNew,
+			int width,
+			int height,
+			bool isTransient = true)
+		{
+			var picture = _pictureRepository.Create();
+			picture.MimeType = mimeType.EmptyNull().Truncate(20);
+			picture.SeoFilename = seoFilename.Truncate(100);
+			picture.IsNew = isNew;
+			picture.IsTransient = isTransient;
+			picture.UpdatedOnUtc = DateTime.UtcNow;
+
+			if (width > 0 && height > 0)
+			{
+				picture.Width = width;
+				picture.Height = height;
+			}
+
+			_pictureRepository.Insert(picture);
+
+			// Save to storage.
+			_storageProvider.Value.Save(picture.ToMedia(), pictureBinary);
+
+			// Event notification.
+			_eventPublisher.EntityInserted(picture);
+
+			return picture;
+		}
+
+		public virtual Picture InsertPicture(
+			byte[] pictureBinary,
+			string mimeType,
+			string seoFilename,
+			bool isNew,
 			bool isTransient = true,
 			bool validateBinary = true)
         {
-			mimeType = mimeType.EmptyNull();
-			mimeType = mimeType.Truncate(20);
-
-			seoFilename = seoFilename.Truncate(100);
-
 			var size = Size.Empty;
 
             if (validateBinary)
@@ -640,28 +689,7 @@ namespace SmartStore.Services.Media
                 pictureBinary = ValidatePicture(pictureBinary, out size);
             }
 
-            var picture = _pictureRepository.Create();
-            picture.MimeType = mimeType;
-            picture.SeoFilename = seoFilename;
-            picture.IsNew = isNew;
-			picture.IsTransient = isTransient;
-			picture.UpdatedOnUtc = DateTime.UtcNow;
-
-			if (!size.IsEmpty)
-			{
-				picture.Width = size.Width;
-				picture.Height = size.Height;
-			}
-
-            _pictureRepository.Insert(picture);
-
-			// save to storage
-			_storageProvider.Value.Save(picture.ToMedia(), pictureBinary);
-
-			// event notification
-			_eventPublisher.EntityInserted(picture);
-
-            return picture;
+			return InsertPicture(pictureBinary, mimeType, seoFilename, isNew, size.Width, size.Height, isTransient);
         }
 
         public virtual void UpdatePicture(

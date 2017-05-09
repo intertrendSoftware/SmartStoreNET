@@ -13,7 +13,7 @@
 			title = T("Products.DownloadSample").Text,
 			icon = "fa fa-download",
 			@class = "action-download-sample",
-			href = Url.Action("Sample", "Download", new { id = Model.Id })
+			href = Url.Action("Sample", "Download", new { productId = Model.Id })
 		});
 	}
 
@@ -67,7 +67,7 @@
 	}
 }
 
-<div class="col-xs flex-grow-0">
+<div class="col flex-grow-0">
 	@if (miscActions.Count == 1)
 	{
 		@RenderActionLink(miscActions.First().Key, miscActions.First().Value, false)
@@ -76,7 +76,7 @@
 	{
 		<div class="btn-group">
 			<button type="button" class="btn btn-warning btn-lg btn-icon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<i class="fa fa-@miscActions.First().Value["icon"]"></i>
+				<i class="@miscActions.First().Value["icon"]"></i>
 			</button>
 			<div class="dropdown-menu dropdown-menu-right">
 				@foreach (var kvp in miscActions)

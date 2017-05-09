@@ -668,7 +668,7 @@ namespace SmartStore.Services.DataExchange.Export
 						_writer.Write("Id", entityPvav.Id.ToString());
 						_writer.Write("Alias", (string)value.Alias);
 						_writer.Write("Name", (string)value.Name);
-						_writer.Write("ColorSquaresRgb", (string)value.ColorSquaresRgb);
+						_writer.Write("Color", (string)value.Color);
 						_writer.Write("PriceAdjustment", ((decimal)value.PriceAdjustment).ToString(_culture));
 						_writer.Write("WeightAdjustment", ((decimal)value.WeightAdjustment).ToString(_culture));
 						_writer.Write("IsPreSelected", entityPvav.IsPreSelected.ToString());
@@ -820,6 +820,10 @@ namespace SmartStore.Services.DataExchange.Export
 					_writer.Write("Name", (string)option.SpecificationAttribute.Name);
 					_writer.Write("Alias", (string)option.SpecificationAttribute.Alias);
 					_writer.Write("DisplayOrder", entitySa.DisplayOrder.ToString());
+					_writer.Write("AllowFiltering", entitySa.AllowFiltering.ToString());
+					_writer.Write("ShowOnProductPage", entitySa.ShowOnProductPage.ToString());
+					_writer.Write("FacetSorting", ((int)entitySa.FacetSorting).ToString());
+					_writer.Write("FacetTemplateHint", ((int)entitySa.FacetTemplateHint).ToString());
 
 					WriteLocalized(option.SpecificationAttribute);
 
@@ -884,9 +888,6 @@ namespace SmartStore.Services.DataExchange.Export
 			_writer.Write("CustomerGuid", entity.CustomerGuid.ToString());
 			_writer.Write("Username", entity.Username);
 			_writer.Write("Email", entity.Email);
-			_writer.Write("Password", entity.Password);
-			_writer.Write("PasswordFormatId", entity.PasswordFormatId.ToString());
-			_writer.Write("PasswordSalt", entity.PasswordSalt);
 			_writer.Write("AdminComment", entity.AdminComment);
 			_writer.Write("IsTaxExempt", entity.IsTaxExempt.ToString());
 			_writer.Write("AffiliateId", entity.AffiliateId.ToString());

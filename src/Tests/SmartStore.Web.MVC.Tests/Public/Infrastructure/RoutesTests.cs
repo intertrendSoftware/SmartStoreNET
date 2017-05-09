@@ -93,7 +93,6 @@ namespace SmartStore.Web.MVC.Tests.Public.Infrastructure
 			"~/customer/passwordrecovery/".ShouldMapTo<CustomerController>(c => c.PasswordRecovery());
 			"~/customer/passwordrecoveryconfirm".ShouldMapTo<CustomerController>(c => c.PasswordRecoveryConfirm(null, null));
 
-			"~/customer/myaccount/".ShouldMapTo<CustomerController>(c => c.MyAccount());
 			"~/customer/info/".ShouldMapTo<CustomerController>(c => c.Info());
 			"~/customer/addresses/".ShouldMapTo<CustomerController>(c => c.Addresses());
 			"~/customer/orders/".ShouldMapTo<CustomerController>(c => c.Orders(null));
@@ -161,7 +160,6 @@ namespace SmartStore.Web.MVC.Tests.Public.Infrastructure
         public void Common_routes()
         {
             "~/contactus".ShouldMapTo<HomeController>(c => c.ContactUs());
-			"~/sitemap".ShouldMapTo<HomeController>(c => c.Sitemap(null));
 			"~/sitemap.xml".ShouldMapTo<HomeController>(c => c.SitemapSeo(1));
             "~/settings".ShouldMapTo<CommonController>(c => c.Settings());
         }

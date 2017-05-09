@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Routing;
 using System.Xml;
 using System.Xml.Linq;
-using Newtonsoft.Json;
 using SmartStore.Collections;
 using SmartStore.Core.Caching;
 using SmartStore.Core.Data;
@@ -110,36 +106,37 @@ namespace SmartStore.Services.Catalog
 
         public virtual IEnumerable<ProductVariantAttributeValue> ParseProductVariantAttributeValues(string attributeXml)
         {
-            //var pvaValues = Enumerable.Empty<ProductVariantAttributeValue>();
+			var attributeIds = DeserializeProductVariantAttributes(attributeXml);
+			var valueIds = new HashSet<int>(attributeIds.SelectMany(x => x.Value).Select(x => x.ToInt()));
 
-			var allIds = new List<int>();
-            var attrs = DeserializeProductVariantAttributes(attributeXml);
-			var pvaCollection = _productAttributeService.GetProductVariantAttributesByIds(attrs.Keys);
+			var values = _productAttributeService.GetProductVariantAttributeValuesByIds(valueIds.ToArray());
 
-            foreach (var pva in pvaCollection)
-            {
-                if (!pva.ShouldHaveValues())
-                    continue;
+			return values.Where(x => x.ProductVariantAttribute.ShouldHaveValues());
 
-                var pvaValuesStr = attrs[pva.Id];
+			//var allIds = new List<int>();
+			//var attrs = DeserializeProductVariantAttributes(attributeXml);
+			//var pvaCollection = _productAttributeService.GetProductVariantAttributesByIds(attrs.Keys);
 
-                var ids =
-					from id in pvaValuesStr
-					where id.HasValue()
-					select id.ToInt();
+			//foreach (var pva in pvaCollection)
+			//{
+			//	if (!pva.ShouldHaveValues())
+			//		continue;
 
-				allIds.AddRange(ids);
+			//	var pvaValuesStr = attrs[pva.Id];
 
-                //var values = _productAttributeService.GetProductVariantAttributeValuesByIds(ids.ToArray());
-                //pvaValues = pvaValues.Concat(values);
-            }
+			//	var ids =
+			//		from id in pvaValuesStr
+			//		where id.HasValue()
+			//		select id.ToInt();
 
-			int[] allDistinctIds = allIds.Distinct().ToArray();
+			//	allIds.AddRange(ids);
+			//}
 
-			var values = _productAttributeService.GetProductVariantAttributeValuesByIds(allDistinctIds);
+			//int[] allDistinctIds = allIds.Distinct().ToArray();
 
-            return values;
-        }
+			//var values = _productAttributeService.GetProductVariantAttributeValuesByIds(allDistinctIds);
+			//return values;
+		}
 
 		public virtual IList<ProductVariantAttributeValue> ParseProductVariantAttributeValues(Multimap<int, string> attributeCombination, IEnumerable<ProductVariantAttribute> attributes)
 		{
@@ -327,106 +324,11 @@ namespace SmartStore.Services.Catalog
 			return result;
 		}
 
-		public virtual List<List<int>> DeserializeQueryData(string jsonData)
-		{
-			try
-			{
-				if (jsonData.HasValue())
-				{
-					if (jsonData.StartsWith("["))
-					{
-						return JsonConvert.DeserializeObject<List<List<int>>>(jsonData);
-					}
+		#endregion
 
-					return new List<List<int>> { JsonConvert.DeserializeObject<List<int>>(jsonData) };
-				}
-			}
-			catch { }
+		#region Gift card attributes
 
-			return new List<List<int>>();
-		}
-
-		public virtual void DeserializeQueryData(List<List<int>> queryData, string attributesXml, int productId, int bundleItemId = 0)
-		{
-			Guard.NotNull(queryData, nameof(queryData));
-
-			if (attributesXml.HasValue() && productId != 0)
-			{
-				var attributeValues = ParseProductVariantAttributeValues(attributesXml).ToList();
-
-				foreach (var value in attributeValues)
-				{
-					var lst = new List<int>
-					{
-						productId,
-						value.ProductVariantAttribute.ProductAttributeId,
-						value.ProductVariantAttributeId,
-						value.Id
-					};
-
-					if (bundleItemId != 0)
-						lst.Add(bundleItemId);
-
-					queryData.Add(lst);
-				}
-			}
-		}
-
-		public virtual string SerializeQueryData(string attributesXml, int productId, bool urlEncode = true)
-		{
-			var data = new List<List<int>>();
-
-			DeserializeQueryData(data, attributesXml, productId);
-
-			return SerializeQueryData(data, urlEncode);
-		}
-
-		public virtual string SerializeQueryData(List<List<int>> queryData, bool urlEncode = true)
-		{
-			if (queryData.Count > 0)
-			{
-				var result = JsonConvert.SerializeObject(queryData);
-
-				return (urlEncode ? HttpUtility.UrlEncode(result) : result);
-			}
-
-			return "";
-		}
-
-		private string CreateProductUrl(string queryString, string productSeName)
-		{
-			var url = UrlHelper.GenerateUrl(
-				"Product",
-				null,
-				null,
-				new RouteValueDictionary(new { SeName = productSeName }),
-				RouteTable.Routes,
-				HttpContext.Current.Request.RequestContext,
-				false);
-
-			if (queryString.HasValue())
-			{
-				url = string.Concat(url, url.Contains("?") ? "&" : "?", "attributes=", queryString);
-			}
-
-			return url;
-		}
-
-		public virtual string GetProductUrlWithAttributes(string attributesXml, int productId, string productSeName)
-		{
-			return CreateProductUrl(SerializeQueryData(attributesXml, productId), productSeName);
-		}
-
-		public virtual string GetProductUrlWithAttributes(List<List<int>> queryData, string productSeName)
-		{
-			return CreateProductUrl(SerializeQueryData(queryData), productSeName);
-		}
-
-        #endregion
-
-        #region Gift card attributes
-
-        public string AddGiftCardAttribute(string attributesXml, string recipientName,
+		public string AddGiftCardAttribute(string attributesXml, string recipientName,
             string recipientEmail, string senderName, string senderEmail, string giftCardMessage)
         {
             string result = string.Empty;

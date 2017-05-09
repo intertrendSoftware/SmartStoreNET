@@ -2,13 +2,28 @@
 
 ## SmartStore.NET 3.0
 
-### Breaking change
-* Removed Web API plugin from open source core
+### Highlights
+* **Flex**: New mobile-first responsive Theme based on Bootstrap 4
+* **Mega Search**: highly professional search framework based on Lucene.NET (commercial plugin exclusively bundled with Pro Edition)
+	* Ultra fast search results, even with millions of items
+	* Faceted search
+	* Synonyms
+	* Compound word splitting
+* **Mega Menu**: highly customizable catalog menu widgets (commercial plugin exclusively bundled with Pro Edition)
+* **Content Slider**: creates eye-catching content to boost sales (commercial plugin exclusively bundled with Pro Edition)
+* **Output Cache** with "donut hole caching" for maximum speed and scalability (commercial plugin exclusively bundled with Premium Edition)
+* **Microsoft AZURE** provider for media storage (commercial plugin exclusively bundled with Premium Edition)
+* Web Farms: **REDIS** providers for Business Cache, Output Cache and Session State (commercial plugin exclusively bundled with Enterprise Edition)
+* Product variant **option sets**
+* New product specification attribute type: **numeric range**
+* Image support for variant attributes
 
-### New Features
-* Output Cache with "donut hole caching" (commercial plugin)
-* REDIS providers for Business Cache, Output Cache and Session State (commercial plugin)
-* Microsoft AZURE provider for media storage (commercial plugin)
+### Breaking changes
+* Removed old **Content Slider** module from open source core
+* Removed **Web API** plugin from open source core (now exclusively bundled with Premium Edition)
+
+
+### Other New Features
 * Message Bus for inter-process messaging between servers (commercial plugin)
 * Configurable media storage path for web farms
 * (Dev) log4net integration
@@ -35,8 +50,10 @@
 	* #1064 Deleting all product categories/manufacturers per product in one go
 	* #1063 Adding product category/manufacturer ignores any other property like DisplayOrder
 	* Added endpoint "Infos" for order and order item entity for additional information like aggregated data.
+	* Swagger integration
 * Added setting to specify whether the product manufacturer should be displayed in product detail
 * #271 Implemented support for attribute images/icons
+* #330 Implement 'attribute option sets'
 
 
 ### Improvements
@@ -44,7 +61,6 @@
 * Added order message token for accepting third party email handover
 * ECB currency exchange rate provider now cross calculates rates based on euro rates
 * BeezUP: Exports the product weight
-* Payone: Replace client API by Payone iFrame solution. Allows credit card payment compliant with PCI DSS, SAQ A.
 * Updated Elmar shop info XML from version 1.1 to 2.0
 * (Perf) Application start faster by ~20%
 * (Perf) Lower memory consumption
@@ -65,21 +81,33 @@
 * #696 Added textual resources for meta title and description for blog per month and by tag pages and enriched them with corresponding month plus year respectivly tag name
 * #1025 Added token for customer number to MessageTokenProvider 
 * #1016 Implemented choosing of MessageTokens for newsletter campaigns with dropdown menu
+* #1107 OpenTrans: Added option to exclude long description of products from export
+* BMEcat: Implemented download of pictures according to MimeRoot-Info
+* Payone:
+	* Replace client API by Payone iFrame solution. Allows credit card payment compliant with PCI DSS, SAQ A.
+	* #1123 Add order note with payment info for prepayment and invoice payment.
 
 
 ### Bugfixes
 * Currency wasn't displayed at shipping estimation
 * SKU, EAN, MPN of last attribute combination was exported for all combinations
-* GMC: Id should be unique when exporting attribute combinations as products
-* GMC: Attribute price adjustments were ignored when exporting attribute combinations as products
-* GMC: Associated products that are not individually visible are not exported anymore. GMC rejects them because the frontend redirects to the grouped product.
-* #999 Export: Projected customer id ignored during price calculation
+* GMC:
+	* Id should be unique when exporting attribute combinations as products
+	* Attribute price adjustments were ignored when exporting attribute combinations as products
+	* Associated products that are not individually visible are not exported anymore. GMC rejects them because the frontend redirects to the grouped product.
+* Export:
+	* #999 Projected customer id ignored during price calculation
+	* #1104 Language projection ignored when creating product details URL
+	* #1030: Orders didn't include data of attribute combinations
+	* Orders didn't include shipping address
 * Awarded reward points for a placed order sometimes wrong calculated
-* PayPal PLUS: A changed shipping address/costs was not transmitted to PayPal
+* PayPal PLUS:
+	* A changed shipping address/costs was not transmitted to PayPal
+	* Skip payment if cart total is zero
+	* Do not display payment wall if method is filtered
+* PayPal Express: Fixed net price issue.
 * Bundle item cannot be deleted if it's in a shopping cart
 * Fixed SSL issue for news items in RSS feed
-* #1030: Order export: does not export the data of the attribute combination
-* Order export does not export shipping address
 * Filter shows wrong number of products if "Include products from subcategories" is activated
 * Guest user cannot be deleted if he has a private message
 * #1029 Biz-Importer: Imports fixed tax rates as zero percentage
@@ -87,6 +115,8 @@
 * #1071 NewsLetterSubscription.ActivationUrl not working if the store if SSL secured
 * #1086 Gift cards can be earned in one store and applied in another
 * Whishlist: Products with minimum order amount greater then 1 can be added to the whishlist without any warning
+* #1102: Discounts not transmitted when the total amount is zero
+* #1101 Clickatell: Sending SMS not working anymore
 
 ## SmartStore.NET 2.6
 

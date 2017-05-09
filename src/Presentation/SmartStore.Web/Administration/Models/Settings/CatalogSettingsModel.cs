@@ -2,10 +2,13 @@
 using System.Web.Mvc;
 using SmartStore.Core.Domain.Catalog;
 using SmartStore.Web.Framework;
+using FluentValidation.Attributes;
+using SmartStore.Admin.Validators.Settings;
 
 namespace SmartStore.Admin.Models.Settings
 {
-	public class CatalogSettingsModel
+    [Validator(typeof(CatalogSettingsValidator))]
+    public class CatalogSettingsModel
     {
         public CatalogSettingsModel()
         {
@@ -66,11 +69,20 @@ namespace SmartStore.Admin.Models.Settings
         [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ShowDefaultDeliveryTime")]
         public bool ShowDefaultDeliveryTime { get; set; }
 
+        [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ShowPopularProductTagsOnHomepage")]
+        public bool ShowPopularProductTagsOnHomepage { get; set; }
+
         [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ShowManufacturersOnHomepage")]
         public bool ShowManufacturersOnHomepage { get; set; }
 
-        [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ManufacturersBlockItemsToDisplay")]
-        public int ManufacturersBlockItemsToDisplay { get; set; }
+        [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ShowManufacturersInOffCanvas")]
+        public bool ShowManufacturersInOffCanvas { get; set; }
+        
+        [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ManufacturerItemsToDisplayOnHomepage")]
+        public int ManufacturerItemsToDisplayOnHomepage { get; set; }
+
+        [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ManufacturerItemsToDisplayInOffcanvasMenu")]
+        public int ManufacturerItemsToDisplayInOffCanvasMenu { get; set; }
 
         [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ShowManufacturerPictures")]
         public bool ShowManufacturerPictures { get; set; }
@@ -93,7 +105,6 @@ namespace SmartStore.Admin.Models.Settings
 
 		#region Navigation
 
-		//filter
 		[SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ShowProductsFromSubcategories")]
         public bool ShowProductsFromSubcategories { get; set; }
 
@@ -108,18 +119,6 @@ namespace SmartStore.Admin.Models.Settings
 
         [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.CategoryBreadcrumbEnabled")]
         public bool CategoryBreadcrumbEnabled { get; set; }
-
-        [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.FilterEnabled")]
-        public bool FilterEnabled { get; set; }
-
-        [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.MaxFilterItemsToDisplay")]
-        public int MaxFilterItemsToDisplay { get; set; }
-
-        [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ExpandAllFilterCriteria")]
-        public bool ExpandAllFilterCriteria { get; set; }
-
-		[SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.SortFilterResultsByMatches")]
-		public bool SortFilterResultsByMatches { get; set; }
 
 		[SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.SubCategoryDisplayType")]
 		public SubCategoryDisplayType SubCategoryDisplayType { get; set; }
@@ -243,6 +242,9 @@ namespace SmartStore.Admin.Models.Settings
         [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ShowShareButton")]
         public bool ShowShareButton { get; set; }
 
+        [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.PageShareCode")]
+        public string PageShareCode { get; set; }
+        
         [SmartResourceDisplayName("Admin.Configuration.Settings.Catalog.ProductsAlsoPurchasedEnabled")]
         public bool ProductsAlsoPurchasedEnabled { get; set; }
 

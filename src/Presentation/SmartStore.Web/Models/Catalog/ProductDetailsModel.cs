@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Web.Mvc;
 using SmartStore.Core.Domain.Catalog;
+using SmartStore.Services.Catalog.Modelling;
 using SmartStore.Web.Framework;
 using SmartStore.Web.Framework.Modelling;
 using SmartStore.Web.Framework.UI;
@@ -65,6 +66,13 @@ namespace SmartStore.Web.Models.Catalog
 		public bool HasSampleDownload { get; set; }
 
 		public GiftCardModel GiftCard { get; set; }
+		public string GiftCardFieldPrefix
+		{
+			get
+			{
+				return GiftCardQueryItem.CreateKey(Id, BundleItem.Id, null);
+			}
+		}
 
 		public string StockAvailability { get; set; }
 		public bool IsAvailable { get; set; }
@@ -122,19 +130,6 @@ namespace SmartStore.Web.Models.Catalog
 		public string ProductShareCode { get; set; }
 
 		#region Nested Classes
-
-		public partial class ProductBreadcrumbModel : ModelBase
-        {
-            public ProductBreadcrumbModel()
-            {
-				CategoryBreadcrumb = new List<MenuItem>();
-            }
-
-            public int ProductId { get; set; }
-            public string ProductName { get; set; }
-            public string ProductSeName { get; set; }
-            public IList<MenuItem> CategoryBreadcrumb { get; set; }
-        }
 
 		public partial class AddToCartModel : ModelBase, IQuantityInput
 		{
@@ -232,7 +227,7 @@ namespace SmartStore.Web.Models.Catalog
 
 			public override string BuildControlId()
 			{
-				return string.Format("product_attribute_{0}_{1}_{2}_{3}", ProductId, BundleItemId, ProductAttributeId, Id);
+				return ProductVariantQueryItem.CreateKey(ProductId, BundleItemId, ProductAttributeId, Id);
 			}
 
 			public override string GetFileUploadUrl(UrlHelper url)

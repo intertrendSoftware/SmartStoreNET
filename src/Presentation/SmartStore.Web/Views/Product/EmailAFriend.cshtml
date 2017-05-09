@@ -1,12 +1,15 @@
 ﻿@model ProductEmailAFriendModel
+
 @using SmartStore.Web.Models.Catalog;
+
 @{
-    Layout = "_ColumnsTwo";
+    Layout = "_Layout";
 
     Html.AddTitleParts(Model.ProductName);
     Html.AddTitleParts(T("PageTitle.ProductEmailAFriend").Text);
     Html.AddCustomHeadParts("<meta name=\"robots\" content=\"noindex\">");
 }
+
 <div class="page email-a-friend-page">
     <div class="page-title">
         <h1>@T("Products.EmailAFriend.Title")</h1>
@@ -57,7 +60,8 @@
 
                     <div class="form-group">
                         <button type="submit" name="send-email" class="btn btn-primary send-email-a-friend-button">
-						    <i class="fa fa-envelope"></i>&nbsp;@T("Products.EmailAFriend.Button")
+						    <i class="fa fa-envelope"></i>
+                            <span>@T("Products.EmailAFriend.Button")</span>
 					    </button>
                     </div>
 

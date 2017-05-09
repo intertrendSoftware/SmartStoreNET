@@ -5,25 +5,26 @@
 @{
 	var currentUICulture = System.Threading.Thread.CurrentThread.CurrentUICulture;
 
-	var localizationService = EngineContext.Current.Resolve<ILocalizationService>();
+	//var localizationService = EngineContext.Current.Resolve<ILocalizationService>();
 
-	var contentRoot = "~/Themes/Alpha/Content/";
-	var cssRoot = "~/Themes/Alpha/Content/css/";
-	var jsRoot = "~/Themes/Alpha/Scripts/";
-	var bootstrapJsRoot = "~/Themes/Alpha/Content/bs4/js/";
+	//var contentRoot = "~/Themes/Flex/Content/";
+	var cssRoot = "~/Themes/Flex/Content/css/";
+	var jsRoot = "~/Themes/Flex/Scripts/";
+	var bootstrapJsRoot = "~/Themes/Flex/Content/bs4/js/";
+	var vendorsRoot = "~/Themes/Flex/Content/vendors/";
 
 	// add css assets
 	Html.AppendCssFileParts(
-		cssRoot + "font-awesome.css",
-		cssRoot + "linearicons.css",
-		contentRoot + "pnotify/css/pnotify.css",
-		contentRoot + "pnotify/css/pnotify.mobile.css",
-		contentRoot + "pnotify/css/pnotify.buttons.css");
+		vendorsRoot + "font-awesome/font-awesome.css",
+		cssRoot + "fontastic.css",
+		vendorsRoot + "pnotify/css/pnotify.css",
+		vendorsRoot + "pnotify/css/pnotify.mobile.css",
+		vendorsRoot + "pnotify/css/pnotify.buttons.css");
 
 	Html.AppendScriptParts(ResourceLocation.Head,
 		"~/Scripts/modernizr.js",
-		"~/Scripts/jquery-2.1.1.js",
-		"~/Scripts/jquery-migrate-1.2.1.js",
+		jsRoot + "jquery-3.2.1.js",
+		jsRoot + "jquery-migrate-3.0.0.js",
 		"~/Scripts/globalize/globalize.js");
 
 	Html.AddScriptParts(ResourceLocation.Head, true,
@@ -32,9 +33,7 @@
 	Html.AppendScriptParts(ResourceLocation.Foot,
 		// jQuery UI Core
 		"~/Scripts/jquery-ui/effect.js",
-		"~/Scripts/jquery-ui/effect-transfer.js",
 		"~/Scripts/jquery-ui/effect-shake.js",
-		"~/Scripts/jquery-ui/position.js",
 		// jQuery Validation
 		"~/Scripts/jquery.unobtrusive-ajax.js",
 		"~/Scripts/jquery.validate.js",
@@ -45,9 +44,9 @@
 		"~/Scripts/underscore.js",
 		"~/Scripts/underscore.string.js",
 		"~/Scripts/underscore.mixins.js",
+		jsRoot + "smartstore.touchevents.js",
 		jsRoot + "smartstore.jquery.utils.js",
 		jsRoot + "jquery.ba-outside-events.js",
-		jsRoot + "jquery.transit.js",
 		jsRoot + "smartstore.doAjax.js",
 		jsRoot + "jquery.addeasing.js",
 		jsRoot + "smartstore.eventbroker.js",
@@ -59,8 +58,8 @@
 		bootstrapJsRoot + "bootstrap-datetimepicker.js",
 		// Shared UI
 		jsRoot + "smartstore.viewport.js",
-		contentRoot + "select2/js/select2.js",
-		contentRoot + "slick/slick.js",
+		vendorsRoot + "select2/js/select2.js",
+		vendorsRoot + "slick/slick.js",
 		jsRoot + "smartstore.selectwrapper.js",
 		jsRoot + "smartstore.throbber.js",
 		jsRoot + "smartstore.thumbzoomer.js",
@@ -68,30 +67,27 @@
 		jsRoot + "smartstore.keynav.js",
 		jsRoot + "smartstore.articlelist.js",
 		jsRoot + "smartstore.product.js",
-		contentRoot + "pnotify/js/pnotify.js",
-		contentRoot + "pnotify/js/pnotify.mobile.js",
-		contentRoot + "pnotify/js/pnotify.buttons.js",
-		contentRoot + "pnotify/js/pnotify.animate.js",
+		vendorsRoot + "pnotify/js/pnotify.js",
+		vendorsRoot + "pnotify/js/pnotify.mobile.js",
+		vendorsRoot + "pnotify/js/pnotify.buttons.js",
+		vendorsRoot + "pnotify/js/pnotify.animate.js",
 		jsRoot + "jquery.bootstrap-touchspin.js",
 		jsRoot + "jquery.scrollTo.js",
 		jsRoot + "smartstore.globalize.adapter.js",
 		jsRoot + "offcanvas.js",
-		jsRoot + "hammer.js",
-		jsRoot + "jquery.hammer.js",
 
 		// Shop
 		jsRoot + "public.common.js",
+		jsRoot + "public.search.js",
 		jsRoot + "public.offcanvas-cart.js",
-		jsRoot + "public.product-detail-2.js", // TODO: (mc) Remove public.product-detail.js once work is finished
-		jsRoot + "public.product-filter.js",
-        jsRoot + "public.offcanvas-menu.js");
+		jsRoot + "public.offcanvas-menu.js");
 }
 <!DOCTYPE html>
 <html lang="@this.WorkContext.WorkingLanguage.UniqueSeoCode">
 <head>
     <title itemprop="name">@Html.SmartTitle(true)</title>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="@(Html.SmartMetaDescription())" />
     <meta name="keywords" content="@(Html.SmartMetaKeywords())" />
     <meta name="generator" content="SmartStore.NET @SmartStoreVersion.CurrentFullVersion" />

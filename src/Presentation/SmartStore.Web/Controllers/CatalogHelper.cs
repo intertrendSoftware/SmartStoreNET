@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Web;
 using System.Web.Mvc;
 using SmartStore.Collections;
@@ -18,6 +16,8 @@ using SmartStore.Core.Localization;
 using SmartStore.Core.Logging;
 using SmartStore.Services;
 using SmartStore.Services.Catalog;
+using SmartStore.Services.Catalog.Extensions;
+using SmartStore.Services.Catalog.Modelling;
 using SmartStore.Services.Configuration;
 using SmartStore.Services.Customers;
 using SmartStore.Services.DataExchange.Export;
@@ -41,8 +41,6 @@ namespace SmartStore.Web.Controllers
 {
 	public partial class CatalogHelper
 	{
-		private static object s_lock = new object();
-		
 		private readonly ICommonServices _services;
 		private readonly ICategoryService _categoryService;
 		private readonly IManufacturerService _manufacturerService;
@@ -71,14 +69,15 @@ namespace SmartStore.Web.Controllers
 		private readonly MeasureSettings _measureSettings;
 		private readonly IDeliveryTimeService _deliveryTimeService;
 		private readonly ISettingService _settingService;
-		private readonly Lazy<IMenuPublisher> _menuPublisher;
 		private readonly Lazy<ITopicService> _topicService;
 		private readonly Lazy<IDataExporter> _dataExporter;
 		private readonly ICatalogSearchService _catalogSearchService;
 		private readonly ICatalogSearchQueryFactory _catalogSearchQueryFactory;
+		private readonly ISiteMapService _siteMapService;
 
 		private readonly HttpRequestBase _httpRequest;
 		private readonly UrlHelper _urlHelper;
+		private readonly ProductUrlHelper _productUrlHelper;
 
 		public CatalogHelper(
 			ICommonServices services,
@@ -113,8 +112,10 @@ namespace SmartStore.Web.Controllers
 			Lazy<IDataExporter> dataExporter,
 			ICatalogSearchService catalogSearchService,
 			ICatalogSearchQueryFactory catalogSearchQueryFactory,
+			ISiteMapService siteMapService,
 			HttpRequestBase httpRequest,
-			UrlHelper urlHelper)
+			UrlHelper urlHelper,
+			ProductUrlHelper productUrlHelper)
 		{
 			this._services = services;
 			this._categoryService = categoryService;
@@ -144,13 +145,14 @@ namespace SmartStore.Web.Controllers
 			this._catalogSettings = catalogSettings;
 			this._customerSettings = customerSettings;
 			this._captchaSettings = captchaSettings;
-			this._menuPublisher = _menuPublisher;
 			this._topicService = topicService;
 			this._dataExporter = dataExporter;
 			this._catalogSearchService = catalogSearchService;
 			this._catalogSearchQueryFactory = catalogSearchQueryFactory;
+			this._siteMapService = siteMapService;
 			this._httpRequest = httpRequest;
 			this._urlHelper = urlHelper;
+			this._productUrlHelper = productUrlHelper;
 
 			T = NullLocalizer.Instance;
 		}
@@ -160,14 +162,16 @@ namespace SmartStore.Web.Controllers
 		public ILogger Logger { get; set; }
 
 		public ProductDetailsModel PrepareProductDetailsPageModel(
-			Product product, 
+			Product product,
+			ProductVariantQuery query,
 			bool isAssociatedProduct = false,
 			ProductBundleItemData productBundleItem = null, 
-			IList<ProductBundleItemData> productBundleItems = null, 
-			NameValueCollection selectedAttributes = null,
-			NameValueCollection queryData = null)
+			IList<ProductBundleItemData> productBundleItems = null)
 		{
 			Guard.NotNull(product, nameof(product));
+
+			var customer = _services.WorkContext.CurrentCustomer;
+			var store = _services.StoreContext.CurrentStore;
 
 			using (_services.Chronometer.Step("PrepareProductDetailsPageModel"))
 			{
@@ -183,9 +187,11 @@ namespace SmartStore.Web.Controllers
 					SeName = product.GetSeName(),
 					ProductType = product.ProductType,
 					VisibleIndividually = product.VisibleIndividually,
-					Manufacturers = _catalogSettings.ShowManufacturerInProductDetail ? PrepareManufacturersOverviewModel(_manufacturerService.GetProductManufacturersByProductId(product.Id), null, _catalogSettings.ShowManufacturerPicturesInProductDetail) : null,
+					Manufacturers = _catalogSettings.ShowManufacturerInProductDetail 
+						? PrepareManufacturersOverviewModel(_manufacturerService.GetProductManufacturersByProductId(product.Id), null, _catalogSettings.ShowManufacturerPicturesInProductDetail)
+						: null,
 					ReviewCount = product.ApprovedTotalReviews,
-					DisplayAdminLink = _services.Permissions.Authorize(StandardPermissionProvider.AccessAdminPanel),
+					DisplayAdminLink = _services.Permissions.Authorize(StandardPermissionProvider.AccessAdminPanel, customer),
 					ShowSku = _catalogSettings.ShowProductSku,
 					Sku = product.Sku,
 					ShowManufacturerPartNumber = _catalogSettings.ShowManufacturerPartNumber,
@@ -195,7 +201,7 @@ namespace SmartStore.Web.Controllers
 					Gtin = product.Gtin,
 					StockAvailability = product.FormatStockMessage(_localizationService),
 					HasSampleDownload = product.IsDownload && product.HasSampleDownload,
-					IsCurrentCustomerRegistered = _services.WorkContext.CurrentCustomer.IsRegistered(),
+					IsCurrentCustomerRegistered = customer.IsRegistered(),
 					IsAssociatedProduct = isAssociatedProduct,
 					CompareEnabled = !isAssociatedProduct && _catalogSettings.CompareProductsEnabled,
 					TellAFriendEnabled = !isAssociatedProduct && _catalogSettings.EmailAFriendEnabled,
@@ -208,35 +214,21 @@ namespace SmartStore.Web.Controllers
 					var shareCode = _catalogSettings.PageShareCode;
 					if (_services.WebHelper.IsCurrentConnectionSecured())
 					{
-						//need to change the addthis link to be https linked when the page is, so that the page doesnt ask about mixed mode when viewed in https...
+						// Need to change the addthis link to be https linked when the page is, so that the page doesn't ask about mixed mode when viewed in https...
 						shareCode = shareCode.Replace("http://", "https://");
 					}
 
 					model.ProductShareCode = shareCode;
 				}
 
-				// get gift card values from query string
-				if (queryData != null && queryData.Count > 0)
+				// Get gift card values from query string.
+				if (product.IsGiftCard)
 				{
-					var giftCardItems = queryData.AllKeys
-						.Where(x => x.EmptyNull().StartsWith("giftcard_"))
-						.SelectMany(queryData.GetValues, (k, v) => new { key = k, value = v.TrimSafe() });
-
-					foreach (var item in giftCardItems)
-					{
-						var key = item.key.EmptyNull().ToLower();
-
-						if (key.EndsWith("recipientname"))
-							model.GiftCard.RecipientName = item.value;
-						else if (key.EndsWith("recipientemail"))
-							model.GiftCard.RecipientEmail = item.value;
-						else if (key.EndsWith("sendername"))
-							model.GiftCard.SenderName = item.value;
-						else if (key.EndsWith("senderemail"))
-							model.GiftCard.SenderEmail = item.value;
-						else if (key.EndsWith("message"))
-							model.GiftCard.Message = item.value;
-					}
+					model.GiftCard.RecipientName = query.GetGiftCardValue(product.Id, 0, "RecipientName");
+					model.GiftCard.RecipientEmail = query.GetGiftCardValue(product.Id, 0, "RecipientEmail");
+					model.GiftCard.SenderName = query.GetGiftCardValue(product.Id, 0, "SenderName");
+					model.GiftCard.SenderEmail = query.GetGiftCardValue(product.Id, 0, "SenderEmail");
+					model.GiftCard.Message = query.GetGiftCardValue(product.Id, 0, "Message");
 				}
 
 				// Back in stock subscriptions
@@ -247,8 +239,7 @@ namespace SmartStore.Web.Controllers
 				{
 					//out of stock
 					model.DisplayBackInStockSubscription = true;
-					model.BackInStockAlreadySubscribed = _backInStockSubscriptionService
-						.FindSubscription(_services.WorkContext.CurrentCustomer.Id, product.Id, _services.StoreContext.CurrentStore.Id) != null;
+					model.BackInStockAlreadySubscribed = _backInStockSubscriptionService.FindSubscription(customer.Id, product.Id, store.Id) != null;
 				}
 
 				//template
@@ -268,15 +259,15 @@ namespace SmartStore.Web.Controllers
 				{
 					// associated products
 					var searchQuery = new CatalogSearchQuery()
-						.HasStoreId(_services.StoreContext.CurrentStore.Id)
-						.VisibleIndividuallyOnly(false)
-						.HasParentGroupedProductId(product.Id);
+						.VisibleOnly(customer)
+						.HasStoreId(store.Id)
+						.HasParentGroupedProduct(product.Id);
 
 					var associatedProducts = _catalogSearchService.Search(searchQuery).Hits;
 
 					foreach (var associatedProduct in associatedProducts)
 					{
-						var assciatedProductModel = PrepareProductDetailsPageModel(associatedProduct, true, null, null, selectedAttributes);
+						var assciatedProductModel = PrepareProductDetailsPageModel(associatedProduct, query, true, null, null);
 						model.AssociatedProducts.Add(assciatedProductModel);
 					}
 				}
@@ -288,19 +279,7 @@ namespace SmartStore.Web.Controllers
 					foreach (var itemData in bundleItems.Where(x => x.Item.Product.CanBeBundleItem()))
 					{
 						var item = itemData.Item;
-						var bundleItemAttributes = new NameValueCollection();
-
-						if (selectedAttributes != null)
-						{
-							var keyPrefix = "product_attribute_{0}_{1}".FormatInvariant(item.ProductId, item.Id);
-
-							foreach (var key in selectedAttributes.AllKeys.Where(x => x.HasValue() && x.StartsWith(keyPrefix)))
-							{
-								bundleItemAttributes.Add(key, selectedAttributes[key]);
-							}
-						}
-
-						var bundledProductModel = PrepareProductDetailsPageModel(item.Product, false, itemData, null, bundleItemAttributes);
+						var bundledProductModel = PrepareProductDetailsPageModel(item.Product, query, false, itemData, null);
 
 						bundledProductModel.ShowLegalInfo = false;
 						bundledProductModel.DisplayDeliveryTime = false;
@@ -323,7 +302,7 @@ namespace SmartStore.Web.Controllers
 					}
 				}
 
-				model = PrepareProductDetailModel(model, product, isAssociatedProduct, productBundleItem, bundleItems, selectedAttributes);
+				model = PrepareProductDetailModel(model, product, query, isAssociatedProduct, productBundleItem, bundleItems);
 
 				IList<int> combinationPictureIds = null;
 
@@ -508,14 +487,13 @@ namespace SmartStore.Web.Controllers
 			}
 		}
 
-		/// <param name="selectedAttributes">Attributes explicitly selected by user or by query string.</param>
 		public ProductDetailsModel PrepareProductDetailModel(
 			ProductDetailsModel model,
 			Product product,
+			ProductVariantQuery query,
 			bool isAssociatedProduct = false,
 			ProductBundleItemData productBundleItem = null,
 			IList<ProductBundleItemData> productBundleItems = null,
-			NameValueCollection selectedAttributes = null,
 			int selectedQuantity = 1)
 		{
 			if (product == null)
@@ -523,9 +501,6 @@ namespace SmartStore.Web.Controllers
 
 			if (model == null)
 				throw new ArgumentNullException("model");
-
-			if (selectedAttributes == null)
-				selectedAttributes = new NameValueCollection();
 
 			var store = _services.StoreContext.CurrentStore;
 			var customer = _services.WorkContext.CurrentCustomer;
@@ -540,7 +515,7 @@ namespace SmartStore.Web.Controllers
 			int bundleItemId = (productBundleItem == null ? 0 : productBundleItem.Item.Id);
 
 			bool hasSelectedAttributesValues = false;
-			bool hasSelectedAttributes = (selectedAttributes.Count > 0);
+			bool hasSelectedAttributes = query.Variants.Count > 0;
 			List<ProductVariantAttributeValue> selectedAttributeValues = null;
 
 			var variantAttributes = (isBundle ? new List<ProductVariantAttribute>() : _productAttributeService.GetProductVariantAttributesByProductId(product.Id));
@@ -554,7 +529,8 @@ namespace SmartStore.Web.Controllers
 
 			#region Product attributes
 
-			if (!isBundle)		// bundles doesn't have attributes
+			// Bundles doesn't have attributes.
+			if (!isBundle)
 			{
 				foreach (var attribute in variantAttributes)
 				{
@@ -575,6 +551,7 @@ namespace SmartStore.Web.Controllers
 
 					if (attribute.AttributeControlType == AttributeControlType.Datepicker)
 					{
+						// TODO: obsolete?
 						if (pvaModel.Alias.HasValue() && RegularExpressions.IsYearRange.IsMatch(pvaModel.Alias))
 						{
 							var match = RegularExpressions.IsYearRange.Match(pvaModel.Alias);
@@ -584,15 +561,17 @@ namespace SmartStore.Web.Controllers
 
 						if (hasSelectedAttributes)
 						{
-							var attributeKey = "product_attribute_{0}_{1}_{2}_{3}".FormatInvariant(product.Id, bundleItemId, attribute.ProductAttributeId, attribute.Id);
-							var day = selectedAttributes[attributeKey + "_day"].ToInt();
-							var month = selectedAttributes[attributeKey + "_month"].ToInt();
-							var year = selectedAttributes[attributeKey + "_year"].ToInt();
-							if (day > 0 && month > 0 && year > 0)
+							var selectedVariant = query.Variants.FirstOrDefault(x =>
+								x.ProductId == product.Id &&
+								x.BundleItemId == bundleItemId &&
+								x.AttributeId == attribute.ProductAttributeId &&
+								x.VariantAttributeId == attribute.Id);
+
+							if (selectedVariant != null && selectedVariant.Date.HasValue)
 							{
-								pvaModel.SelectedDay = day;
-								pvaModel.SelectedMonth = month;
-								pvaModel.SelectedYear = year;
+								pvaModel.SelectedDay = selectedVariant.Date.Value.Day;
+								pvaModel.SelectedMonth = selectedVariant.Date.Value.Month;
+								pvaModel.SelectedYear = selectedVariant.Date.Value.Year;
 							}
 						}
 					}
@@ -600,8 +579,16 @@ namespace SmartStore.Web.Controllers
 					{
 						if (hasSelectedAttributes)
 						{
-							var attributeKey = "product_attribute_{0}_{1}_{2}_{3}".FormatInvariant(product.Id, bundleItemId, attribute.ProductAttributeId, attribute.Id);
-							pvaModel.TextValue = selectedAttributes[attributeKey];
+							var selectedVariant = query.Variants.FirstOrDefault(x =>
+								x.ProductId == product.Id &&
+								x.BundleItemId == bundleItemId &&
+								x.AttributeId == attribute.ProductAttributeId &&
+								x.VariantAttributeId == attribute.Id);
+
+							if (selectedVariant != null)
+							{
+								pvaModel.TextValue = selectedVariant.Value;
+							}
 						}
 					}
 
@@ -624,16 +611,17 @@ namespace SmartStore.Web.Controllers
 						pvaValueModel.Id = pvaValue.Id;
 						pvaValueModel.Name = pvaValue.GetLocalized(x => x.Name);
 						pvaValueModel.Alias = pvaValue.Alias;
-						pvaValueModel.ColorSquaresRgb = pvaValue.ColorSquaresRgb; //used with "Color squares" attribute type
+						pvaValueModel.Color = pvaValue.Color; // used with "Boxes" attribute type
 						pvaValueModel.IsPreSelected = pvaValue.IsPreSelected;
 
 						if (linkedProduct != null && linkedProduct.VisibleIndividually)
 							pvaValueModel.SeName = linkedProduct.GetSeName();
 
+						// Explicitly selected always discards pre-selected by merchant.
 						if (hasSelectedAttributes)
-							pvaValueModel.IsPreSelected = false;	// explicitly selected always discards pre-selected by merchant
+							pvaValueModel.IsPreSelected = false;
 
-						// display price if allowed
+						// Display price if allowed.
 						if (displayPrices && !isBundlePricing)
 						{
 							decimal taxRate = decimal.Zero;
@@ -679,19 +667,28 @@ namespace SmartStore.Web.Controllers
 						pvaModel.Values.Add(pvaValueModel);
 					}
 
-					// we need selected attributes to get initially displayed combination images
+					// We need selected attributes to get initially displayed combination images.
 					if (!hasSelectedAttributes)
 					{
 						ProductDetailsModel.ProductVariantAttributeValueModel defaultValue = null;
 
-						if (preSelectedValueId != 0)	// value pre-selected by a bundle item filter discards the default pre-selection
+						// Value pre-selected by a bundle item filter discards the default pre-selection.
+						if (preSelectedValueId != 0)
 						{
 							pvaModel.Values.Each(x => x.IsPreSelected = false);
 
 							if ((defaultValue = pvaModel.Values.OfType<ProductDetailsModel.ProductVariantAttributeValueModel>().FirstOrDefault(v => v.Id == preSelectedValueId)) != null)
 							{
 								defaultValue.IsPreSelected = true;
-								selectedAttributes.AddProductAttribute(attribute.ProductAttributeId, attribute.Id, defaultValue.Id, product.Id, bundleItemId);
+								query.AddVariant(new ProductVariantQueryItem(defaultValue.Id.ToString())
+								{
+									ProductId = product.Id,
+									BundleItemId = bundleItemId,
+									AttributeId = attribute.ProductAttributeId,
+									VariantAttributeId = attribute.Id,
+									Alias = attribute.ProductAttribute.Alias,
+									ValueAlias = defaultValue.Alias
+								});
 							}
 						}
 
@@ -699,15 +696,17 @@ namespace SmartStore.Web.Controllers
 						{
 							foreach (var value in pvaModel.Values.Where(x => x.IsPreSelected))
 							{
-								selectedAttributes.AddProductAttribute(attribute.ProductAttributeId, attribute.Id, value.Id, product.Id, bundleItemId);
+								query.AddVariant(new ProductVariantQueryItem(value.Id.ToString())
+								{
+									ProductId = product.Id,
+									BundleItemId = bundleItemId,
+									AttributeId = attribute.ProductAttributeId,
+									VariantAttributeId = attribute.Id,
+									Alias = attribute.ProductAttribute.Alias,
+									ValueAlias = value.Alias
+								});
 							}
 						}
-
-						//if (defaultValue == null)
-						//	defaultValue = pvaModel.Values.FirstOrDefault(v => v.IsPreSelected);
-
-						//if (defaultValue != null)
-						//	selectedAttributes.AddProductAttribute(attribute.ProductAttributeId, attribute.Id, defaultValue.Id, product.Id, bundleItemId);
 					}
 
 					model.ProductVariantAttributes.Add(pvaModel);
@@ -720,12 +719,12 @@ namespace SmartStore.Web.Controllers
 
 			if (!isBundle)
 			{
-				if (selectedAttributes.Count > 0)
+				if (query.Variants.Count > 0)
 				{
-					// merge with combination data if there's a match
+					// Merge with combination data if there's a match.
 					var warnings = new List<string>();
-					string attributeXml = selectedAttributes.CreateSelectedAttributesXml(product.Id, variantAttributes, _productAttributeParser, _localizationService,
-						_downloadService, _catalogSettings, _httpRequest, warnings, true, bundleItemId);
+					var attributeXml = query.CreateSelectedAttributesXml(product.Id, bundleItemId, variantAttributes, _productAttributeParser, _localizationService,
+						_downloadService, _catalogSettings, _httpRequest, warnings);
 
 					selectedAttributeValues = _productAttributeParser.ParseProductVariantAttributeValues(attributeXml).ToList();
 					hasSelectedAttributesValues = (selectedAttributeValues.Count > 0);
@@ -752,7 +751,7 @@ namespace SmartStore.Web.Controllers
 
 					product.MergeWithCombination(model.SelectedCombination);
 
-					// mark explicitly selected as pre-selected
+					// Mark explicitly selected as pre-selected.
 					foreach (var attribute in model.ProductVariantAttributes)
 					{
 						foreach (var value in attribute.Values)
@@ -774,7 +773,7 @@ namespace SmartStore.Web.Controllers
 			if ((productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemShoppingCart) ||
 				(product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes && !hasSelectedAttributesValues))
 			{
-				// cases where stock inventory is not functional. determined by what ShoppingCartService.GetStandardWarnings and ProductService.AdjustInventory is not handling.
+				// Cases where stock inventory is not functional. Determined by what ShoppingCartService.GetStandardWarnings and ProductService.AdjustInventory is not handling.
 				model.IsAvailable = true;
 				var hasAttributeCombinations = _services.DbContext.QueryForCollection(product, (Product p) => p.ProductVariantAttributeCombinations).Any();
                 model.StockAvailability = !hasAttributeCombinations ? product.FormatStockMessage(_localizationService) : "";
@@ -1125,29 +1124,21 @@ namespace SmartStore.Web.Controllers
 			return model;
 		}
 
-		public List<int> GetChildCategoryIds(int parentCategoryId)
+		public IEnumerable<int> GetChildCategoryIds(int parentCategoryId, bool deep = true)
 		{
-			var customerRolesIds = _services.WorkContext.CurrentCustomer.CustomerRoles.Where(cr => cr.Active).Select(cr => cr.Id).ToList();
-			string cacheKey = string.Format(ModelCacheEventConsumer.CATEGORY_CHILD_IDENTIFIERS_MODEL_KEY,
-				parentCategoryId,
-				false,
-				string.Join(",", customerRolesIds),
-				_services.StoreContext.CurrentStore.Id);
-
-			return _services.Cache.Get(cacheKey, () =>
+			var root = GetCategoryMenu();
+			var node = root.SelectNode(x => x.Value.EntityId == parentCategoryId);
+			if (node != null)
 			{
-				var root = GetCategoryMenu();
-				var node = root.SelectNode(x => x.Value.EntityId == parentCategoryId);
-				if (node != null)
-				{
-					var ids = node.Flatten(false).Select(x => x.EntityId).ToList();
-					return ids;
-				}
-				return new List<int>();
-			});
+				var children = deep ? node.Flatten(false) : node.Children.Select(x => x.Value);
+				var ids = children.Select(x => x.EntityId);
+				return ids;
+			}
+
+			return Enumerable.Empty<int>();
 		}
 
-		public IList<MenuItem> GetCategoryBreadCrumb(int currentCategoryId, int currentProductId)
+		public IList<TreeNode<MenuItem>> GetCategoryBreadCrumb(int currentCategoryId, int currentProductId)
 		{
 			var requestCache = EngineContext.Current.Resolve<IRequestCache>();
 			string cacheKey = "sm.temp.category.path.{0}-{1}".FormatInvariant(currentCategoryId, currentProductId);
@@ -1174,11 +1165,11 @@ namespace SmartStore.Web.Controllers
 
 				if (node != null)
 				{
-					var path = node.GetBreadcrumb();
+					var path = node.GetBreadcrumb().ToList();
 					return path;
 				}
 
-				return new List<MenuItem>();
+				return new List<TreeNode<MenuItem>>();
 			});
 
 			return breadcrumb;
@@ -1212,151 +1203,24 @@ namespace SmartStore.Web.Controllers
 		
 			var breadcrumb = GetCategoryBreadCrumb(currentCategoryId, currentProductId);
 
-			// resolve number of products
-			if (_catalogSettings.ShowCategoryProductNumber)
-			{
-				var curItem = breadcrumb.LastOrDefault();
-				var curNode = curItem == null ? root.Root : root.SelectNode(x => x.Value == curItem);
-				this.ResolveCategoryProductsCount(curNode);
-			}
-
 			var model = new NavigationModel
 			{
 				Root = root,
-				Path = breadcrumb,
+				Path = breadcrumb
 			};
 
+			// Resolve number of products
+			if (_catalogSettings.ShowCategoryProductNumber)
+			{
+				_siteMapService.ResolveElementCounts("catalog", model.SelectedNode, false);
+			}
+
 			return model;
-		}
-
-		protected void ResolveCategoryProductsCount(TreeNode<MenuItem> curNode)
-		{
-			try
-			{
-				// Perf: only resolve counts for categories in the current path.
-				while (curNode != null)
-				{
-					if (curNode.Children.Any(x => !x.Value.ElementsCount.HasValue))
-					{
-						lock (s_lock)
-						{
-							if (curNode.Children.Any(x => !x.Value.ElementsCount.HasValue))
-							{
-								foreach (var node in curNode.Children)
-								{
-									var categoryIds = new List<int>();
-
-									if (_catalogSettings.ShowCategoryProductNumberIncludingSubcategories)
-									{
-										// include subcategories
-										node.Traverse(x => categoryIds.Add(x.Value.EntityId));
-									}
-									else
-									{
-										categoryIds.Add(node.Value.EntityId);
-									}
-
-									var ctx = new ProductSearchContext();
-									ctx.CategoryIds = categoryIds;
-									ctx.StoreId = _services.StoreContext.CurrentStoreIdIfMultiStoreMode;
-									node.Value.ElementsCount = _productService.CountProducts(ctx);
-								}
-							}
-						}
-					}
-
-					curNode = curNode.Parent;
-				}
-			}
-			catch (Exception ex)
-			{
-				Logger.Error(ex);
-			}
 		}
 
 		public TreeNode<MenuItem> GetCategoryMenu()
 		{
-			var customerRolesIds = _services.WorkContext.CurrentCustomer.CustomerRoles.Where(cr => cr.Active).Select(cr => cr.Id).ToList();
-			string cacheKey = string.Format(ModelCacheEventConsumer.CATEGORY_NAVIGATION_MODEL_KEY,
-				_services.WorkContext.WorkingLanguage.Id,
-				string.Join(",", customerRolesIds),
-				_services.StoreContext.CurrentStore.Id);
-
-			var model = _services.Cache.Get(cacheKey, () =>
-			{
-				using (_services.Chronometer.Step("GetCategoryMenu"))
-				{
-					var curParent = new TreeNode<MenuItem>(new MenuItem
-					{
-						EntityId = 0,
-						Text = "Home",
-						RouteName = "HomePage"
-					});
-
-					Category prevCat = null;
-
-					var categories = _categoryService.GetAllCategories();
-					foreach (var category in categories)
-					{
-						var menuItem = new MenuItem
-						{
-							EntityId = category.Id,
-							Text = category.GetLocalized(x => x.Name),
-							BadgeText = category.GetLocalized(x => x.BadgeText),
-							BadgeStyle = (BadgeStyle)category.BadgeStyle,
-							RouteName = "Category"
-						};
-						menuItem.RouteValues.Add("SeName", category.GetSeName());
-
-                        if (category.ParentCategoryId == 0 && category.Published && category.PictureId != null)
-                        {
-                            menuItem.ImageUrl = _pictureService.GetPictureUrl(category.PictureId.Value);
-                        }
-
-                        // determine parent
-                        if (prevCat != null)
-						{
-							if (category.ParentCategoryId != curParent.Value.EntityId)
-							{
-								if (category.ParentCategoryId == prevCat.Id)
-								{
-									// level +1
-									curParent = curParent.LastChild;
-								}
-								else
-								{
-									// level -x
-									while (!curParent.IsRoot)
-									{
-										if (curParent.Value.EntityId == category.ParentCategoryId)
-										{
-											break;
-										}
-										curParent = curParent.Parent;
-									}
-								}
-							}
-						}
-
-						// add to parent
-						curParent.Append(menuItem);
-
-						prevCat = category;
-					}
-
-					var root = curParent.Root;
-
-					// menu publisher
-					_menuPublisher.Value.RegisterMenus(root, "catalog");
-
-					// event
-					_services.EventPublisher.Publish(new NavigationModelBuiltEvent(root));
-
-					return root;
-				}
-			});
-
-			return model;
+			return _siteMapService.GetRootNode("catalog");
 		}
 
 		public List<ManufacturerOverviewModel> PrepareManufacturersOverviewModel(
@@ -1430,5 +1294,41 @@ namespace SmartStore.Web.Controllers
             return model;
         }
 
-	}
+        public ManufacturerNavigationModel PrepareManufacturerNavigationModel(int manufacturerItemsToDisplay)
+        {
+			var cacheKey = string.Format(ModelCacheEventConsumer.MANUFACTURER_NAVIGATION_MODEL_KEY,
+                !_catalogSettings.HideManufacturerDefaultPictures,
+                _services.WorkContext.WorkingLanguage.Id,
+                _services.StoreContext.CurrentStore.Id,
+                manufacturerItemsToDisplay);
+            
+            var cacheModel = _services.Cache.Get(cacheKey, () =>
+            {
+                var manufacturers = _manufacturerService.GetAllManufacturers(null, 0, manufacturerItemsToDisplay + 1, _services.StoreContext.CurrentStore.Id);
+
+                var model = new ManufacturerNavigationModel
+                {
+                    DisplayManufacturers = _catalogSettings.ShowManufacturersOnHomepage,
+                    DisplayImages = _catalogSettings.ShowManufacturerPictures,
+                    DisplayAllManufacturersLink = manufacturers.Count > manufacturerItemsToDisplay
+                };
+
+                foreach (var manufacturer in manufacturers.Take(manufacturerItemsToDisplay))
+                {
+                    var modelMan = new ManufacturerBriefInfoModel
+                    {
+                        Id = manufacturer.Id,
+                        Name = manufacturer.GetLocalized(x => x.Name),
+                        SeName = manufacturer.GetSeName(),
+                        PictureUrl = _pictureService.GetPictureUrl(manufacturer.PictureId.GetValueOrDefault(), _mediaSettings.ManufacturerThumbPictureSize, !_catalogSettings.HideManufacturerDefaultPictures)
+                    };
+                    model.Manufacturers.Add(modelMan);
+                }
+                
+                return model;
+            }, TimeSpan.FromHours(6));
+
+            return cacheModel;
+        }
+    }
 }

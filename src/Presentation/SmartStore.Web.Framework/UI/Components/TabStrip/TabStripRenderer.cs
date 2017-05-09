@@ -98,7 +98,7 @@ namespace SmartStore.Web.Framework.UI
 
 				if (tab.Stacked)
 				{
-					ulAttrs.AppendCssClass("nav-stacked");
+					ulAttrs.AppendCssClass("nav-stacked flex-column");
 				}
 				writer.AddAttributes(ulAttrs);
 
@@ -151,7 +151,7 @@ namespace SmartStore.Web.Framework.UI
 
 				writer.RenderEndTag(); // div.tabbable
 				
-				if (tab.IsResponsive && tab.TabContentHeaderContent != null)
+				if (tab.IsResponsive /* && tab.TabContentHeaderContent != null*/)
 				{
 					writer.WriteLine(@"<script>$(function() {{ $('#{0}').responsiveNav(); }})</script>".FormatInvariant(tab.Id));
 				}    
@@ -266,11 +266,11 @@ namespace SmartStore.Web.Framework.UI
 			string loadedTabName = null;
 
             // <li [class="active [hide]"]><a href="#{id}" data-toggle="tab">{text}</a></li>
-            item.HtmlAttributes.AppendCssClass("nav-item");
+            item.HtmlAttributes.AppendCssClass("nav-item" + (item.Selected && this.Component.ComponentVersion == BootstrapVersion.V2 ? " active" : "")); // .active for BS2
 
 			if (!item.Selected && !item.Visible)
 			{
-				item.HtmlAttributes.AppendCssClass("hide");
+				item.HtmlAttributes.AppendCssClass("d-none");
 			}
 
 			if (item.Pull == TabPull.Right)
@@ -289,8 +289,8 @@ namespace SmartStore.Web.Framework.UI
 					writer.AddAttribute("href", itemId);
 					writer.AddAttribute("data-toggle", "tab");
 					writer.AddAttribute("data-loaded", "true");
-                    writer.AddAttribute("class", "nav-link" + (item.Selected ? " active" : ""));
-                    loadedTabName = GetTabName(item) ?? itemId;
+                    writer.AddAttribute("class", "nav-link" + (item.Selected && this.Component.ComponentVersion == BootstrapVersion.V4 ? " active" : "")); // .active for BS4
+					loadedTabName = GetTabName(item) ?? itemId;
 				}
 				else
 				{
@@ -353,9 +353,9 @@ namespace SmartStore.Web.Framework.UI
 						writer.WriteEncodedText(item.Text);
 						writer.RenderEndTag(); // span > badge
 
-						// label
-						temp = "m-l-05 label";
-						temp += " label-" + item.BadgeStyle.ToString().ToLower();
+						// label/badge
+						temp = "ml-2 badge";
+						temp += " badge-" + item.BadgeStyle.ToString().ToLower();
 						if (base.Component.Position == TabsPosition.Left)
 						{
 							temp += " pull-right"; // looks nicer 
@@ -409,7 +409,7 @@ namespace SmartStore.Web.Framework.UI
 			{
 				if (base.Component.Fade)
 				{
-					item.ContentHtmlAttributes.AppendCssClass("in");
+					item.ContentHtmlAttributes.AppendCssClass("show in"); // .in for BS2, .show for BS4
 				}
 				item.ContentHtmlAttributes.AppendCssClass("active");
 			}

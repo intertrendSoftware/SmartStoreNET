@@ -6,16 +6,16 @@ using SmartStore.Core.Domain.Localization;
 using SmartStore.Services.Localization;
 
 namespace SmartStore.Services.Hooks
-{    
-    public class LocalizedEntityHook : DbSaveHook<ILocalizedEntity>
-    {
-        private readonly Lazy<ILocalizedEntityService> _localizedEntityService;
+{
+	public class LocalizedEntityHook : DbSaveHook<ILocalizedEntity>
+	{
+		private readonly Lazy<ILocalizedEntityService> _localizedEntityService;
 		private readonly HashSet<LocalizedProperty> _toDelete = new HashSet<LocalizedProperty>();
 
-        public LocalizedEntityHook(Lazy<ILocalizedEntityService> localizedEntityService)
-        {
-            _localizedEntityService = localizedEntityService;
-        }
+		public LocalizedEntityHook(Lazy<ILocalizedEntityService> localizedEntityService)
+		{
+			_localizedEntityService = localizedEntityService;
+		}
 
 		protected override void OnDeleted(ILocalizedEntity entity, HookedEntity entry)
 		{
@@ -41,5 +41,4 @@ namespace SmartStore.Services.Hooks
 			}
 		}
 	}
-
 }

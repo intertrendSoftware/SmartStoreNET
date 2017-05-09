@@ -16,7 +16,7 @@ namespace SmartStore.DevTools
 			context.EndRequest += OnEndRequest;
 		}
 
-		public static void OnBeginRequest(object sender, EventArgs e)
+		private static void OnBeginRequest(object sender, EventArgs e)
 		{
 			var app = (HttpApplication)sender;
 			if (ShouldProfile(app))
@@ -29,7 +29,7 @@ namespace SmartStore.DevTools
 			}
 		}
 
-		public static void OnEndRequest(object sender, EventArgs e)
+		private static void OnEndRequest(object sender, EventArgs e)
 		{
 			var app = (HttpApplication)sender;
 			if (app.Context != null && app.Context.Items != null && app.Context.Items.Contains(MP_KEY))
@@ -49,23 +49,26 @@ namespace SmartStore.DevTools
 			}
 
 			var url = app.Context.Request.AppRelativeCurrentExecutionFilePath;
-			if (url.StartsWith("~/admin", StringComparison.InvariantCultureIgnoreCase) || url.StartsWith("~/mini-profiler", StringComparison.InvariantCultureIgnoreCase) || url.StartsWith("~/bundles", StringComparison.InvariantCultureIgnoreCase))
+			if (url.StartsWith("~/admin", StringComparison.InvariantCultureIgnoreCase) 
+				|| url.StartsWith("~/mini-profiler", StringComparison.InvariantCultureIgnoreCase) 
+				|| url.StartsWith("~/bundles", StringComparison.InvariantCultureIgnoreCase)
+				|| url.StartsWith("~/taskscheduler", StringComparison.InvariantCultureIgnoreCase))
 			{
 				return false;
 			}
 
 			ProfilerSettings settings;
-			if (!EngineContext.Current.ContainerManager.TryResolve<ProfilerSettings>(null, out settings))
+
+			try
+			{
+				settings = EngineContext.Current.Resolve<ProfilerSettings>();
+			}
+			catch
 			{
 				return false;
 			}
 
-			if (!settings.EnableMiniProfilerInPublicStore)
-			{
-				return false;
-			}
-
-			return true;
+			return settings == null ? false : settings.EnableMiniProfilerInPublicStore;
 		}
 
 		public void Dispose()

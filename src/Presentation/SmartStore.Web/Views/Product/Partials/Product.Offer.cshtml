@@ -5,11 +5,22 @@
 @using SmartStore.Web;
 
 <div class="pd-offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+	<meta itemprop="itemCondition" content="http://schema.org/NewCondition" />
+
 	@if (!Model.AddToCart.DisableBuyButton || !Model.AddToCart.DisableWishlistButton)
 	{
-		<div class="pd-offer-price-container" data-partial="Price">
-			@{ Html.RenderPartial("Product.Offer.Price", Model); }
-		</div>
+		if (Model.AddToCart.CustomerEntersPrice)
+		{
+			var dataDictCustomerPrice = new ViewDataDictionary();
+			dataDictCustomerPrice.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", Model.Id);
+			Html.RenderPartial("Product.CustomerPrice", Model, dataDictCustomerPrice);
+		}
+		else
+		{
+			<div class="pd-offer-price-container" data-partial="Price">
+				@{ Html.RenderPartial("Product.Offer.Price", Model); }
+			</div>
+		}
 	}
 
 	<div class="pd-stock-info-container" data-partial="Stock">
@@ -19,7 +30,7 @@
 	@if (Model.GiftCard.IsGiftCard)
 	{
 		var dataDictGiftCard = new ViewDataDictionary();
-		dataDictGiftCard.TemplateInfo.HtmlFieldPrefix = string.Format("giftcard_{0}_0", Model.Id);
+		dataDictGiftCard.TemplateInfo.HtmlFieldPrefix = Model.GiftCardFieldPrefix;
 		Html.RenderPartial("Product.GiftCard", Model.GiftCard, dataDictGiftCard);
 	}
 

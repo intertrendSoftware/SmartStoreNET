@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using SmartStore.Core.Domain.Localization;
+using SmartStore.Core.Search;
 
 namespace SmartStore.Core.Domain.Catalog
 {
@@ -8,22 +9,22 @@ namespace SmartStore.Core.Domain.Catalog
 	/// Represents a product attribute option
 	/// </summary>
 	[DataContract]
-	public partial class ProductAttributeOption : BaseEntity, ILocalizedEntity, ICloneable<ProductVariantAttributeValue>
+	public partial class ProductAttributeOption : BaseEntity, ILocalizedEntity, ISearchAlias, ICloneable<ProductVariantAttributeValue>
 	{
 		/// <summary>
-		/// Gets or sets the product attribute identifier
+		/// Gets or sets the product attribute options set identifier
 		/// </summary>
 		[DataMember]
-		public int ProductAttributeId { get; set; }
+		public int ProductAttributeOptionsSetId { get; set; }
 
 		/// <summary>
-		/// Gets or sets the product variant attribute alias
+		/// Gets or sets the option alias
 		/// </summary>
 		[DataMember]
 		public string Alias { get; set; }
 
 		/// <summary>
-		/// Gets or sets the product variant attribute name
+		/// Gets or sets the option name
 		/// </summary>
 		[DataMember]
 		public string Name { get; set; }
@@ -35,10 +36,10 @@ namespace SmartStore.Core.Domain.Catalog
 		public int PictureId { get; set; }
 
 		/// <summary>
-		/// Gets or sets the color RGB value (used with "Color squares" attribute type)
+		/// Gets or sets the color RGB value (used with "Boxes" attribute type)
 		/// </summary>
 		[DataMember]
-		public string ColorSquaresRgb { get; set; }
+		public string Color { get; set; }
 
 		/// <summary>
 		/// Gets or sets the price adjustment
@@ -53,7 +54,7 @@ namespace SmartStore.Core.Domain.Catalog
 		public decimal WeightAdjustment { get; set; }
 
 		/// <summary>
-		/// Gets or sets a value indicating whether the value is pre-selected
+		/// Gets or sets a value indicating whether the option is pre-selected
 		/// </summary>
 		[DataMember]
 		public bool IsPreSelected { get; set; }
@@ -83,10 +84,10 @@ namespace SmartStore.Core.Domain.Catalog
 		public int Quantity { get; set; }
 
 		/// <summary>
-		/// Gets the product attribute
+		/// Gets the product attribute options set
 		/// </summary>
 		[DataMember]
-		public virtual ProductAttribute ProductAttribute { get; set; }
+		public virtual ProductAttributeOptionsSet ProductAttributeOptionsSet { get; set; }
 
 		/// <summary>
 		/// Gets or sets the product attribute value type
@@ -110,7 +111,7 @@ namespace SmartStore.Core.Domain.Catalog
 			value.Alias = Alias;
 			value.Name = Name;
 			value.PictureId = PictureId;
-			value.ColorSquaresRgb = ColorSquaresRgb;
+			value.Color = Color;
 			value.PriceAdjustment = PriceAdjustment;
 			value.WeightAdjustment = WeightAdjustment;
 			value.IsPreSelected = IsPreSelected;

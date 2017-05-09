@@ -3,7 +3,7 @@
 @using SmartStore.Web.Models.Catalog;
 
 @{
-	Html.AddScriptParts("~/Themes/Alpha/Scripts/public.reviews.js");
+	Html.AddScriptParts("~/Themes/Flex/Scripts/public.reviews.js");
 }
 
 @if (Model.Items.Count == 0)
@@ -46,8 +46,6 @@ else
 				</p>
 
 				<div class="review-vote" data-review-id="@(helpfulness.ProductReviewId)" data-href='@(Url.Action("SetReviewHelpfulness"))'>
-					@*@{ Html.RenderPartial("_ReviewHelpfulness", review.Helpfulness, new ViewDataDictionary()); }*@
-
 					<span class="review-vote-label">@T("Reviews.Helpfulness.WasHelpful?")</span>
 					<a class="review-vote-link review-vote-link-yes" href="#" title="@T("Common.Yes")" data-toggle="tooltip" rel="nofollow">
 						<i class="fa fa-thumbs-up"></i>
@@ -66,7 +64,7 @@ else
 
 	if (Model.TotalReviewsCount > Model.Items.Count)
 	{
-		<div class="text-xs-center">
+		<div class="text-center">
 			<a class="btn btn-secondary" href="@Url.Action("Reviews", new { id = Model.ProductId })#review-item-11">
 				<span>@T("Reviews.Overview.ReadAll")</span>
 			</a>

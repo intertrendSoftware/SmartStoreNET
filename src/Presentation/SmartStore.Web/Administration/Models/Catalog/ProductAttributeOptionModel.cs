@@ -13,20 +13,24 @@ namespace SmartStore.Admin.Models.Catalog
 	{
 		public ProductAttributeOptionModel()
 		{
+			IsListTypeAttribute = true;
 			Locales = new List<ProductAttributeOptionLocalizedModel>();
 		}
 
-		public int ProductAttributeId { get; set; }
+		public int ProductId { get; set; }
+		public int ProductVariantAttributeId { get; set; }
+		public int ProductAttributeOptionsSetId { get; set; }
 
 		[SmartResourceDisplayName("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.Name")]
 		public string Name { get; set; }
+		public string NameString { get; set; }
 
 		[SmartResourceDisplayName("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.Alias")]
 		public string Alias { get; set; }
 
 		[SmartResourceDisplayName("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.ColorSquaresRgb")]
 		[UIHint("Color")]
-		public string ColorSquaresRgb { get; set; }
+		public string Color { get; set; }
 		public bool IsListTypeAttribute { get; set; }
 
 		[UIHint("Picture")]

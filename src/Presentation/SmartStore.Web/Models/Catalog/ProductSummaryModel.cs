@@ -5,10 +5,11 @@ using SmartStore.Web.Framework.Modelling;
 using SmartStore.Web.Framework.UI;
 using SmartStore.Core;
 using SmartStore.Core.Domain.Catalog;
+using SmartStore.Services.Catalog.Modelling;
 
 namespace SmartStore.Web.Models.Catalog
 {
-    public partial class ProductSummaryModel : ModelBase, IListActions
+    public partial class ProductSummaryModel : ModelBase, IListActions, IDisposable
     {
 		public static ProductSummaryModel Empty = new ProductSummaryModel(new PagedList<Product>(new List<Product>(), 0, int.MaxValue));
 
@@ -47,11 +48,10 @@ namespace SmartStore.Web.Models.Catalog
 
 		public ProductSummaryViewMode ViewMode { get; set; }
 		public GridColumnSpan GridColumnSpan { get; set; }
+		public bool BoxedStyleItems { get; set; }
+
 		public bool AllowViewModeChanging { get; set; }
-
-		// TODO: (mc) Implement
 		public bool AllowFiltering { get; set; }
-
 		public bool AllowSorting { get; set; }
 		public int? CurrentSortOrder { get; set; }
 		public string CurrentSortOrderName { get; set; }
@@ -60,13 +60,24 @@ namespace SmartStore.Web.Models.Catalog
 		public IEnumerable<int> AvailablePageSizes { get; set; }
 		public IPageable PagedList { get; set; }
 
+		public void Dispose()
+		{
+			if (Items != null)
+			{
+				Items.Clear();
+			}
+		}
+
 		#endregion
 
 		public class SummaryItem : EntityModelBase
 		{
+			private readonly WeakReference<ProductSummaryModel> _parent;
+
 			public SummaryItem(ProductSummaryModel parent)
 			{
-				Parent = parent;
+				//Parent = parent;
+				_parent = new WeakReference<ProductSummaryModel>(parent);
 
 				Weight = "";
 				TransportSurcharge = "";
@@ -77,7 +88,16 @@ namespace SmartStore.Web.Models.Catalog
 				Badges = new List<Badge>();
 			}
 
-			public ProductSummaryModel Parent { get; private set; }
+			//public ProductSummaryModel Parent { get; private set; }
+			public ProductSummaryModel Parent
+			{
+				get
+				{
+					ProductSummaryModel parent;
+					_parent.TryGetTarget(out parent);
+					return parent;
+				}
+			}
 
 			public string Name { get; set; }
 			public string ShortDescription { get; set; }
@@ -150,11 +170,13 @@ namespace SmartStore.Web.Models.Catalog
 		{
 			public int AttributeId { get; set; }
 			public string AttributeName { get; set; }
+			public int ProductAttributeId { get; set; }
 
 			public int Id { get; set; }
 			public string Color { get; set; }
 			public string Alias { get; set; }
 			public string FriendlyName { get; set; }
+			public string ProductUrl { get; set; }
 
 			public override int GetHashCode()
 			{

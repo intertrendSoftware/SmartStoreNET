@@ -1,11 +1,10 @@
-﻿@using SmartStore.Core;
-@using SmartStore.Core.Infrastructure;
+﻿@using SmartStore.Core.Infrastructure;
 @using SmartStore.Web.Models.Catalog;
 @using SmartStore.Core.Domain.Catalog;
 
 @model IList<ManufacturerModel>
 @{
-    Layout = "_ColumnsOne";
+    Layout = "_Layout";
 
     Html.AddTitleParts(T("PageTitle.Manufacturers").Text);
 
@@ -18,14 +17,16 @@
 
 <div class="page manufacturer-list-page">
     <div class="page-title">
-        <h1 class="h3">@T("Manufacturers.List")</h1>
+        <h1 class="h2">@T("Manufacturers.List")</h1>
     </div>
     <div class="page-body">
 
+        @{ Html.RenderWidget("manufacturers_all_top"); }
+
         @if (catalogSettings.SortManufacturersAlphabetically)
         {
-            <div class="manufacturer-nav clearfix">
-                <ul class="nav navbar-nav">
+            <div class="manufacturer-nav">
+                <ul class="navbar justify-content-start list-unstyled">
                     
                     @if (numericList.Count() > 0)
                     {
@@ -93,6 +94,8 @@
                 }
 		    </div>
         }
+
+        @{ Html.RenderWidget("manufacturers_all_bottom"); }
     </div>
 </div>
 
