@@ -2526,18 +2526,18 @@ namespace SmartStore.Web.Infrastructure.Installation
 .Alter(8, x =>
                     {
                         x.Name = "Material";
-                        var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                        attribOption1.First().Name = "Edelstahl";
-
-                        var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                        attribOption2.First().Name = "Titan";
-
-                        var attribOption3 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3);
-                        attribOption2.First().Name = "Kunststoff";
-
-                        var attribOption4 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3);
-                        attribOption2.First().Name = "Aluminium";
-                    })
+                        x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 1).Name = "Edelstahl";
+                        x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 2).Name = "Titan";
+						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 3).Name = "Kunststoff";
+						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 4).Name = "Aluminium";
+						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 5).Name = "Leder";
+						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 6).Name = "Nylon";
+						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 7).Name = "Silikon";
+						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 8).Name = "Keramik";
+						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 9).Name = "Baumwolle";
+						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 10).Name = "100% Bio-Baumwolle";
+						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 11).Name = "Polyamid";
+					})
             #endregion
 
             #region Technische Ausführung
@@ -2773,39 +2773,39 @@ namespace SmartStore.Web.Infrastructure.Installation
         {
             base.Alter(entities);
 
-            entities.WithKey(x => x.Alias)
-                .Alter("color", x =>
-                {
-                    x.Name = "Farbe";
-                })
-                .Alter("custom-text", x =>
-                {
-                    x.Name = "eigener Text";
-                })
-                .Alter("hdd", x =>
-                {
-                    x.Name = "HDD";
-                })
-                .Alter("os", x =>
-                {
-                    x.Name = "Betriebssystem";
-                })
-                .Alter("processor", x =>
-                {
-                    x.Name = "Prozessor";
-                })
-                .Alter("ram", x =>
-                {
-                    x.Name = "Arbeitsspeicher";
-                })
-                .Alter("size", x =>
-                {
-                    x.Name = "Größe";
-                })
-                .Alter("software", x =>
-                {
-                    x.Name = "Software";
-                })
+			entities.WithKey(x => x.Alias)
+				.Alter("color", x =>
+				{
+					x.Name = "Farbe";
+				})
+				.Alter("custom-text", x =>
+				{
+					x.Name = "eigener Text";
+				})
+				.Alter("hdd", x =>
+				{
+					x.Name = "HDD";
+				})
+				.Alter("os", x =>
+				{
+					x.Name = "Betriebssystem";
+				})
+				.Alter("processor", x =>
+				{
+					x.Name = "Prozessor";
+				})
+				.Alter("ram", x =>
+				{
+					x.Name = "Arbeitsspeicher";
+				})
+				.Alter("size", x =>
+				{
+					x.Name = "Größe";
+				})
+				.Alter("software", x =>
+				{
+					x.Name = "Software";
+				})
 				.Alter("game", x =>
 				{
 					x.Name = "Spiel";
@@ -2825,8 +2825,32 @@ namespace SmartStore.Web.Infrastructure.Installation
 				.Alter("length", x =>
 				{
 					x.Name = "Länge";
+				})
+				.Alter("plate", x =>
+				{
+					x.Name = "Tischplatte";
+				})
+				.Alter("plate-thickness", x =>
+				{
+					x.Name = "Stärke der Tischplatte";
+				})
+				.Alter("leather-color", x =>
+				{
+					x.Name = "Lederfarbe";
+				})
+				.Alter("seat-shell", x =>
+				{
+					x.Name = "Sitzschale";
+				})
+				.Alter("base", x =>
+				{
+					x.Name = "Fußgestell";
+				})
+				.Alter("style", x =>
+				{
+					x.Name = "Ausführung";
 				});
-        }
+		}
 
 		protected override void Alter(IList<ProductAttributeOptionsSet> entities)
 		{
@@ -2855,7 +2879,7 @@ namespace SmartStore.Web.Infrastructure.Installation
 		{
 			base.Alter(entities);
 
-			entities.Where(x => x.ProductAttribute.Alias == "color").Each(x =>
+			entities.Where(x => x.ProductAttribute.Alias == "color" || x.ProductAttribute.Alias == "leather-color").Each(x =>
 			{
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "black").Each(y => y.Name = "Schwarz");
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "white").Each(y => y.Name = "Weiß");
@@ -2866,6 +2890,18 @@ namespace SmartStore.Web.Infrastructure.Installation
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "blue").Each(y => y.Name = "Blau");
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "purple").Each(y => y.Name = "Violett");
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "green").Each(y => y.Name = "Grün");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "anthracite").Each(y => y.Name = "Anthrazit");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "brown").Each(y => y.Name = "Braun");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "dark-brown").Each(y => y.Name = "Dunkelbraun");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "natural").Each(y => y.Name = "Naturfarben");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "biscuit").Each(y => y.Name = "Biskuit");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "dark-green").Each(y => y.Name = "Dunkelgrün");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "light-grey").Each(y => y.Name = "Hellgrau");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "dark-red").Each(y => y.Name = "Dunkelrot");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "hazelnut").Each(y => y.Name = "Haselnuss");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "fuliginous").Each(y => y.Name = "Rauchfarbig");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "tomato-red").Each(y => y.Name = "Tomatenrot");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "yellow").Each(y => y.Name = "Gelb");
 			});
 
 			entities.Where(x => x.ProductAttribute.Alias == "iphone-color").Each(x =>
@@ -2878,6 +2914,32 @@ namespace SmartStore.Web.Infrastructure.Installation
 			{
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "prince-of-persia-the-forgotten-sands").Each(y => y.Name = "Prince of Persia \"Die vergessene Zeit\"");
 			});
+
+			entities.Where(x => x.ProductAttribute.Alias == "seat-shell").Each(x =>
+			{
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "cherry").Each(y => y.Name = "Kirsche");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "walnut").Each(y => y.Name = "Walnuss");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "wooden-black-lacquered").Each(y => y.Name = "Holz schwarz lackiert");
+			});
+
+			entities.Where(x => x.ProductAttribute.Alias == "base").Each(x =>
+			{
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "top-edge-polished").Each(y => y.Name = "Oberkante poliert");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "completely-polished").Each(y => y.Name = "Vollständig poliert");
+			});
+
+			entities.Where(x => x.ProductAttribute.Alias == "plate").Each(x =>
+			{
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "clear-glass").Each(y => y.Name = "Klarglas");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "sandblasted-glass").Each(y => y.Name = "Sandgestrahltes Glas");
+			});
+
+			entities.Where(x => x.ProductAttribute.Alias == "material").Each(x =>
+			{
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "leather-special").Each(y => y.Name = "Leder Spezial");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "leather-aniline").Each(y => y.Name = "Leder Anilin");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "mixed-linen").Each(y => y.Name = "Leinen gemischt");
+			});
 		}
 
         protected override void Alter(IList<ProductTemplate> entities)
@@ -2885,13 +2947,9 @@ namespace SmartStore.Web.Infrastructure.Installation
             base.Alter(entities);
 
 			entities.WithKey(x => x.ViewPath)
-				.Alter("ProductTemplate.Simple", x =>
+				.Alter("Product", x =>
 				{
-					x.Name = "Simple product";
-				})
-				.Alter("ProductTemplate.Grouped", x =>
-				{
-					x.Name = "Grouped product";
+					x.Name = "Standard Produkt Vorlage";
 				});
         }
 
@@ -3007,12 +3065,6 @@ namespace SmartStore.Web.Infrastructure.Installation
 		private void AlterFashionProducts(IList<Product> entities)
 		{
 			entities.WithKey(x => x.Sku)
-				.Alter("Fashion-112345", x =>
-				{
-					x.Name = "Herren Shirt";
-					x.ShortDescription = "Herren Shirt mit trendigem Rollsaum";
-					x.FullDescription = "<p>Oberstoff (140 g/m²): 100% Baumwolle 100% Bio-Baumwolle, Single Jersey Rundhalsausschnitt und Ärmel mit Rollsaum. In den Trendfarben Heather Grey und Red</p>";
-				})
 				.Alter("Fashion-112355", x =>
 				{
 					x.ShortDescription = "Der Sneaker-Klassiker!";
@@ -3021,6 +3073,7 @@ namespace SmartStore.Web.Infrastructure.Installation
 				.Alter("Fashion-987693502", x =>
 				{
 					x.Name = "Ärmelloses Shirt Meccanica";
+					x.ShortDescription = "Frauen Shirt mit trendigem Aufdruck";
 					x.FullDescription = "<p>Auch im Sommer geht der Ducati Stil mit der Mode! Mit dem ärmellosen Shirt Meccanica kann jede Frau ihrer Leidenschaft für Ducati mit einem bequemen und vielseitigen Kleidungsstück Ausdruck verleihen. Das Shirt gibt es in schwarz und vintagerot. Es trägt auf der Vorderseite den traditionellen Schriftzug in Plastisoldruck, wodurch er noch deutlicher und strahlender wird, während sich auf der Rückseite im Nackenbereich das berühmte Logo mit den typischen \"Flügeln\" der fünfziger Jahre befindet.</p>";
 				})
 				.Alter("Fashion-JN1107", x =>
@@ -3033,6 +3086,28 @@ namespace SmartStore.Web.Infrastructure.Installation
 					 x.ShortDescription = "Moderne Jeans in Easy Comfort Fit";
 					 x.FullDescription = "<p>Echte Five-Pocket-Jeans von Joker mit zusätzlicher, aufgesetzter Uhrentasche. Dank Easy Comfort Fit mit normaler Leibhöhe und bequemer Beinweite passend für jeden Figurtyp. Gerader Beinverlauf.</p><ul><li>Material: weicher, leichterer Premium-Denim aus 100% Baumwolle</li><li>Bundweite (Zoll): 29-46</li><li>Beinlänge (Zoll): 30 bis 38</li></ul>";
 				 });
+		}
+
+		private void AlterFurnitureProducts(IList<Product> entities)
+		{
+			entities.WithKey(x => x.Sku)
+				.Alter("Furniture-lc6", x =>
+				{
+					x.Name = "Le Corbusier LC 6 Esstisch (1929)";
+					x.ShortDescription = "Esstisch LC6, Designer: Le Corbusier, B x H x T: 225 x 69/74 (verstellbar) x 85 cm, Unterkonstruktion: Stahlrohr, Glasplatte: klar oder sandgestrahlt, 15 oder 19 mm, höhenverstellbar.";
+					x.FullDescription = "<p>Vier kleine Teller tragen eine Platte aus Glas. Darunter erstreckt sich in klarer Struktur die Konstruktion aus Stahlrohr. Der LC6 ist echter Klassiker der Bauhaus-Kunst und dient in Kombination mit den Drehstühlen LC7 als formschöne Le Corbusier-Essecke. Darüber hinaus findet man den Tisch auch vermehrt in Büros oder in Hallen. Er ist höhenverstellbar und kann so dem jeweiligen Zweck perfekt angepasst werden.</p><p>Der formschöne Tisch von Le Corbusier ist mit klarer oder mit sandgestrahlter Glasplatte erhältlich. Die Unterkonstruktion besteht aus ovalen Stahlrohren.</p>";
+				})
+				.Alter("Furniture-ball-chair", x =>
+				{
+					x.Name = "Eero Aarnio Kugelsessel (1966)";
+					x.FullDescription = "<p>Der Ball Chair oder auch Globe Chair genannt, ist ein echtes Meisterwerk des legendären Designers Eero Aarnio. Der Kugelsessel aus den sechziger Jahren hat Designergeschichte geschrieben. Der eiförmig gestaltet Sessel ruht auf einem Trompetenfuss und wird nicht zu letzt aufgrund seiner Form und der ruhigen Atmophäre im Innern dieses Möbels besonders geschätzt. Das Design des Möbelkörpers lässt  Geräusche und störende Außenweltelemente in den Hintergurnd tretten. Ein Platz, wie geschaffen zum ausruhen und entspannen. Mit der großen Auswahl an Farben passt passt sich der Eyeball Chair jeder Wohn- und Arbeitsumgebung gekonnt an. Ein Sessel, der sich durch zeitloses Design auszeichnet und die Moderne immer im Blick haben wird. Der Ball Chair ist 360° zu drehen, um den Blick auf die Umgebung zu veränderen. Die Aussenschale in Fiberglas weiss oder schwarz. Der Bezug ist in Leder oder Linen Mixed.<p><p>Abmessung: Breite 102 cm, Tiefe 87 cm, Höhe 124 cm, Sitzhöhe: 44 cm.</p>";
+				})
+				.Alter("Furniture-lounge-chair", x =>
+				{
+					x.Name = "Charles Eames Lounge Sessel (1956)";
+					x.ShortDescription = "Club Sessel, Lounge Chair, Designer: Charles Eames, Breite 80 cm, Tiefe 80 cm, Höhe 60 cm, Sitzschale: Sperrholz, Fuß (drehbar): Aluminiumguss, Kissen (gepolstert) mit Lederbezug.";
+					x.FullDescription = "<p>So sitzt man in einem Baseball-Handschuh. Das war jedenfalls eine der Vorstellungen, die Charles Eames beim Entwurf dieses Clubsessels im Kopf hatte. Der Lounge Chair sollte ein Komfort-Sessel sein, in den man luxuriös einsinken kann. Durch die Konstruktion aus drei miteinander verbundenen, beweglichen Sitzschalen und einer bequemen Polsterung gelang Charles Eames die Umsetzung. Eigentlich ist der Clubsessel mit drehbarem Fuß ein Gegensatz zu den Bauhaus-Charakteristiken, die Minimalismus und Funktionalität in den Vordergrund stellten. Dennoch wurde er zu einem Klassiker der Bauhaus-Geschichte und sorgt noch heute in vielen Wohnräumen und Clubs für absoluten Komfort mit Stil.</p><p>Abmessung: Breite 80 cm, Tiefe 60 cm,  Höhe Gesamt 80 cm (Höhe Rückenlehne: 60 cm). CBM: 0,70.</p><p>Verarbeitung: Lounge Chair mit Sitzschale aus schichtverleimten gebogenen Sperrholz mit Palisander furniert, Nussbaum natur oder in schwarz. Drehbarer Fuß aus Aluminiumguss schwarz mit polierten Kanten oder auch wahlweise vollständig verchromt. Aufwendige Polsterung der Kissen in Leder.</p><p>Alle POLSTEREINHEITEN sind bei dem EAMES LOUNGE CHAIR (Sitz, Armlehne, Rückenlehne, Kopflehne) abnehmbar.</p><p></p>";
+				});
 		}
 
 		protected override void Alter(IList<Product> entities)
@@ -3050,7 +3125,191 @@ namespace SmartStore.Web.Infrastructure.Installation
 
 				entities.WithKey(x => x.MetaTitle)
 
-				# region category Gift Cards
+
+                #region category golf
+
+                #region product Titleist SM6 Tour Chrome
+
+                .Alter("Titleist SM6 Tour Chrome", x =>
+                {
+                    x.ShortDescription = "Für Golfspieler, die ein Maximum an Schlagkontrolle und Feedback wünschen.";
+                    x.FullDescription = "<p><strong>Inspiriert von den besten Eisenspielern der Welt</strong></p><p>Die neuen 'Spin Milled 6'-Wedges etablieren eine neue Leistungsklasse in drei Schlüsselbereichen des Wedge-Spiels: Präzise Längenschritte, Schlagvielfalt und maximaler Spin.&nbsp;</p><p>  <br />  Für jeden Loft wird der Schwerpunkt des Wedges einzeln bestimmt. Daher bieten die SM6 eine besonders präzise Längen- und Flugkurvenkontrolle in Verbindung mit großartigem Schlaggefühl.&nbsp;  <br />  Bob Vokeys tourerpobte Sohlenschliffe erlauben allen Golfern mehr Schlagvielfalt, angepasst auf deren persönliches Schwungprofil und die jeweiligen Bodenverhältnissen.</p><p>  <br />  Zu den absolut exakt und mit 100%iger Qualitätskontrolle gefrästen Rillen wurde eine neue, parallele Schlagflächen-Textur entwickelt. Das Ergebnis ist eine beständig höhere Kantenschärfe für mehr Spin.</p><p></p><ul>  <li>Präzise Längen und Flugkurvenkontrolle dank progressiv platziertem Schwerpunkt.</li>  <li>Verbesserte Schlagvielfalt aufgrund der erprobten Sohlenschliffe von Bob Vokey.</li>  <li>TX4-Rillen erzeugen mehr Spin durch eine neue Oberfläche und Kantenschärfe.</li>  <li>Vielfältige Personalisierungsmöglichkeiten.</li></ul><p></p><p></p><p></p>";
+                    x.Price = 164.95M;
+                    x.OldPrice = 199.95M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+
+                #endregion product Titleist SM6 Tour Chrome
+
+                #region product Titleist Pro V1x
+
+                .Alter("Titleist Pro V1x", x =>
+                {
+                    x.ShortDescription = "Golfball mit hohem Ballflug";
+                    x.FullDescription = "<p>Auf den neuen Titleist Pro V1x vertrauen die Spitzenspieler. Hoher Ballflug, weiches Schlaggefühl und mehr Spin im kurzen Spiel sind die Vorteile der V1x-Ausführung.Perfekte Gesamtleistung vom führenden Hersteller. Der neue Titleist Pro V1-Golfball ist exakt definiert und verspricht durchdringenden Ballflug bei sehr weichem Schlaggefühl.</p>";
+                    x.Price = 1.89M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+
+                #endregion product Titleist Pro V1x
+
+                #region product Supreme Golfball
+
+                .Alter("Supreme Golfball", x =>
+                {
+                    x.ShortDescription = "Trainingsbälle mit perfekten Flugeigenschaften";
+                    x.FullDescription = "<p>Perfekter Golf-Übungsball mit den Eigenschaften wie das 'Original', aber in glasbruchsicherer Ausführng. Massiver Kern, ein idealer Trainingsball für Hof und Garten. Farben: weiß, gelb, orange.</p>";
+                    x.Price = 1.99M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+
+                #endregion product Supreme Golfball
+
+                #region product GBB Epic Sub Zero Driver
+
+                .Alter("GBB Epic Sub Zero Driver", x =>
+                {
+                    x.ShortDescription = "Geringer Spin für gutes Golfen!";
+                    x.FullDescription = "<p>Ihr Spiel gewinnt mit dem GBB Epic Sub Zero Driver. Ein Golfschläger mit extrem wenig Spin und das bei phänomenaler Hochgeschwindigkeits-Charakteristik.&nbsp;</p>";
+                    x.Price = 489.00M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+
+                #endregion product GBB Epic Sub Zero Driver
+
+                #endregion category golf
+
+                #region category Soccer
+
+                #region product Nike Strike Football
+
+                .Alter("Nike Strike Football", x =>
+                {
+                    x.Name = "Nike Strike Fußball";
+                    x.ShortDescription = "HERVORRAGENDES BALLGEFÜHL. GUTE SICHTBARKEIT.";
+                    x.FullDescription = "<p>Verbessert das Spiel jeden Tag mit dem Nike Strike Football. Verstärkter Gummi behält seine Form für zuversichtliche und konsequente Kontrolle. Eine herausragende Visual Power Grafik in schwarz, grün und orange ist am besten für Ball Tracking, trotz dunkler oder schlechter Bedingungen.</p><p></p><ul>  <li>Visual Power Grafik hilft, eine echte Lesung auf Flugtrajektorie zu geben.</li>  <li>Strukturiertes Gehäuse bietet überlegene Note.</li>  <li>Verstärkte Gummiblase unterstützt Luft- und Formbeibehaltung.</li>  <li>66% Gummi / 15% Polyurethan / 13% Polyester / 7% EVA.</li></ul>";
+                    x.Price = 29.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product Nike Strike Football
+
+                #region product Evopower 5.3 Trainer HS Ball
+
+                .Alter("Evopower 5.3 Trainer HS Ball", x =>
+                {
+                    x.ShortDescription = "Einsteiger Trainingsball.";
+                    x.FullDescription = "<p>Einsteiger Trainingsball.  <br />  Konstruiert aus 32 Platten mit gleichen Flächen für reduzierte Naht und eine vollkommen runde Form.  <br />  Handgestickte Platten mit mehrschichtigem gewebtem Rücken für mehr Stabilität und Aerodynamik.</p>";
+                    x.Price = 35.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product Evopower 5.3 Trainer HS Ball
+
+                #region product Torfabrik official game ball
+
+                .Alter("Torfabrik official game ball", x =>
+                {
+                    x.ShortDescription = "Einsteiger Trainingsball.";
+                    x.FullDescription = "<p>Einsteiger Trainingsball.  <br />  Konstruiert aus 32 Platten mit gleichen Flächen für reduzierte Naht und eine vollkommen runde Form.  <br />  Handgestickte Platten mit mehrschichtigem gewebtem Rücken für mehr Stabilität und Aerodynamik.</p>";
+                    x.Price = 35.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product Torfabrik official game ball
+
+                #region product Adidas TANGO SALA BALL
+
+                .Alter("Adidas TANGO SALA BALL", x =>
+                {
+                    x.ShortDescription = "Farbe White/Black/Solar Red";
+                    x.FullDescription = "<h2 style='box-sizing: border-box; outline: 0px; margin-right: 0px; margin-bottom: 32px; margin-left: 0px; padding: 0px; border: 0px; font-variant-numeric: inherit; font-weight: inherit; font-stretch: inherit; font-size: 32px; line-height: 30.4px; font-family: adilight, Arial, Helvetica, Verdana, sans-serif; vertical-align: baseline; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial; max-height: 999999px; text-transform: uppercase; letter-spacing: 6px; text-align: center; color: rgb(0, 0, 0);'>TANGO PASADENA BALL</h2><div class='product-details-description clearfix' style='box-sizing: border-box; outline: 0px; margin: 0px; padding: 0px; border: 0px; font-variant-numeric: inherit; font-stretch: inherit; font-size: 14px; line-height: inherit; font-family: adihausregular, Arial, Helvetica, Verdana, sans-serif; vertical-align: baseline; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial; max-height: 999999px; zoom: 1; color: rgb(0, 0, 0);'>  <div class='prod-details para-small' itemprop='description' style='box-sizing: border-box; outline: 0px; margin: 0px; padding: 0px; border: 0px; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; line-height: 24px; vertical-align: baseline; background: transparent; max-height: 999999px; color: rgb(54, 55, 56); width: 441.594px; float: left;'>Der adidas Tango Pasadena Ball wurde speziell für harte Trainingseinheiten und hitzige Kämpfe auf dem Fußballplatz gemacht. Er hat die bestmögliche FIFA-Bewertung bekommen und verfügt über einen handgenähten Körper, dem kein Training und kein Spiel etwas anhaben können.  </div>  <div class='prod-details para-small' itemprop='description' style='box-sizing: border-box; outline: 0px; margin: 0px; padding: 0px; border: 0px; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; line-height: 24px; vertical-align: baseline; background: transparent; max-height: 999999px; color: rgb(54, 55, 56); width: 441.594px; float: left;'>  </div>  <ul class='bullets_list para-small' style='box-sizing: border-box; outline: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 16px; padding: 0px; border: 0px; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; line-height: 20px; vertical-align: baseline; background: transparent; max-height: 999999px; list-style-position: initial; list-style-image: initial; color: rgb(54, 55, 56); width: 441.594px; float: right;'>    <li style='box-sizing: border-box; outline: 0px; margin: 0px; padding: 0px; border: 0px; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: 24px; font-family: inherit; vertical-align: baseline; background: transparent; max-height: 999999px;'>Handgenäht für hohe Strapazierfähigkeit und gutes Ballgefühl</li>    <li style='box-sizing: border-box; outline: 0px; margin: 0px; padding: 0px; border: 0px; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: 24px; font-family: inherit; vertical-align: baseline; background: transparent; max-height: 999999px;'>FIFA-Höchstwertung: Der Ball hat Tests in den Kategorien Gewicht, Wasseraufnahme, Form- und Größenbeständigkeit erfolgreich bestanden</li>    <li style='box-sizing: border-box; outline: 0px; margin: 0px; padding: 0px; border: 0px; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: 24px; font-family: inherit; vertical-align: baseline; background: transparent; max-height: 999999px;'>Latex-Blase für optimales Rücksprungverhalten</li>    <li style='box-sizing: border-box; outline: 0px; margin: 0px; padding: 0px; border: 0px; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: 24px; font-family: inherit; vertical-align: baseline; background: transparent; max-height: 999999px;'>100 % Polyurethan</li>  </ul></div>";
+                    x.Price = 59.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product Adidas TANGO SALA BALL
+
+                #endregion category Soccer
+
+
+                #region category Gift Cards
                 .Alter("$5 Virtual Gift Card", x =>
 				{
 					x.Name = "5 € Geschenkgutschein";
@@ -3072,11 +3331,18 @@ namespace SmartStore.Web.Infrastructure.Installation
 					x.FullDescription = "<p>Wenn in letzter Minute mal wieder ein Geschenk fehlt oder man nicht weiß, was man schenken soll, dann bietet sich der Kauf eines Geschenkgutscheins an.</p>";
 				})
 
-				#endregion
+                .Alter("$100 Virtual Gift Card", x =>
+                {
+                    x.Name = "100 € Geschenkgutschein";
+                    x.ShortDescription = "100 € Geschenkgutschein. Eine ideale Geschenkidee.";
+                    x.FullDescription = "<p>Wenn in letzter Minute mal wieder ein Geschenk fehlt oder man nicht weiß, was man schenken soll, dann bietet sich der Kauf eines Geschenkgutscheins an.</p>";
+                })
 
-				#region Bücher
+                #endregion
 
-				#region SPIEGEL-Bestseller
+                #region Bücher
+
+                #region SPIEGEL-Bestseller
                 .Alter("Überman: The novel", x =>
 				{
 					x.Name = "Überman: Der Roman";
@@ -3300,15 +3566,15 @@ namespace SmartStore.Web.Infrastructure.Installation
 
 				#endregion computer
 
-				#region SmartPhones
+				#region Apple
 				
 				#region Apple iPhone
 				
-				.Alter("Apple iPhone 6", x =>
+				.Alter("iPhone Plus", x =>
 				{
-					x.ShortDescription = "Apple iPhone 6 Simlock frei Neu";
-					x.FullDescription = "<p>Das iPhone 6 ist nicht einfach nur größer. Es ist wirklich in allem besser. Es ist länger und breiter, aber deutlich dünner. Leistungsstärker, aber unglaublich energieeffizient. Seine glatte Oberfläche aus Metall schließt nahtlos an das neue Retina HD Display an. So entsteht eine durchgehende Form, in der Hardware und Software in perfekter Einheit zusammenarbeiten – für eine neue iPhone Generation, die nach allen Maßstäben besser ist.</p><p>Das iPhone 6 kommt mit einem A8 Chip auf Basis einer 64 Bit Desktoparchitektur der zweiten Generation. Seine unglaubliche Leistung wird durch einen M8 Motion Coprozessor erweitert, der Aktivität mit fortschrittlichen Sensoren ermittelt, darunter auch ein neues Barometer.</p><p>Mit keiner anderen Kamera werden von so vielen Menschen so viele Fotos gemacht wie mit dem iPhone. Jetzt hat die iSight Kamera einen neuen Sensor mit Focus Pixels und neue Videofunktionen wie 1080p HD Videos mit 60 Bildern pro Sekunde, Zeitlupenvideos mit 240 Bildern pro Sekunde und Zeitraffervideo.</p><p><ul><li>Abmessungen (HxBxT)	138.1 x 67 x 6.9 Millimeter</li><li>Gewicht	129 Gramm</li><li>Strahlungswert (SAR-Wert)	unbekannt</li><li>Erscheinungstermin	09/2014</li><li>Betriebssystem	Apple iOS</li><li>Systemversion	8.0</li><li>Netzstandards	GSM1800 GSM1900 GSM850 GSM900W-CDMA (UMTS)</li><li>Flugzeugmodus	ja</li><li>Akku-Typ	Li-Ionen</li><li>Akkuleistung	1810 mAh</li><li>max. Bereitschaftszeit	250 Stunden</li><li>max. Sprechzeit	840 Minuten</li></ul></p>";
-					x.Price = 579.00M;
+					x.ShortDescription = "Das ist iPhone. Das iPhone macht vieles von dem, was das iPhone zum iPhone macht, noch einmal viel besser. Es hat fortschrittliche neue Kamerasysteme. Die beste Leistung und Batterielaufzeit, die ein iPhone je hatte. Beeindruckende Stereo-Lautsprecher. Das hellste iPhone Display. Mit noch mehr Farben. Schutz vor Spritzwasser. Und es sieht so großartig aus, wie es ist. Das ist das iPhone.";
+					x.FullDescription = "";
+					x.Price = 799.00M;
 					x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
 					x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
 					x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
@@ -3321,14 +3587,77 @@ namespace SmartStore.Web.Infrastructure.Installation
 					x.IsShipEnabled = true;
 					x.ProductReviews.Clear();
 				})
-				#endregion Apple iPhone
+                #endregion Apple iPhone
 
-				#endregion SmartPhones
+                #region Airpods
 
-				#region Instant Downloads
-				
+                .Alter("AirPods", x =>
+                {
+                    x.ShortDescription = "Einfach. Kabellos. Magisch.Du nimmst sie aus dem Case und sie sind bereit für all deine Geräte. Du steckst sie in die Ohren und sie verbinden sich sofort. Du sprichst hinein und deine Stimme ist klar zu verstehen. Die neuen AirPods. Einfachheit und Technologie, verbunden wie nie zuvor. Für ein Ergebnis, das einfach magisch ist.";
+                    x.FullDescription = "<p>  <br />  Die AirPods verändern für immer, wie du Kopfhörer verwendest. Wenn du deine AirPods aus dem Ladecase nimmst, schalten sie sich ein und verbinden sich mit deinem iPhone, iPad, Mac oder deiner Apple Watch.(1) Audio wird automatisch wiedergegeben, sobald du sie im Ohr hast, und pausiert, wenn du sie herausnimmst. Um die Lautstärke anzupassen, den Song zu wechseln, jemanden anzurufen oder dir den Weg sagen zu lassen, aktiviere einfach Siri mit einem Doppeltipp.  <br />  Die AirPods werden vom speziell entwickelten Apple W1 Chip gesteuert und erkennen durch optische Sensoren und einen Beschleunigungssensor, ob sie in deinem Ohr sind. Der W1 Chip leitet die Audiosignale automatisch weiter und aktiviert das Mikrofon – egal, ob du beide oder nur einen verwendest. Und wenn du gerade telefonierst oder mit Siri sprichst, filtert ein weiterer Beschleunigungsmesser mit wellenbündelnden Mikrofonen Hintergrundgeräusche heraus und hebt deine Stimme hervor. Da der extrem energieeffiziente W1 Chip die Batterieleistung so gut steuert, bieten die AirPods eine einzigartige Wiedergabedauer von bis zu 5 Std. pro Aufladung.(2) Und dank des Ladecase, das mehrere zusätzliche Aufladungen für insgesamt über 24 Std. Wiedergabe bietet, halten sie locker bei allem mit, was du so machst.(3) Schnell mal aufladen? Nach nur 15 Minuten im Ladecase kannst du 3 Stunden Musik hören.(4)</p><p><strong>Technische Daten</strong>  <br />  Bluetooth  <br />  Drahtlose Technologien  <br />  <strong>Gewicht</strong>  <br />  AirPods (jeweils): 4 g  <br />  Ladecase: 38 g  <br />  <strong>Abmessungen</strong>  <br />  AirPods (jeweils): 16,5 x 18,0 x 40,5 mm  <br />  Ladecase: 44,3 x 21,3 x 53,5 mm  <br />  <strong>Anschlüsse</strong>  <br />  AirPods: Bluetooth  <br />  Ladecase: Lightning Connector  <br />  <strong>AirPods Sensoren (jeweils):</strong>  <br />  Zwei Beamforming Mikrofone  <br />  Zwei optische Sensoren  <br />  Bewegungsbeschleunigungsmesser  <br />  Stimmbeschleunigungsmesser  <br />  <strong>Stromversorgung und Batterie</strong>  <br />  AirPods mit Ladecase: Mehr als 24 Stunden Wiedergabe, (3) bis zu 11 Stunden Sprechdauer(6)  <br />  AirPods (einzelne Ladung): Bis zu 5 Stunden Wiedergabe,(2) bis zu 2 Stunden Sprechdauer(5)  <br />  15 Minuten im Case entspricht 3 Stunden Wiedergabe(4) oder mehr als 1 Stunde Sprechdauer(7)</p><p></p>";
+                    //x.Price = 799.00M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion Airpods
+
+                #region Ultimate Apple Pro Hipster Bundle
+
+                .Alter("Ultimate Apple Pro Hipster Bundle", x =>
+                {
+                    x.ShortDescription = "Sparen Sie mit diesem Set 5%!";
+                    x.FullDescription = "<p>Als Apple-Fan und Hipster ist es Ihr Grundbedürfnis immer die neusten Apple-Produkte zu haben.&nbsp;  <br />  Damit Sie nicht vier Mal im Jahr vor dem Apple-Store nächtigen müssen, abonnieren Sie einfach das <strong>Ultimate Apple Pro Hipster Set im Jahres Abo</strong>!</p><p></p>";
+                    //x.Price = 799.00M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion Ultimate Apple Pro Hipster Bundle
+
+                #region 9,7 iPad
+
+                .Alter("9,7' iPad", x =>
+                {
+                    x.ShortDescription = "Macht einfach Spaß. Lernen, spielen, surfen, kreativ werden. Mit dem iPad hast du ein unglaubliches Display, großartige Leistung und Apps für alles, was du gerne machst. Überall. Einfach. Magisch.";
+                    x.FullDescription = "<ul>  <li>9,7'' Retina Display mit True Tone und Antireflex-Beschichtung (24,63 cm Diagonale)</li>  <li>A9X Chip der dritten Generation mit 64-Bit Desktoparchitektur</li>  <li>Touch ID Fingerabdrucksensor</li></ul>";
+                    //x.Price = 799.00M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion 9,7 iPad
+
+                #endregion Apple
+
+                #region Instant Downloads
+
                 #region Antonio Vivildi: then spring
-                
+
                 .Alter("Antonio Vivaldi: spring", x =>
 				{
 					x.Name = "Antonio Vivaldi: Der Frühling";
@@ -3358,7 +3687,7 @@ namespace SmartStore.Web.Infrastructure.Installation
                 .Alter("Certina DS Podium Big Size", x =>
 				{
 					x.Name = "Certina DS Podium Big Size Herrenchronograph";
-					x.ShortDescription = "C001.617.26.037.00";
+					x.ShortDescription = "Die Transocean Chronograph interpretiert die sachliche Ästhetik klassischer Chronografen der 1950er- und 1960er-Jahre in einem entschieden zeitgenössischen Stil neu. ";
 					x.FullDescription = "<p><strong>Produktbeschreibung</strong></p> <ul> <li>Artikelnr.: 3528 C001.617.26.037.00</li> <li>Certina DS Podium Big Size Herrenchronograph</li> <li>Schweizer ETA Werk</li> <li>Silberfarbenes Edelstahlgeh&auml;use mit schwarzer L&uuml;nette</li> <li>Wei&szlig;es Zifferblatt mit silberfarbenen Ziffern und Indizes</li> <li>Schwarzes Lederarmband mit Faltschliesse</li> <li>Kratzfestes Saphirglas</li> <li>Datumsanzeige</li> <li>Tachymeterskala</li> <li>Chronograph mit Stoppfunktion</li> <li>Durchmesser: 42 mm</li> <li>Wasserdichtigkeits -Klassifizierung 10 Bar (nach ISO 2281): Perfekt zum Schwimmen und Schnorcheln</li> <li>100 Tage Niedrigpreisgarantie, bei uhrzeit.org kaufen Sie ohne Preisrisiko!</li> </ul>";
 					x.Price = 479.00M;
 					x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
@@ -3374,13 +3703,79 @@ namespace SmartStore.Web.Infrastructure.Installation
 					x.ProductReviews.Clear();
 				})
 
-				#endregion Certina DS Podium Big Size
-				
+                #endregion Certina DS Podium Big Size
+
+                #region productTRANSOCEANCHRONOGRAPH 
+                .Alter("TRANSOCEAN CHRONOGRAPH", x =>
+                {
+                    //x.Name = "TRANSOCEAN CHRONOGRAPH";
+                    x.ShortDescription = "Die Transocean Chronograph interpretiert die sachliche Ästhetik klassischer Chronografen der 1950er- und 1960er-Jahre in einem entschieden zeitgenössischen Stil neu. ";
+                    x.FullDescription = "<p>Die Transocean Chronograph interpretiert die sachliche Ästhetik klassischer Chronografen der 1950er- und 1960er-Jahre in einem entschieden zeitgenössischen Stil neu. In ihrem auf das Wesentliche reduzierten, formschönen Gehäuse arbeitet das vollständig in den Breitling-Ateliers konzipierte und hergestellte Hochleistungskaliber 01.</p><p></p><table>  <tbody>    <tr>      <td style='width: 162px;'>Kaliber      </td>      <td style='width: 205px;'>Breitling 01 (Manufakturkaliber)      </td>    </tr>    <tr>      <td style='width: 162px;'>Werk      </td>      <td style='width: 205px;'>Mechanisch, Automatikaufzug      </td>    </tr>    <tr>      <td style='width: 162px;'>Gangreserve      </td>      <td style='width: 205px;'>Min. 70 Stunden      </td>    </tr>    <tr>      <td style='width: 162px;'>Chronograf      </td>      <td style='width: 205px;'>1/4-Sekunde, 30 Minuten, 12 Stunden      </td>    </tr>    <tr>      <td style='width: 162px;'>Halbschwingungen      </td>      <td style='width: 205px;'>28 800 a/h      </td>    </tr>    <tr>      <td style='width: 162px;'>Rubine      </td>      <td style='width: 205px;'>47 Rubine      </td>    </tr>    <tr>      <td style='width: 162px;'>Kalender      </td>      <td style='width: 205px;'>Fenster      </td>    </tr>  </tbody></table>";
+                    //x.Price = 479.00M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+
+                #endregion productTRANSOCEANCHRONOGRAPH
+
+                #region productTissotTTouchExpertSolar 
+                .Alter("Tissot T-Touch Expert Solar", x =>
+                {
+                    //x.Name = "TRANSOCEAN CHRONOGRAPH";
+                    x.ShortDescription = "Der Strahlenkranz der Tissot T-Touch Expert Solar auf dem Zifferblatt sorgt einerseits dafür, dass die mit Super-LumiNova® beschichteten Indexe und Zeiger im Dunkeln leuchten und lädt andererseits den Akku der Uhr. Dieses Modell ist in jeder Beziehung ein Kraftpaket.";
+                    x.FullDescription = "<p>Der T-Touch Expert Solar ist ein wichtiges neues Modell im Tissot Sortiment.</p><p>Tissots Pioniergeist ist das, was 1999 zur Schaffung von taktilen Uhren geführt hat.</p><p>Heute ist es der erste, der eine Touchscreen-Uhr mit Sonnenenergie präsentiert und seine Position als Marktführer in der taktilen Technologie in der Uhrmacherei bestätigt.</p><p>Extrem gut entworfen, zeigt es saubere Linien in Sport und zeitlose Stücke.</p><p>Angetrieben von Solarenergie mit 25 Features wie Wettervorhersage, Höhenmesser, zweite Zeitzone und Kompass ist es der perfekte Reisebegleiter.</p>";
+                    //x.Price = 479.00M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+
+                #endregion productTRANSOCEANCHRONOGRAPH
+
+                #region productSeikoSRPA49K1 
+                .Alter("Seiko Mechanical Automatic SRPA49K1", x =>
+                {
+                    x.Name = "Seiko Automatikuhr SRPA49K1";
+                    x.ShortDescription = "Der perfekte Begleiter für den Alltag! Die formschöne Automatikuhr besticht durch ansprechendes Design und ergänzt stilvoll nahezu jedes Outfit.";
+                    x.FullDescription = "<p><strong>Seiko 5 Sport Automatikuhr SRPA49K1 SRPA49</strong></p><p></p><ul>  <li>Unidirektionale drehbare Lünette</li>  <li>Tages- und Datumsanzeige</li>  <li>Siehe durch Fall zurück</li>  <li>100M Wasserresistenz</li>  <li>Edelstahlgehäuse</li>  <li>Automatische Bewegung</li>  <li>24 Juwelen</li>  <li>Kaliber: 4R36</li></ul>";
+                    //x.Price = 479.00M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+
+                #endregion productSeikoSRPA49K1
+
                 #endregion watches
 
-				#region gaming
+                #region gaming
 
-				.Alter("Playstation 3 Super Slim", x =>
+                .Alter("Playstation 3 Super Slim", x =>
 				{
 					x.ShortDescription = "Die Sony PlayStation 3 ist die Multi-Media-Console für die nächste Generation digitalem Home-Entertainment. Mit der Blu-Ray-Technologie genießen Sie Filme in HD.";
 					x.FullDescription = ps3FullDescription;
@@ -3455,6 +3850,7 @@ namespace SmartStore.Web.Infrastructure.Installation
 				#endregion gaming
 
 				AlterFashionProducts(entities);
+				AlterFurnitureProducts(entities);
 			}
             catch (Exception ex)
             {

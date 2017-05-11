@@ -4720,15 +4720,9 @@ namespace SmartStore.Data.Setup
 							   {
 									new ProductTemplate
 									{
-										Name = "Simple product",
-										ViewPath = "ProductTemplate.Simple",
+										Name = "Default Product Template",
+										ViewPath = "Product",
 										DisplayOrder = 10
-									},
-									new ProductTemplate
-									{
-										Name = "Grouped product",
-										ViewPath = "ProductTemplate.Grouped",
-										DisplayOrder = 100
 									}
 							   };
 			this.Alter(entities);
@@ -5227,7 +5221,7 @@ namespace SmartStore.Data.Setup
 			});
 			sa8.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
 			{
-				Name = "aluminum",
+				Name = "aluminium",
 				DisplayOrder = 4,
 			});
 
@@ -5253,6 +5247,27 @@ namespace SmartStore.Data.Setup
             {
                 Name = "ceramic",
                 DisplayOrder = 8,
+            });
+
+			sa8.SpecificationAttributeOptions.Add(new SpecificationAttributeOption
+			{
+				Name = "cotton",
+				DisplayOrder = 9,
+			});
+			sa8.SpecificationAttributeOptions.Add(new SpecificationAttributeOption
+			{
+				Name = "100% organic cotton",
+				DisplayOrder = 10,
+			});
+			sa8.SpecificationAttributeOptions.Add(new SpecificationAttributeOption
+			{
+				Name = "polyamide",
+				DisplayOrder = 11,
+			});
+            sa8.SpecificationAttributeOptions.Add(new SpecificationAttributeOption
+            {
+                Name = "rubber",
+                DisplayOrder = 12,
             });
 
             #endregion sa8 material
@@ -5673,6 +5688,21 @@ namespace SmartStore.Data.Setup
             {
                 Name = "Breitling",
                 DisplayOrder = 18,
+            });
+            sa20.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
+            {
+                Name = "Adidas",
+                DisplayOrder = 19,
+            });
+            sa20.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
+            {
+                Name = "Nike",
+                DisplayOrder = 20,
+            });
+            sa20.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
+            {
+                Name = "Puma",
+                DisplayOrder = 21,
             });
 
             #endregion sa20 manufacturer
@@ -6132,8 +6162,53 @@ namespace SmartStore.Data.Setup
 				{
 					Name = "Length",
 					Alias = "length"
-				}
-			};
+				},
+				new ProductAttribute
+				{
+					Name = "Plate",
+					Alias = "plate"
+				},
+				new ProductAttribute
+				{
+					Name = "Plate Thickness",
+					Alias = "plate-thickness"
+				},		
+                new ProductAttribute
+                {
+                    Name = "Ballsize",
+                    Alias = "ballsize"
+				},
+				new ProductAttribute
+				{
+					Name = "Leather color",
+					Alias = "leather-color"
+				},
+				new ProductAttribute
+				{
+					Name = "Seat Shell",
+					Alias = "seat-shell"
+				},
+				new ProductAttribute
+				{
+					Name = "Base",
+					Alias = "base"
+				},
+				new ProductAttribute
+				{
+					Name = "Material",
+					Alias = "material"
+				},
+				new ProductAttribute
+				{
+					Name = "Style",
+					Alias = "style"
+				},
+                new ProductAttribute
+                {
+                    Name = "Controller",
+                    Alias = "controller"
+                }
+            };
 
 			this.Alter(entities);
 			return entities;
@@ -6194,13 +6269,44 @@ namespace SmartStore.Data.Setup
 		{
 			var entities = new List<ProductVariantAttribute>();
 			var attrColor = _ctx.Set<ProductAttribute>().First(x => x.Alias == "color");
-			var attrSize = _ctx.Set<ProductAttribute>().First(x => x.Alias == "size");
+            var attrController = _ctx.Set<ProductAttribute>().First(x => x.Alias == "controller");
+            var attrSize = _ctx.Set<ProductAttribute>().First(x => x.Alias == "size");
 			var attrGames = _ctx.Set<ProductAttribute>().First(x => x.Alias == "game");
-			var attrMemoryCapacity = _ctx.Set<ProductAttribute>().First(x => x.Alias == "memory-capacity");
+            var attrBallsize = _ctx.Set<ProductAttribute>().First(x => x.Alias == "ballsize");
+            var attrMemoryCapacity = _ctx.Set<ProductAttribute>().First(x => x.Alias == "memory-capacity");
 			var attrIphoneColor = _ctx.Set<ProductAttribute>().First(x => x.Alias == "iphone-color");
             var attr97iPadColor = _ctx.Set<ProductAttribute>().First(x => x.Alias == "ipad-color");
 			var attrWidth = _ctx.Set<ProductAttribute>().First(x => x.Alias == "width");
 			var attrLength = _ctx.Set<ProductAttribute>().First(x => x.Alias == "length");
+			var attrPlate = _ctx.Set<ProductAttribute>().First(x => x.Alias == "plate");
+			var attrPlateThickness = _ctx.Set<ProductAttribute>().First(x => x.Alias == "plate-thickness");
+			var attrLeatherColor = _ctx.Set<ProductAttribute>().First(x => x.Alias == "leather-color");
+			var attrSeatShell = _ctx.Set<ProductAttribute>().First(x => x.Alias == "seat-shell");
+			var attrBase = _ctx.Set<ProductAttribute>().First(x => x.Alias == "base");
+			var attrMaterial = _ctx.Set<ProductAttribute>().First(x => x.Alias == "material");
+
+			var generalColors = new[]
+			{
+				new { Name = "Black", Color = "#000000" },
+				new { Name = "White", Color = "#ffffff" },
+				new { Name = "Anthracite", Color = "#32312f" },
+				new { Name = "Fuliginous", Color = "#5F5B5C" },
+				new { Name = "Light grey", Color = "#e3e3e5" },
+				new { Name = "Natural", Color = "#BBB98B" },
+				new { Name = "Biscuit", Color = "#e0ccab" },
+				new { Name = "Beige", Color = "#d1bc8a" },
+				new { Name = "Hazelnut", Color = "#94703e" },
+				new { Name = "Brown", Color = "#755232" },
+				new { Name = "Dark brown", Color = "#27160F" },
+				new { Name = "Dark green", Color = "#0a3210" },
+				new { Name = "Blue", Color = "#0000ff" },
+				new { Name = "Cognac", Color = "#e9aa1b" },
+				new { Name = "Yellow", Color = "#e6e60c" },
+				new { Name = "Orange", Color = "#ff6501" },
+				new { Name = "Tomato red", Color = "#b10101" },
+				new { Name = "Red", Color = "#fe0000" },
+				new { Name = "Dark red", Color = "#5e0000" }
+			};
 
 			#region 9,7 iPad
 
@@ -6447,88 +6553,88 @@ namespace SmartStore.Data.Setup
 
             #region iPhone
 
-            var productIphone = _ctx.Set<Product>().First(x => x.Sku == "Apple-1001");
+   //         var productIphone = _ctx.Set<Product>().First(x => x.Sku == "Apple-1001");
 
-			var attributeIphoneMemoryCapacity = new ProductVariantAttribute()
-			{
-				Product = productIphone,
-				ProductAttribute = attrMemoryCapacity,
-				IsRequired = true,
-				DisplayOrder = 1,
-				AttributeControlType = AttributeControlType.DropdownList
-			};
+			//var attributeIphoneMemoryCapacity = new ProductVariantAttribute()
+			//{
+			//	Product = productIphone,
+			//	ProductAttribute = attrMemoryCapacity,
+			//	IsRequired = true,
+			//	DisplayOrder = 1,
+			//	AttributeControlType = AttributeControlType.DropdownList
+			//};
 
-			attributeIphoneMemoryCapacity.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "16 GB",
-				Alias = "16gb",
-				IsPreSelected = true,
-				DisplayOrder = 1,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.Simple
-			});
+			//attributeIphoneMemoryCapacity.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "16 GB",
+			//	Alias = "16gb",
+			//	IsPreSelected = true,
+			//	DisplayOrder = 1,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.Simple
+			//});
 
-			attributeIphoneMemoryCapacity.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "64 GB",
-				Alias = "64gb",
-				DisplayOrder = 2,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.Simple,
-				PriceAdjustment = 100.0M
-			});
+			//attributeIphoneMemoryCapacity.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "64 GB",
+			//	Alias = "64gb",
+			//	DisplayOrder = 2,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.Simple,
+			//	PriceAdjustment = 100.0M
+			//});
 
-			attributeIphoneMemoryCapacity.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "128 GB",
-				Alias = "128gb",
-				DisplayOrder = 3,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.Simple,
-				PriceAdjustment = 200.0M
-			});
+			//attributeIphoneMemoryCapacity.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "128 GB",
+			//	Alias = "128gb",
+			//	DisplayOrder = 3,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.Simple,
+			//	PriceAdjustment = 200.0M
+			//});
 
-			entities.Add(attributeIphoneMemoryCapacity);
+			//entities.Add(attributeIphoneMemoryCapacity);
 
 
-			var attributeIphoneColor = new ProductVariantAttribute()
-			{
-				Product = productIphone,
-				ProductAttribute = attrIphoneColor,
-				IsRequired = true,
-				DisplayOrder = 2,
-				AttributeControlType = AttributeControlType.DropdownList
-			};
+			//var attributeIphoneColor = new ProductVariantAttribute()
+			//{
+			//	Product = productIphone,
+			//	ProductAttribute = attrIphoneColor,
+			//	IsRequired = true,
+			//	DisplayOrder = 2,
+			//	AttributeControlType = AttributeControlType.DropdownList
+			//};
 
-			attributeIphoneColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "Silver",
-				Alias = "silver",
-				IsPreSelected = true,
-				DisplayOrder = 1,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.Simple
-			});
+			//attributeIphoneColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "Silver",
+			//	Alias = "silver",
+			//	IsPreSelected = true,
+			//	DisplayOrder = 1,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.Simple
+			//});
 
-			attributeIphoneColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "Gold",
-				Alias = "gold",
-				DisplayOrder = 2,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.Simple
-			});
+			//attributeIphoneColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "Gold",
+			//	Alias = "gold",
+			//	DisplayOrder = 2,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.Simple
+			//});
 
-			attributeIphoneColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "Space gray",
-				Alias = "spacegray",
-				DisplayOrder = 3,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.Simple
-			});
+			//attributeIphoneColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "Space gray",
+			//	Alias = "spacegray",
+			//	DisplayOrder = 3,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.Simple
+			//});
 
-			entities.Add(attributeIphoneColor);
+			//entities.Add(attributeIphoneColor);
 
 			#endregion iPhone
 
@@ -6539,16 +6645,16 @@ namespace SmartStore.Data.Setup
 			var attributeDualshock3ControllerColor = new ProductVariantAttribute()
 			{
 				Product = productPs3,
-				ProductAttribute = attrColor,
+				ProductAttribute = attrController,
 				IsRequired = true,
 				DisplayOrder = 1,
-				AttributeControlType = AttributeControlType.DropdownList
+				AttributeControlType = AttributeControlType.RadioList
 			};
 
 			attributeDualshock3ControllerColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
 			{
-				Name = "Black",
-				Alias = "black",
+				Name = "without controller",
+				Alias = "without_controller",
 				IsPreSelected = true,
 				DisplayOrder = 1,
 				Quantity = 1,
@@ -6557,9 +6663,9 @@ namespace SmartStore.Data.Setup
 
 			attributeDualshock3ControllerColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
 			{
-				Name = "White",
-				Alias = "white",
-				PriceAdjustment = 10.0M,
+				Name = "whith controller",
+				Alias = "with_controller",
+				PriceAdjustment = 60.0M,
 				DisplayOrder = 2,
 				Quantity = 1,
 				ValueType = ProductVariantAttributeValueType.Simple
@@ -6567,121 +6673,206 @@ namespace SmartStore.Data.Setup
 
 			entities.Add(attributeDualshock3ControllerColor);
 
-			#endregion attributeDualshock3ControllerColor
+            #endregion attributeDualshock3ControllerColor
 
-			#region attributePs3OneGameFree
+            #region attribute  Apple Airpod
 
-			var productPs3OneGameFree = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS310111");
+            var productAirpod = _ctx.Set<Product>().First(x => x.Sku == "P-2003");
 
-			var attributePs3OneGameFree = new ProductVariantAttribute()
-			{
-				Product = productPs3OneGameFree,
-				ProductAttribute = attrGames,
-				IsRequired = true,
-				DisplayOrder = 1,
-				AttributeControlType = AttributeControlType.DropdownList
-			};
+            var attributeAirpod = new ProductVariantAttribute()
+            {
+                Product = productAirpod,
+                ProductAttribute = attrColor,
+                IsRequired = true,
+                DisplayOrder = 1,
+                AttributeControlType = AttributeControlType.Boxes
+            };
 
-			attributePs3OneGameFree.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "Assassin's Creed III",
-				Alias = "assassins-creed-3",
-				DisplayOrder = 1,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.ProductLinkage,
-				LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-acreed3").Id
-			});
+            attributeAirpod.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+            {
+                Name = "Gold",
+                Alias = "gold",
+                DisplayOrder = 1,
+                Quantity = 1,
+                Color = "#e3d0ba",
+                ValueType = ProductVariantAttributeValueType.Simple,
+                PriceAdjustment = 5.00M
+                //LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-acreed3").Id
+            });
 
-			attributePs3OneGameFree.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "Watch Dogs",
-				Alias = "watch-dogs",
-				DisplayOrder = 2,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.ProductLinkage,
-				LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-watchdogs").Id
-			});
+            attributeAirpod.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+            {
+                Name = "Rose",
+                Alias = "rose",
+                DisplayOrder = 2,
+                Quantity = 1,
+                Color = "#d9a6ad",
+                ValueType = ProductVariantAttributeValueType.Simple,
+                PriceAdjustment = 10.00M,
+                //LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-watchdogs").Id
+            });
 
-			attributePs3OneGameFree.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "Prince of Persia \"The Forgotten Sands\"",
-				Alias = "prince-of-persia-the-forgotten-sands",
-				DisplayOrder = 3,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.ProductLinkage,
-				LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-princepersia").Id
-			});
+            attributeAirpod.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+            {
+                Name = "Mint",
+                Alias = "mint",
+                DisplayOrder = 3,
+                Quantity = 1,
+                Color= "#a6dbb1",
+                ValueType = ProductVariantAttributeValueType.Simple,
+                PriceAdjustment = 15.00M
+                //LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-princepersia").Id
+            });
 
-			attributePs3OneGameFree.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
-			{
-				Name = "Driver San Francisco",
-				Alias = "driver-san-francisco",
-				DisplayOrder = 4,
-				Quantity = 1,
-				ValueType = ProductVariantAttributeValueType.ProductLinkage,
-				LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-driversanfrancisco").Id
-			});
+            attributeAirpod.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+            {
+                Name = "Lightblue",
+                Alias = "lightblue",
+                DisplayOrder = 3,
+                Quantity = 1,
+                Color = "#a6b9df",
+                ValueType = ProductVariantAttributeValueType.Simple,
+                PriceAdjustment = 15.00M
+                //LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-princepersia").Id
+            });
 
-			entities.Add(attributePs3OneGameFree);
+            attributeAirpod.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+            {
+                Name = "Turquoise",
+                Alias = "turquoise",
+                DisplayOrder = 3,
+                Quantity = 1,
+                Color = "#a4dbde",
+                ValueType = ProductVariantAttributeValueType.Simple,
+                PriceAdjustment = 15.00M
+                //LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-princepersia").Id
+            });
+
+            attributeAirpod.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+            {
+                Name = "White",
+                Alias = "white",
+                DisplayOrder = 3,
+                Quantity = 1,
+                Color = "#ffffff",
+                IsPreSelected = true,
+                ValueType = ProductVariantAttributeValueType.Simple,
+                PriceAdjustment = 15.00M
+                //LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-princepersia").Id
+            });
+
+            entities.Add(attributeAirpod);
+
+            #endregion attribute Apple Airpod
+
+            #region attribute Evopower 5.3 Trainer HS Ball
+
+            var productEvopower = _ctx.Set<Product>().First(x => x.Sku == "P-5003");
+
+            var attributeEvopower = new ProductVariantAttribute()
+            {
+                Product = productEvopower,
+                ProductAttribute = attrBallsize,
+                IsRequired = true,
+                DisplayOrder = 1,
+                AttributeControlType = AttributeControlType.RadioList
+            };
+
+            attributeEvopower.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+            {
+                Name = "3",
+                Alias = "ballsize-3",
+                DisplayOrder = 1,
+                Quantity = 1,
+                ValueType = ProductVariantAttributeValueType.Simple,
+                PriceAdjustment = 5.00M
+                //LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-acreed3").Id
+            });
+
+            attributeEvopower.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+            {
+                Name = "4",
+                Alias = "ballsize-4",
+                DisplayOrder = 2,
+                Quantity = 1,
+                ValueType = ProductVariantAttributeValueType.Simple,
+                PriceAdjustment = 10.00M,
+                IsPreSelected = true
+                //LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-watchdogs").Id
+            });
+
+            attributeEvopower.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+            {
+                Name = "5",
+                Alias = "ballsize-5",
+                DisplayOrder = 3,
+                Quantity = 1,
+                ValueType = ProductVariantAttributeValueType.Simple,
+                PriceAdjustment = 15.00M
+                //LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-princepersia").Id
+            });
+
+            
+            entities.Add(attributeEvopower);
+
+            #endregion attribute Evopower 5.3 Trainer HS Ball
+
+            #region attributePs3OneGameFree
+
+   //         var productPs3OneGameFree = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS310111");
+
+			//var attributePs3OneGameFree = new ProductVariantAttribute()
+			//{
+			//	Product = productPs3OneGameFree,
+			//	ProductAttribute = attrGames,
+			//	IsRequired = true,
+			//	DisplayOrder = 1,
+			//	AttributeControlType = AttributeControlType.DropdownList
+			//};
+
+			//attributePs3OneGameFree.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "Minecraft - Playstation 4 Edition",
+			//	Alias = "minecraft-playstation4edition",
+			//	DisplayOrder = 1,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.ProductLinkage,
+			//	LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "PD-Minecraft4ps4").Id
+			//});
+
+			//attributePs3OneGameFree.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "Watch Dogs",
+			//	Alias = "watch-dogs",
+			//	DisplayOrder = 2,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.ProductLinkage,
+			//	LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Ubi-watchdogs").Id
+			//});
+
+			//attributePs3OneGameFree.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "Horizon Zero Dawn - PlayStation 4",
+			//	Alias = "horizon-zero-dawn-playStation-4",
+			//	DisplayOrder = 3,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.ProductLinkage,
+			//	LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "PD-ZeroDown4PS4").Id
+			//});
+
+			//attributePs3OneGameFree.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue()
+			//{
+			//	Name = "LEGO Worlds - PlayStation 4",
+   //             Alias = "lego-worlds-playstation_4",
+			//	DisplayOrder = 4,
+			//	Quantity = 1,
+			//	ValueType = ProductVariantAttributeValueType.ProductLinkage,
+			//	LinkedProductId = _ctx.Set<Product>().First(x => x.Sku == "Gaming-Lego-001").Id
+			//});
+
+			//entities.Add(attributePs3OneGameFree);
 
 			#endregion attributePs3OneGameFree
-
-			#region Fashion - Men’s T
-
-			var productMensShirt = _ctx.Set<Product>().First(x => x.Sku == "Fashion-112345");
-
-			var attrMensShirtSize = new ProductVariantAttribute
-			{
-				Product = productMensShirt,
-				ProductAttribute = attrSize,
-				IsRequired = true,
-				DisplayOrder = 1,
-				AttributeControlType = AttributeControlType.RadioList
-			};
-			attrMensShirtSize.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
-			{
-				Name = "M",
-				Alias = "medium",
-				DisplayOrder = 1,
-				Quantity = 1
-			});
-			attrMensShirtSize.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
-			{
-				Name = "L",
-				Alias = "large",
-				DisplayOrder = 2,
-				Quantity = 1
-			});
-			entities.Add(attrMensShirtSize);
-
-			var attrMensShirtColor = new ProductVariantAttribute
-			{
-				Product = productMensShirt,
-				ProductAttribute = attrColor,
-				IsRequired = true,
-				DisplayOrder = 2,
-				AttributeControlType = AttributeControlType.Boxes
-			};
-			attrMensShirtColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
-			{
-				Name = "Red",
-				Alias = "red",
-				DisplayOrder = 1,
-				Quantity = 1,
-				Color = "#e81010",
-				IsPreSelected = true
-			});
-			attrMensShirtColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
-			{
-				Name = "Gray",
-				Alias = "gray",
-				DisplayOrder = 2,
-				Quantity = 1,
-				Color = "#cfcfcf"
-			});
-			entities.Add(attrMensShirtColor);
-
-			#endregion
 
 			#region Fashion - Converse All Star
 
@@ -6914,6 +7105,374 @@ namespace SmartStore.Data.Setup
 				});
 			}
 			entities.Add(attrClarkJeansLength);
+            
+            #endregion Fashion - Clark Jeans
+
+            #region Furniture - Le Corbusier LC 6 table
+
+            var productCorbusierTable = _ctx.Set<Product>().First(x => x.Sku == "Furniture-lc6");
+
+			var attrCorbusierTablePlate = new ProductVariantAttribute
+			{
+				Product = productCorbusierTable,
+				ProductAttribute = attrPlate,
+				IsRequired = true,
+				DisplayOrder = 1,
+				AttributeControlType = AttributeControlType.Boxes
+			};
+			attrCorbusierTablePlate.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Clear glass",
+				Alias = "clear-glass",
+				DisplayOrder = 1,
+				Quantity = 1,
+				IsPreSelected = true
+			});
+			attrCorbusierTablePlate.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Sandblasted glass",
+				Alias = "sandblasted-glass",
+				DisplayOrder = 2,
+				Quantity = 1
+			});
+			entities.Add(attrCorbusierTablePlate);
+
+			var attrCorbusierTableThickness = new ProductVariantAttribute
+			{
+				Product = productCorbusierTable,
+				ProductAttribute = attrPlateThickness,
+				IsRequired = true,
+				DisplayOrder = 2,
+				AttributeControlType = AttributeControlType.Boxes
+			};
+			attrCorbusierTableThickness.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "15 mm",
+				Alias = "15mm",
+				DisplayOrder = 1,
+				Quantity = 1,
+				IsPreSelected = true
+			});
+			attrCorbusierTableThickness.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "19 mm",
+				Alias = "19mm",
+				DisplayOrder = 2,
+				Quantity = 1
+			});
+			entities.Add(attrCorbusierTableThickness);
+
+			#endregion
+
+            #region Soccer Adidas TANGO SALA BALL
+
+            var productAdidasTANGOSALABALL = _ctx.Set<Product>().First(x => x.Sku == "P-5001");
+            var productAdidasTANGOSALABALLSizes = new string[] { "3", "4", "5" };
+            var productAdidasTANGOSALABALLColors = new[]
+            {
+                new { Color = "Red", Code = "#ff0000" },
+                new { Color = "Yellow", Code = " #ffff00" },
+                new { Color = "Green", Code = "#008000" },
+                new { Color = "Blue", Code = "#0000ff" },
+                new { Color = "Gray", Code = "#808080" },
+                new { Color = "White", Code = "#ffffff" },
+                new { Color = "Brown", Code = "#a52a2a" }
+            };
+
+            var attrAdidasTANGOSALABALLColor = new ProductVariantAttribute
+            {
+                Product = productAdidasTANGOSALABALL,
+                ProductAttribute = attrColor,
+                IsRequired = true,
+                DisplayOrder = 1,
+                AttributeControlType = AttributeControlType.Boxes
+            };
+
+            for (var i = 0; i < productAdidasTANGOSALABALLColors.Length; ++i)
+            {
+                attrAdidasTANGOSALABALLColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+                {
+                    Name = productAdidasTANGOSALABALLColors[i].Color,
+                    Alias = productAdidasTANGOSALABALLColors[i].Color.ToLower(),
+                    DisplayOrder = i + 1,
+                    Quantity = 1,
+                    Color = productAdidasTANGOSALABALLColors[i].Code,
+                    IsPreSelected = productAdidasTANGOSALABALLColors[i].Color == "White"
+                });
+            }
+            entities.Add(attrAdidasTANGOSALABALLColor);
+
+            var attrAdidasTANGOSALABALLSize = new ProductVariantAttribute
+            {
+                Product = productAdidasTANGOSALABALL,
+                ProductAttribute = attrSize,
+                IsRequired = true,
+                DisplayOrder = 2,
+                AttributeControlType = AttributeControlType.RadioList
+            };
+
+            for (var i = 0; i < productAdidasTANGOSALABALLSizes.Length; ++i)
+            {
+                attrAdidasTANGOSALABALLSize.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+                {
+                    Name = productAdidasTANGOSALABALLSizes[i],
+                    Alias = productAdidasTANGOSALABALLSizes[i].ToLower(),
+                    DisplayOrder = i + 1,
+                    Quantity = 1,
+                    IsPreSelected = productAdidasTANGOSALABALLSizes[i] == "5"
+                });
+            }
+            entities.Add(attrAdidasTANGOSALABALLSize);
+
+            #endregion Soccer Adidas TANGO SALA BALL
+
+            #region Torfabrik official game ball
+
+            var productTorfabrikBall = _ctx.Set<Product>().First(x => x.Sku == "P-5002");
+            var productTorfabrikBallSizes = new string[] { "3", "4", "5" };
+            var productTorfabrikBallColors = new[]
+            {
+                new { Color = "Red", Code = "#ff0000" },
+                new { Color = "Yellow", Code = " #ffff00" },
+                new { Color = "Green", Code = "#008000" },
+                new { Color = "Blue", Code = "#0000ff" },
+                new { Color = "White", Code = "#ffffff" },
+            };
+
+            var attrTorfabrikBallColor = new ProductVariantAttribute
+            {
+                Product = productTorfabrikBall,
+                ProductAttribute = attrColor,
+                IsRequired = true,
+                DisplayOrder = 1,
+                AttributeControlType = AttributeControlType.Boxes
+            };
+
+            for (var i = 0; i < productTorfabrikBallColors.Length; ++i)
+            {
+                attrTorfabrikBallColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+                {
+                    Name = productTorfabrikBallColors[i].Color,
+                    Alias = productTorfabrikBallColors[i].Color.ToLower(),
+                    DisplayOrder = i + 1,
+                    Quantity = 1,
+                    Color = productTorfabrikBallColors[i].Code,
+                    IsPreSelected = productTorfabrikBallColors[i].Color == "White"
+                });
+            }
+            entities.Add(attrTorfabrikBallColor);
+
+            var attrTorfabrikSize = new ProductVariantAttribute
+            {
+                Product = productTorfabrikBall,
+                ProductAttribute = attrSize,
+                IsRequired = true,
+                DisplayOrder = 2,
+                AttributeControlType = AttributeControlType.RadioList
+            };
+
+            for (var i = 0; i < productTorfabrikBallSizes.Length; ++i)
+            {
+                attrTorfabrikSize.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+                {
+                    Name = productTorfabrikBallSizes[i],
+                    Alias = productTorfabrikBallSizes[i].ToLower(),
+                    DisplayOrder = i + 1,
+                    Quantity = 1,
+                    IsPreSelected = productTorfabrikBallSizes[i] == "5"
+                });
+            }
+            entities.Add(attrTorfabrikSize);
+
+            #endregion Soccer Torfabrik official game ball
+
+			#region Furniture - Ball chair
+
+			var productBallChair = _ctx.Set<Product>().First(x => x.Sku == "Furniture-ball-chair");
+
+			var attrBallChairMaterial = new ProductVariantAttribute
+			{
+				Product = productBallChair,
+				ProductAttribute = attrMaterial,
+				IsRequired = true,
+				DisplayOrder = 1,
+				AttributeControlType = AttributeControlType.DropdownList
+			};
+			attrBallChairMaterial.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Leather Special",
+				Alias = "leather-special",
+				DisplayOrder = 1,
+				Quantity = 1,
+				IsPreSelected = true
+			});
+			attrBallChairMaterial.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Leather Aniline",
+				Alias = "leather-aniline",
+				DisplayOrder = 2,
+				Quantity = 1
+			});
+			attrBallChairMaterial.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Mixed Linen",
+				Alias = "mixed-linen",
+				DisplayOrder = 3,
+				Quantity = 1
+			});
+			entities.Add(attrBallChairMaterial);
+
+			var attrBallChairColor = new ProductVariantAttribute
+			{
+				Product = productBallChair,
+				ProductAttribute = attrColor,
+				IsRequired = true,
+				DisplayOrder = 2,
+				AttributeControlType = AttributeControlType.Boxes
+			};
+			attrBallChairColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "White",
+				Alias = "white",
+				DisplayOrder = 1,
+				Quantity = 1,
+				IsPreSelected = true
+			});
+			attrBallChairColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Black",
+				Alias = "black",
+				DisplayOrder = 2,
+				Quantity = 1
+			});
+			entities.Add(attrBallChairColor);
+
+			var attrBallChairLeatherColor = new ProductVariantAttribute
+			{
+				Product = productBallChair,
+				ProductAttribute = attrLeatherColor,
+				IsRequired = true,
+				DisplayOrder = 3,
+				AttributeControlType = AttributeControlType.Boxes
+			};
+
+			for (var i = 0; i < generalColors.Length; ++i)
+			{
+				attrBallChairLeatherColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+				{
+					Name = generalColors[i].Name,
+					Alias = generalColors[i].Name.Replace(" ", "-").ToLower(),
+					DisplayOrder = i + 1,
+					Quantity = 1,
+					Color = generalColors[i].Color,
+					IsPreSelected = (generalColors[i].Name == "Tomato red")
+				});
+			}
+			entities.Add(attrBallChairLeatherColor);
+
+			#endregion
+
+			#region Furniture - Lounge chair
+
+			var productLoungeChair = _ctx.Set<Product>().First(x => x.Sku == "Furniture-lounge-chair");
+
+			var attrLoungeChairMaterial = new ProductVariantAttribute
+			{
+				Product = productLoungeChair,
+				ProductAttribute = attrMaterial,
+				IsRequired = true,
+				DisplayOrder = 1,
+				AttributeControlType = AttributeControlType.DropdownList
+			};
+			attrLoungeChairMaterial.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Leather Special",
+				Alias = "leather-special",
+				DisplayOrder = 1,
+				Quantity = 1,
+				IsPreSelected = true
+			});
+			attrLoungeChairMaterial.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Leather Aniline",
+				Alias = "leather-aniline",
+				DisplayOrder = 2,
+				Quantity = 1
+			});
+			entities.Add(attrLoungeChairMaterial);
+
+			var loungeChairSeatShells = new string[] { "Palisander", "Cherry", "Walnut", "Wooden black lacquered" };
+			var attrLoungeChairSeatShell = new ProductVariantAttribute
+			{
+				Product = productLoungeChair,
+				ProductAttribute = attrSeatShell,
+				IsRequired = true,
+				DisplayOrder = 2,
+				AttributeControlType = AttributeControlType.DropdownList
+			};
+
+			for (var i = 0; i < loungeChairSeatShells.Length; ++i)
+			{
+				attrLoungeChairSeatShell.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+				{
+					Name = loungeChairSeatShells[i],
+					Alias = loungeChairSeatShells[i].Replace(" ", "-").ToLower(),
+					DisplayOrder = i + 1,
+					Quantity = 1,
+					IsPreSelected = (i == 0),
+					PriceAdjustment = (loungeChairSeatShells[i] == "Wooden black lacquered" ? 100.00M : decimal.Zero)
+				});
+			}
+			entities.Add(attrLoungeChairSeatShell);
+
+			var attrLoungeChairBase = new ProductVariantAttribute
+			{
+				Product = productLoungeChair,
+				ProductAttribute = attrBase,
+				IsRequired = true,
+				DisplayOrder = 3,
+				AttributeControlType = AttributeControlType.DropdownList
+			};
+			attrLoungeChairBase.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Top edge polished",
+				Alias = "top-edge-polished",
+				DisplayOrder = 1,
+				Quantity = 1,
+				IsPreSelected = true
+			});
+			attrLoungeChairBase.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+			{
+				Name = "Completely polished",
+				Alias = "completely-polished",
+				DisplayOrder = 2,
+				Quantity = 1,
+				PriceAdjustment = 150.00M
+			});
+			entities.Add(attrLoungeChairBase);
+
+			var attrLoungeChairColor = new ProductVariantAttribute
+			{
+				Product = productLoungeChair,
+				ProductAttribute = attrColor,
+				IsRequired = true,
+				DisplayOrder = 4,
+				AttributeControlType = AttributeControlType.Boxes
+			};
+
+			for (var i = 0; i < generalColors.Length; ++i)
+			{
+				attrLoungeChairColor.ProductVariantAttributeValues.Add(new ProductVariantAttributeValue
+				{
+					Name = generalColors[i].Name,
+					Alias = generalColors[i].Name.Replace(" ", "-").ToLower(),
+					DisplayOrder = i + 1,
+					Quantity = 1,
+					Color = generalColors[i].Color,
+					IsPreSelected = (generalColors[i].Name == "White")
+				});
+			}
+			entities.Add(attrLoungeChairColor);
 
 			#endregion
 
@@ -6926,44 +7485,123 @@ namespace SmartStore.Data.Setup
 			var sb = new StringBuilder();
 			var entities = new List<ProductVariantAttributeCombination>();
 			var attrColor = _ctx.Set<ProductAttribute>().First(x => x.Alias == "color");
-			var attrSize = _ctx.Set<ProductAttribute>().First(x => x.Alias == "size");
+            var attrController = _ctx.Set<ProductAttribute>().First(x => x.Alias == "controller");
+            var attrSize = _ctx.Set<ProductAttribute>().First(x => x.Alias == "size");
             var attrMemoryCapacity = _ctx.Set<ProductAttribute>().First(x => x.Alias == "memory-capacity");
             var attrColorIphoneColors = _ctx.Set<ProductAttribute>().First(x => x.Alias == "iphone-color");
             var attr97iPadColors = _ctx.Set<ProductAttribute>().First(x => x.Alias == "ipad-color");
+			var attrPlate = _ctx.Set<ProductAttribute>().First(x => x.Alias == "plate");
+			var attrPlateThickness = _ctx.Set<ProductAttribute>().First(x => x.Alias == "plate-thickness");
+			var attrMaterial = _ctx.Set<ProductAttribute>().First(x => x.Alias == "material");
+			var attrLeatherColor = _ctx.Set<ProductAttribute>().First(x => x.Alias == "leather-color");
+			var attrSeatShell = _ctx.Set<ProductAttribute>().First(x => x.Alias == "seat-shell");
+			var attrBase = _ctx.Set<ProductAttribute>().First(x => x.Alias == "base");
 
+			#region ps3
 
-            #region ps3
-
-            var productPs3 = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS399000");
+			var productPs3 = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS399000");
 			var ps3PictureIds = productPs3.ProductPictures.Select(pp => pp.PictureId).ToList();
 			var picturesPs3 = _ctx.Set<Picture>().Where(x => ps3PictureIds.Contains(x.Id)).ToList();
 
-			var productAttributeColor = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productPs3.Id && x.ProductAttributeId == attrColor.Id);
+			var productAttributeColor = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productPs3.Id && x.ProductAttributeId == attrController.Id);
 			var attributeColorValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == productAttributeColor.Id).ToList();
 
 			entities.Add(new ProductVariantAttributeCombination()
 			{
 				Product = productPs3,
 				Sku = productPs3.Sku + "-B",
-				AttributesXml = FormatAttributeXml(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "black").Id),
+				AttributesXml = FormatAttributeXml(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "with_controller").Id),
 				StockQuantity = 10000,
 				AllowOutOfStockOrders = true,
 				IsActive = true,
-				AssignedPictureIds = picturesPs3.First(x => x.SeoFilename.EndsWith("-black")).Id.ToString()
+				AssignedPictureIds = picturesPs3.First(x => x.SeoFilename.EndsWith("-controller")).Id.ToString()
 			});
 
 			entities.Add(new ProductVariantAttributeCombination()
 			{
 				Product = productPs3,
 				Sku = productPs3.Sku + "-W",
-				AttributesXml = FormatAttributeXml(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "white").Id),
+				AttributesXml = FormatAttributeXml(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "without_controller").Id),
 				StockQuantity = 10000,
 				AllowOutOfStockOrders = true,
 				IsActive = true,
-				AssignedPictureIds = picturesPs3.First(x => x.SeoFilename.EndsWith("-white")).Id.ToString()
+				AssignedPictureIds = picturesPs3.First(x => x.SeoFilename.EndsWith("-single")).Id.ToString()
 			});
 
             #endregion ps3
+
+            #region Apple Airpod
+
+            var productAirpod = _ctx.Set<Product>().First(x => x.Sku == "P-2003");
+            var airpodPictureIds = productAirpod.ProductPictures.Select(pp => pp.PictureId).ToList();
+            var picturesAirpod = _ctx.Set<Picture>().Where(x => airpodPictureIds.Contains(x.Id)).ToList();
+
+            var airpodAttributeColor = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productAirpod.Id && x.ProductAttributeId == attrColor.Id);
+            var airpodAttributeColorValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == airpodAttributeColor.Id).ToList();
+
+            entities.Add(new ProductVariantAttributeCombination()
+            {
+                Product = productAirpod,
+                Sku = productAirpod.Sku + "-gold",
+                AttributesXml = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "gold").Id),
+                StockQuantity = 10000,
+                AllowOutOfStockOrders = true,
+                IsActive = true,
+                AssignedPictureIds = picturesAirpod.First(x => x.SeoFilename.EndsWith("-gold")).Id.ToString()
+            });
+
+            entities.Add(new ProductVariantAttributeCombination()
+            {
+                Product = productAirpod,
+                Sku = productAirpod.Sku + "-rose",
+                AttributesXml = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "rose").Id),
+                StockQuantity = 10000,
+                AllowOutOfStockOrders = true,
+                IsActive = true,
+                AssignedPictureIds = picturesAirpod.First(x => x.SeoFilename.EndsWith("-rose")).Id.ToString()
+            });
+            entities.Add(new ProductVariantAttributeCombination()
+            {
+                Product = productAirpod,
+                Sku = productAirpod.Sku + "-mint",
+                AttributesXml = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "mint").Id),
+                StockQuantity = 10000,
+                AllowOutOfStockOrders = true,
+                IsActive = true,
+                AssignedPictureIds = picturesAirpod.First(x => x.SeoFilename.EndsWith("-mint")).Id.ToString()
+            });
+            entities.Add(new ProductVariantAttributeCombination()
+            {
+                Product = productAirpod,
+                Sku = productAirpod.Sku + "-lightblue",
+                AttributesXml = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "lightblue").Id),
+                StockQuantity = 10000,
+                AllowOutOfStockOrders = true,
+                IsActive = true,
+                AssignedPictureIds = picturesAirpod.First(x => x.SeoFilename.EndsWith("-lightblue")).Id.ToString()
+            });
+            entities.Add(new ProductVariantAttributeCombination()
+            {
+                Product = productAirpod,
+                Sku = productAirpod.Sku + "-turquoise",
+                AttributesXml = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "turquoise").Id),
+                StockQuantity = 10000,
+                AllowOutOfStockOrders = true,
+                IsActive = true,
+                AssignedPictureIds = picturesAirpod.First(x => x.SeoFilename.EndsWith("-turquoise")).Id.ToString()
+            });
+            entities.Add(new ProductVariantAttributeCombination()
+            {
+                Product = productAirpod,
+                Sku = productAirpod.Sku + "-white",
+                AttributesXml = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "white").Id),
+                StockQuantity = 10000,
+                AllowOutOfStockOrders = true,
+                IsActive = true,
+                AssignedPictureIds = picturesAirpod.First(x => x.SeoFilename.EndsWith("-white")).Id.ToString()
+            });
+
+            #endregion Apple Airpod
 
             #region 9,7 Ipad
 
@@ -7423,69 +8061,6 @@ namespace SmartStore.Data.Setup
 
             #endregion Iphone 7 plus
 
-            #region Fashion - Men’s T
-
-            var productMensShirt = _ctx.Set<Product>().First(x => x.Sku == "Fashion-112345");
-			var mensShirtPictureIds = productMensShirt.ProductPictures.Select(x => x.PictureId).ToList();
-			var mensShirtPictures = _ctx.Set<Picture>().Where(x => mensShirtPictureIds.Contains(x.Id)).ToList();
-
-			var mensShirtColor = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productMensShirt.Id && x.ProductAttributeId == attrColor.Id);
-			var mensShirtColorValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == mensShirtColor.Id).ToList();
-
-			var mensShirtSize = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productMensShirt.Id && x.ProductAttributeId == attrSize.Id);
-			var mensShirtSizeValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == mensShirtSize.Id).ToList();
-
-			entities.Add(new ProductVariantAttributeCombination
-			{
-				Product = productMensShirt,
-				Sku = productMensShirt.Sku + "-red-m",
-				AttributesXml = FormatAttributeXml(
-					mensShirtColor.Id, mensShirtColorValues.First(x => x.Alias == "red").Id,
-					mensShirtSize.Id, mensShirtSizeValues.First(x => x.Alias == "medium").Id),
-				StockQuantity = 10000,
-				AllowOutOfStockOrders = true,
-				IsActive = true,
-				AssignedPictureIds = mensShirtPictures.First(x => x.SeoFilename.EndsWith("-red")).Id.ToString()
-			});
-			entities.Add(new ProductVariantAttributeCombination
-			{
-				Product = productMensShirt,
-				Sku = productMensShirt.Sku + "-red-l",
-				AttributesXml = FormatAttributeXml(
-					mensShirtColor.Id, mensShirtColorValues.First(x => x.Alias == "red").Id,
-					mensShirtSize.Id, mensShirtSizeValues.First(x => x.Alias == "large").Id),
-				StockQuantity = 10000,
-				AllowOutOfStockOrders = true,
-				IsActive = true,
-				AssignedPictureIds = mensShirtPictures.First(x => x.SeoFilename.EndsWith("-red")).Id.ToString()
-			});
-			entities.Add(new ProductVariantAttributeCombination
-			{
-				Product = productMensShirt,
-				Sku = productMensShirt.Sku + "-gray-m",
-				AttributesXml = FormatAttributeXml(
-					mensShirtColor.Id, mensShirtColorValues.First(x => x.Alias == "gray").Id,
-					mensShirtSize.Id, mensShirtSizeValues.First(x => x.Alias == "medium").Id),
-				StockQuantity = 10000,
-				AllowOutOfStockOrders = true,
-				IsActive = true,
-				AssignedPictureIds = mensShirtPictures.First(x => x.SeoFilename.EndsWith("-gray")).Id.ToString()
-			});
-			entities.Add(new ProductVariantAttributeCombination
-			{
-				Product = productMensShirt,
-				Sku = productMensShirt.Sku + "-gray-l",
-				AttributesXml = FormatAttributeXml(
-					mensShirtColor.Id, mensShirtColorValues.First(x => x.Alias == "gray").Id,
-					mensShirtSize.Id, mensShirtSizeValues.First(x => x.Alias == "large").Id),
-				StockQuantity = 10000,
-				AllowOutOfStockOrders = true,
-				IsActive = true,
-				AssignedPictureIds = mensShirtPictures.First(x => x.SeoFilename.EndsWith("-gray")).Id.ToString()
-			});
-
-			#endregion
-
 			#region Fashion - Converse All Star
 
 			var productAllStar = _ctx.Set<Product>().First(x => x.Sku == "Fashion-112355");
@@ -7654,6 +8229,238 @@ namespace SmartStore.Data.Setup
 				});
 			}
 
+            #endregion
+
+			#region Furniture - Le Corbusier LC 6 table
+
+			var productCorbusierTable = _ctx.Set<Product>().First(x => x.Sku == "Furniture-lc6");
+
+			var corbusierTablePlate = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productCorbusierTable.Id && x.ProductAttributeId == attrPlate.Id);
+			var corbusierTablePlateValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == corbusierTablePlate.Id).ToList();
+
+			var corbusierTablePlateThickness = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productCorbusierTable.Id && x.ProductAttributeId == attrPlateThickness.Id);
+			var corbusierTablePlateThicknessValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == corbusierTablePlateThickness.Id).ToList();
+
+			entities.Add(new ProductVariantAttributeCombination
+			{
+				Product = productCorbusierTable,
+				Sku = productCorbusierTable.Sku + "-clear-15",
+				AttributesXml = FormatAttributeXml(
+					corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "clear-glass").Id,
+					corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "15mm").Id),
+				StockQuantity = 10000,
+				AllowOutOfStockOrders = true,
+				IsActive = true,
+				Price = 749.00M
+			});
+			entities.Add(new ProductVariantAttributeCombination
+			{
+				Product = productCorbusierTable,
+				Sku = productCorbusierTable.Sku + "-clear-19",
+				AttributesXml = FormatAttributeXml(
+					corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "clear-glass").Id,
+					corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "19mm").Id),
+				StockQuantity = 10000,
+				AllowOutOfStockOrders = true,
+				IsActive = true,
+				Price = 899.00M
+			});
+			entities.Add(new ProductVariantAttributeCombination
+			{
+				Product = productCorbusierTable,
+				Sku = productCorbusierTable.Sku + "-sandblasted-15",
+				AttributesXml = FormatAttributeXml(
+					corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "sandblasted-glass").Id,
+					corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "15mm").Id),
+				StockQuantity = 10000,
+				AllowOutOfStockOrders = true,
+				IsActive = true,
+				Price = 849.00M
+			});
+			entities.Add(new ProductVariantAttributeCombination
+			{
+				Product = productCorbusierTable,
+				Sku = productCorbusierTable.Sku + "-sandblasted-19",
+				AttributesXml = FormatAttributeXml(
+					corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "sandblasted-glass").Id,
+					corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "19mm").Id),
+				StockQuantity = 10000,
+				AllowOutOfStockOrders = true,
+				IsActive = true,
+				Price = 999.00M
+			});
+
+			#endregion
+
+            #region Soccer Adidas TANGO SALA BALL
+
+            var productAdidasTANGOSALABALL = _ctx.Set<Product>().First(x => x.Sku == "P-5001");
+            var adidasTANGOSALABALLPictureIds = productAdidasTANGOSALABALL.ProductPictures.Select(x => x.PictureId).ToList();
+            var adidasTANGOSALABALLJacketPictures = _ctx.Set<Picture>().Where(x => adidasTANGOSALABALLPictureIds.Contains(x.Id)).ToList();
+
+            var adidasTANGOSALABALLColor = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productAdidasTANGOSALABALL.Id && x.ProductAttributeId == attrColor.Id);
+            var adidasTANGOSALABALLColorValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == adidasTANGOSALABALLColor.Id).ToList();
+
+            var adidasTANGOSALABALLSize = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productAdidasTANGOSALABALL.Id && x.ProductAttributeId == attrSize.Id);
+            var adidasTANGOSALABALLSizeValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == adidasTANGOSALABALLSize.Id).ToList();
+
+            var adidasTANGOSALABALLCombinations = new[]
+            {
+                new { Color = "Red", Size = "3" },
+                new { Color = "Red", Size = "4" },
+                new { Color = "Red", Size = "5" },
+                
+                new { Color = "Yellow", Size = "3" },
+                new { Color = "Yellow", Size = "4" },
+                new { Color = "Yellow", Size = "5" },
+               
+                new { Color = "Green", Size = "3" },
+                new { Color = "Green", Size = "4" },
+                new { Color = "Green", Size = "5" },
+                
+                new { Color = "Blue", Size = "3" },
+                new { Color = "Blue", Size = "4" },
+                new { Color = "Blue", Size = "5" },
+                
+                new { Color = "Gray", Size = "3" },
+                new { Color = "Gray", Size = "4" },
+                new { Color = "Gray", Size = "5" },
+
+                new { Color = "White", Size = "3" },
+                new { Color = "White", Size = "4" },
+                new { Color = "White", Size = "5" },
+
+                new { Color = "Brown", Size = "3" },
+                new { Color = "Brown", Size = "4" },
+                new { Color = "Brown", Size = "5" },
+
+            };
+
+            foreach (var comb in adidasTANGOSALABALLCombinations)
+            {
+                var lowerColor = comb.Color.ToLower();
+                var lowerSize = comb.Size.ToLower();
+
+                entities.Add(new ProductVariantAttributeCombination
+                {
+                    Product = productAdidasTANGOSALABALL,
+                    Sku = productAdidasTANGOSALABALL.Sku + string.Concat("-", lowerColor, "-", lowerSize),
+                    AttributesXml = FormatAttributeXml(
+                        adidasTANGOSALABALLColor.Id, adidasTANGOSALABALLColorValues.First(x => x.Alias == lowerColor).Id,
+                        adidasTANGOSALABALLSize.Id, adidasTANGOSALABALLSizeValues.First(x => x.Alias == lowerSize).Id),
+                    StockQuantity = 10000,
+                    AllowOutOfStockOrders = true,
+                    IsActive = true,
+                    AssignedPictureIds = adidasTANGOSALABALLJacketPictures.First(x => x.SeoFilename.EndsWith(lowerColor)).Id.ToString()
+                });
+            }
+
+            #endregion Soccer Adidas TANGO SALA BALL
+
+            #region Soccer Torfabrik official game ball
+
+            var productTorfabrikBall = _ctx.Set<Product>().First(x => x.Sku == "P-5002");
+            var torfabrikBallPictureIds = productTorfabrikBall.ProductPictures.Select(x => x.PictureId).ToList();
+            var torfabrikBallPictures = _ctx.Set<Picture>().Where(x => torfabrikBallPictureIds.Contains(x.Id)).ToList();
+
+            var torfabrikBallColor = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productTorfabrikBall.Id && x.ProductAttributeId == attrColor.Id);
+            var torfabrikBallColorValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == torfabrikBallColor.Id).ToList();
+
+            var torfabrikBallSize = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productTorfabrikBall.Id && x.ProductAttributeId == attrSize.Id);
+            var torfabrikBallSizeValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == torfabrikBallSize.Id).ToList();
+
+            var torfabrikBallSizeCombinations = new[]
+            {
+                new { Color = "Red", Size = "3" },
+                new { Color = "Red", Size = "4" },
+                new { Color = "Red", Size = "5" },
+
+                new { Color = "Yellow", Size = "3" },
+                new { Color = "Yellow", Size = "4" },
+                new { Color = "Yellow", Size = "5" },
+
+                new { Color = "Green", Size = "3" },
+                new { Color = "Green", Size = "4" },
+                new { Color = "Green", Size = "5" },
+
+                new { Color = "Blue", Size = "3" },
+                new { Color = "Blue", Size = "4" },
+                new { Color = "Blue", Size = "5" },
+
+                new { Color = "White", Size = "3" },
+                new { Color = "White", Size = "4" },
+                new { Color = "White", Size = "5" },
+
+            };
+
+            foreach (var comb in torfabrikBallSizeCombinations)
+            {
+                var lowerColor = comb.Color.ToLower();
+                var lowerSize = comb.Size.ToLower();
+
+                entities.Add(new ProductVariantAttributeCombination
+                {
+                    Product = productTorfabrikBall,
+                    Sku = productTorfabrikBall.Sku + string.Concat("-", lowerColor, "-", lowerSize),
+                    AttributesXml = FormatAttributeXml(
+                        torfabrikBallColor.Id, torfabrikBallColorValues.First(x => x.Alias == lowerColor).Id,
+                        torfabrikBallSize.Id, torfabrikBallSizeValues.First(x => x.Alias == lowerSize).Id),
+                    StockQuantity = 10000,
+                    AllowOutOfStockOrders = true,
+                    IsActive = true,
+                    AssignedPictureIds = torfabrikBallPictures.First(x => x.SeoFilename.EndsWith(lowerColor)).Id.ToString()
+                });
+            }
+
+            #endregion Soccer Torfabrik official game ball
+
+			#region Furniture - Ball chair
+
+			var productBallChair = _ctx.Set<Product>().First(x => x.Sku == "Furniture-ball-chair");
+			var ballChairPictureIds = productBallChair.ProductPictures.Select(x => x.PictureId).ToList();
+			var ballChairPictures = _ctx.Set<Picture>().Where(x => ballChairPictureIds.Contains(x.Id)).ToList();
+
+			var ballChairMaterial = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrMaterial.Id);
+			var ballChairMaterialValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == ballChairMaterial.Id).ToList();
+
+			var ballChairColor = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrColor.Id);
+			var ballChairColorValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == ballChairColor.Id).ToList();
+
+			var ballChairLeatherColor = _ctx.Set<ProductVariantAttribute>().First(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrLeatherColor.Id);
+			var ballChairLeatherColorValues = _ctx.Set<ProductVariantAttributeValue>().Where(x => x.ProductVariantAttributeId == ballChairLeatherColor.Id).ToList();
+
+			foreach (var materialValue in ballChairMaterialValues)
+			{
+				foreach (var colorValue in ballChairColorValues)
+				{
+					decimal ballChairPrice = 2199.00M;
+
+					if (materialValue.Alias.StartsWith("leather-special"))
+					{
+						ballChairPrice = 2599.00M;
+					}
+					else if (materialValue.Alias.StartsWith("leather-aniline"))
+					{
+						ballChairPrice = 2999.00M;
+					}
+
+					foreach (var leatherColorValue in ballChairLeatherColorValues)
+					{
+						entities.Add(new ProductVariantAttributeCombination
+						{
+							Product = productBallChair,
+							Sku = productBallChair.Sku + string.Concat("-", colorValue.Alias, "-", materialValue.Alias),
+							AttributesXml = FormatAttributeXml(ballChairMaterial.Id, materialValue.Id, ballChairColor.Id, colorValue.Id, ballChairLeatherColor.Id, leatherColorValue.Id),
+							StockQuantity = 10000,
+							AllowOutOfStockOrders = true,
+							IsActive = true,
+							AssignedPictureIds = ballChairPictures.First(x => x.SeoFilename.EndsWith(colorValue.Alias)).Id.ToString(),
+							Price = ballChairPrice
+						});
+					}
+				}
+			}
+
 			#endregion
 
 			return entities;
@@ -7677,41 +8484,42 @@ namespace SmartStore.Data.Setup
 				Name = "gift"
 			};
 
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "$5 Virtual Gift Card").First().ProductTags.Add(productTagGift);
+			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "$10 Virtual Gift Card").First().ProductTags.Add(productTagGift);
 			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "$25 Virtual Gift Card").First().ProductTags.Add(productTagGift);
 			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "$50 Virtual Gift Card").First().ProductTags.Add(productTagGift);
+            _ctx.Set<Product>().Where(pt => pt.MetaTitle == "$100 Virtual Gift Card").First().ProductTags.Add(productTagGift);
 
-			#endregion tag gift
+            #endregion tag gift
 
-			#region tag computer
-			var productTagComputer = new ProductTag
-			{
-				Name = "computer"
-			};
+            #region tag computer
+   //         var productTagComputer = new ProductTag
+			//{
+			//	Name = "computer"
+			//};
 
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Optiplex 3010 DT Base").FirstOrDefault().ProductTags.Add(productTagComputer);
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Acer Aspire One 8.9").FirstOrDefault().ProductTags.Add(productTagComputer);
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Inspiron One 23").FirstOrDefault().ProductTags.Add(productTagComputer);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Optiplex 3010 DT Base").FirstOrDefault().ProductTags.Add(productTagComputer);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Acer Aspire One 8.9").FirstOrDefault().ProductTags.Add(productTagComputer);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Inspiron One 23").FirstOrDefault().ProductTags.Add(productTagComputer);
 
 			#endregion tag computer
 
 			#region tag notebook
-			var productTagNotebook = new ProductTag
-			{
-				Name = "notebook"
-			};
+			//var productTagNotebook = new ProductTag
+			//{
+			//	Name = "notebook"
+			//};
 
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Acer Aspire One 8.9").FirstOrDefault().ProductTags.Add(productTagNotebook);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Acer Aspire One 8.9").FirstOrDefault().ProductTags.Add(productTagNotebook);
 
 			#endregion productTagNotebook
 
 			#region tag compact
-			var productTagCompact = new ProductTag
-			{
-				Name = "compact"
-			};
+			//var productTagCompact = new ProductTag
+			//{
+			//	Name = "compact"
+			//};
 
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Acer Aspire One 8.9").FirstOrDefault().ProductTags.Add(productTagCompact);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Acer Aspire One 8.9").FirstOrDefault().ProductTags.Add(productTagCompact);
 
 			#endregion productTagCompact
 
@@ -7765,35 +8573,35 @@ namespace SmartStore.Data.Setup
 			#endregion tag motorbikes
 
 			#region tag Intel
-			var productTagIntel = new ProductTag
-			{
-				Name = "Intel"
-			};
+			//var productTagIntel = new ProductTag
+			//{
+			//	Name = "Intel"
+			//};
 
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Inspiron One 23").FirstOrDefault().ProductTags.Add(productTagIntel);
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Optiplex 3010 DT Base").FirstOrDefault().ProductTags.Add(productTagIntel);
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Acer Aspire One 8.9").FirstOrDefault().ProductTags.Add(productTagIntel);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Inspiron One 23").FirstOrDefault().ProductTags.Add(productTagIntel);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Optiplex 3010 DT Base").FirstOrDefault().ProductTags.Add(productTagIntel);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Acer Aspire One 8.9").FirstOrDefault().ProductTags.Add(productTagIntel);
 
 			#endregion tag Intel
 
 			#region tag Dell
-			var productTagDell = new ProductTag
-			{
-				Name = "Dell"
-			};
+			//var productTagDell = new ProductTag
+			//{
+			//	Name = "Dell"
+			//};
 
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Inspiron One 23").FirstOrDefault().ProductTags.Add(productTagDell);
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Optiplex 3010 DT Base").FirstOrDefault().ProductTags.Add(productTagDell);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Inspiron One 23").FirstOrDefault().ProductTags.Add(productTagDell);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Dell Optiplex 3010 DT Base").FirstOrDefault().ProductTags.Add(productTagDell);
 
 			#endregion tag Dell
 
 			#region tag iPhone
-			var productTagIphone = new ProductTag
-			{
-				Name = "iPhone"
-			};
+			//var productTagIphone = new ProductTag
+			//{
+			//	Name = "iPhone"
+			//};
 
-			_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Apple iPhone 6").FirstOrDefault().ProductTags.Add(productTagIphone);
+			//_ctx.Set<Product>().Where(pt => pt.MetaTitle == "Apple iPhone 6").FirstOrDefault().ProductTags.Add(productTagIphone);
 
 			#endregion tag iPhone
 
@@ -7831,7 +8639,7 @@ namespace SmartStore.Data.Setup
 
 			var entities = new List<ProductTag>
 			{
-			   productTagGift, productTagComputer, productTagNotebook, productTagCompact, productTagBook, productTagCooking, productTagCars, productTagMotorbikes, productTagIntel, productTagDell, productTagIphone,
+			   productTagGift, productTagBook, productTagCooking, productTagCars, productTagMotorbikes,
 			   productTagMP3, productTagDownload
 			};
 
@@ -7841,13 +8649,8 @@ namespace SmartStore.Data.Setup
 
 		public IList<Category> CategoriesFirstLevel()
 		{
-			// pictures
 			var sampleImagesPath = this._sampleImagesPath;
-
-			var categoryTemplateInGridAndLines =
-				this.CategoryTemplates().Where(pt => pt.ViewPath == "CategoryTemplate.ProductsInGridOrLines").FirstOrDefault();
-
-            //categories
+			var categoryTemplateInGridAndLines = this.CategoryTemplates().Where(pt => pt.ViewPath == "CategoryTemplate.ProductsInGridOrLines").FirstOrDefault();
 
             #region category definitions
 
@@ -7898,16 +8701,16 @@ namespace SmartStore.Data.Setup
 				MetaTitle = "Books"
 			};
 
-			var categoryComputers = new Category
-			{
-				Name = "Computers",
-                Alias = "Computers",
-				CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_computers.png"), "image/png", GetSeName("Computers")),
-				Published = true,
-				DisplayOrder = 2,
-				MetaTitle = "Computers"
-			};
+			//var categoryComputers = new Category
+			//{
+			//	Name = "Computers",
+   //             Alias = "Computers",
+			//	CategoryTemplateId = categoryTemplateInGridAndLines.Id,
+   //             Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_computers.png"), "image/png", GetSeName("Computers")),
+			//	Published = true,
+			//	DisplayOrder = 2,
+			//	MetaTitle = "Computers"
+			//};
 
             var categoryFashion = new Category
             {
@@ -7926,23 +8729,24 @@ namespace SmartStore.Data.Setup
 				Name = "Gaming",
 				Alias = "Gaming",
 				CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_gaming.png"), "image/png", GetSeName("Gaming")),
+				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "ps4_bundle_minecraft.jpg"), "image/png", GetSeName("Gaming")),
 				Published = true,
 				DisplayOrder = 3,
+                ShowOnHomePage = true,
 				MetaTitle = "Gaming"
 			};
 
-			var categoryCellPhones = new Category
-			{
-				Name = "Cell phones",
-                Alias = "Cell phones",
-				CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-				//ParentCategoryId = categoryElectronics.Id,
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_cellphone.png"), "image/png", GetSeName("Cell phones")),
-				Published = true,
-				DisplayOrder = 4,
-				MetaTitle = "Cell phones"
-			};
+			//var categoryCellPhones = new Category
+			//{
+			//	Name = "Cell phones",
+   //             Alias = "Cell phones",
+			//	CategoryTemplateId = categoryTemplateInGridAndLines.Id,
+			//	//ParentCategoryId = categoryElectronics.Id,
+   //             Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_cellphone.png"), "image/png", GetSeName("Cell phones")),
+			//	Published = true,
+			//	DisplayOrder = 4,
+			//	MetaTitle = "Cell phones"
+			//};
 
 			var categoryDigitalDownloads = new Category
 			{
@@ -7961,7 +8765,7 @@ namespace SmartStore.Data.Setup
 				Name = "Gift Cards",
                 Alias = "Gift Cards",
 				CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_giftcards.png"), "image/png", GetSeName("Gift Cards")),
+				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "gift-card.jpg"), "image/png", GetSeName("Gift Cards")),
 				Published = true,
 				DisplayOrder = 12,
 				MetaTitle = "Gift cards",
@@ -7980,11 +8784,12 @@ namespace SmartStore.Data.Setup
                 ShowOnHomePage = true
             };
 
-			#endregion category definitions
+			#endregion
 
 			var entities = new List<Category>
 			{
-               categoryApple, categorySports, categoryBooks, categoryFurniture,categoryComputers, categoryCellPhones, categoryDigitalDownloads, categoryGaming, categoryGiftCards, categoryFashion, categoryWatches
+				categoryApple, categorySports, categoryBooks, categoryFurniture, categoryDigitalDownloads, categoryGaming,
+				categoryGiftCards, categoryFashion, categoryWatches
             };
 
 			this.Alter(entities);
@@ -7993,65 +8798,10 @@ namespace SmartStore.Data.Setup
 
 		public IList<Category> CategoriesSecondLevel()
 		{
-			// pictures
 			var sampleImagesPath = this._sampleImagesPath;
-
-			var categoryTemplateInGridAndLines =
-				this.CategoryTemplates().Where(pt => pt.ViewPath == "CategoryTemplate.ProductsInGridOrLines").FirstOrDefault();
-
-            //categories
+			var categoryTemplateInGridAndLines = this.CategoryTemplates().Where(pt => pt.ViewPath == "CategoryTemplate.ProductsInGridOrLines").FirstOrDefault();
 
             #region category definitions
-
-            var categoryFurnitureSofas = new Category
-            {
-                Name = "Sofas",
-                Alias = "Sofas",
-                CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_sofas.jpg"), "image/png", GetSeName("Sofas")),
-                Published = true,
-                ParentCategoryId = _ctx.Set<Category>().Where(x => x.MetaTitle == "Furniture").First().Id,
-                DisplayOrder = 1,
-                MetaTitle = "Sofas",
-                ShowOnHomePage = true
-            };
-
-            var categoryFurnitureLounger = new Category
-            {
-                Name = "Lounger",
-                Alias = "Lounger",
-                CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_lounger.jpg"), "image/png", GetSeName("Lounger")),
-                Published = true,
-                ParentCategoryId = _ctx.Set<Category>().Where(x => x.MetaTitle == "Furniture").First().Id,
-                DisplayOrder = 1,
-                MetaTitle = "Lounger"
-            };
-
-            var categoryFurnitureChairs = new Category
-            {
-                Name = "Chairs",
-                Alias = "Chairs",
-                CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_chairs.png"), "image/png", GetSeName("Chairs")),
-                Published = true,
-                ParentCategoryId = _ctx.Set<Category>().Where(x => x.MetaTitle == "Furniture").First().Id,
-                DisplayOrder = 1,
-                MetaTitle = "Chairs",
-                ShowOnHomePage = true
-            };
-
-            var categoryFurnitureLamps = new Category
-            {
-                Name = "Lamps",
-                Alias = "Lamps",
-                CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_lamps.png"), "image/png", GetSeName("Lamps")),
-                Published = true,
-                ParentCategoryId = _ctx.Set<Category>().Where(x => x.MetaTitle == "Furniture").First().Id,
-                DisplayOrder = 1,
-                MetaTitle = "Lamps"
-            };
 
             var categorySportsGolf = new Category
             {
@@ -8129,29 +8879,29 @@ namespace SmartStore.Data.Setup
 				MetaTitle = "Cook and enjoy"
 			};
 
-			var categoryDesktops = new Category
-			{
-				Name = "Desktops",
-                Alias = "Desktops",
-				CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-				ParentCategoryId = _ctx.Set<Category>().Where(x => x.MetaTitle == "Computers").First().Id,
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_desktops.png"), "image/png", GetSeName("Desktops")),
-				Published = true,
-				DisplayOrder = 1,
-				MetaTitle = "Desktops"
-			};
+			//var categoryDesktops = new Category
+			//{
+			//	Name = "Desktops",
+   //             Alias = "Desktops",
+			//	CategoryTemplateId = categoryTemplateInGridAndLines.Id,
+			//	ParentCategoryId = _ctx.Set<Category>().Where(x => x.MetaTitle == "Computers").First().Id,
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_desktops.png"), "image/png", GetSeName("Desktops")),
+			//	Published = true,
+			//	DisplayOrder = 1,
+			//	MetaTitle = "Desktops"
+			//};
 
-			var categoryNotebooks = new Category
-			{
-				Name = "Notebooks",
-                Alias = "Notebooks",
-				CategoryTemplateId = categoryTemplateInGridAndLines.Id,
-				ParentCategoryId = _ctx.Set<Category>().Where(x => x.MetaTitle == "Computers").First().Id,
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_notebooks.png"), "image/png", GetSeName("Notebooks")),
-				Published = true,
-				DisplayOrder = 2,
-				MetaTitle = "Notebooks"
-			};
+			//var categoryNotebooks = new Category
+			//{
+			//	Name = "Notebooks",
+   //             Alias = "Notebooks",
+			//	CategoryTemplateId = categoryTemplateInGridAndLines.Id,
+			//	ParentCategoryId = _ctx.Set<Category>().Where(x => x.MetaTitle == "Computers").First().Id,
+   //             Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_notebooks.png"), "image/png", GetSeName("Notebooks")),
+			//	Published = true,
+			//	DisplayOrder = 2,
+			//	MetaTitle = "Notebooks"
+			//};
 
 			var categoryGamingAccessories = new Category
 			{
@@ -8171,17 +8921,18 @@ namespace SmartStore.Data.Setup
 				Alias = "Games",
 				CategoryTemplateId = categoryTemplateInGridAndLines.Id,
 				ParentCategoryId = _ctx.Set<Category>().Where(x => x.MetaTitle == "Gaming").First().Id,
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_games.png"), "image/png", GetSeName("Games")),
+				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "category_games.jpg"), "image/png", GetSeName("Games")),
 				Published = true,
 				DisplayOrder = 3,
 				MetaTitle = "Games"
 			};
 
-			#endregion category definitions
+			#endregion
 
 			var entities = new List<Category>
 			{
-                categorySportsSunglasses,categorySportsSoccer, categorySportsBasketball,categorySportsGolf, categoryFurnitureLounger, categoryFurnitureSofas, categoryFurnitureChairs, categoryFurnitureLamps, categoryBooksSpiegel, categoryBooksCookAndEnjoy, categoryDesktops, categoryNotebooks, categoryGamingAccessories, categoryGamingGames
+                categorySportsSunglasses,categorySportsSoccer, categorySportsBasketball,categorySportsGolf, categoryBooksSpiegel, categoryBooksCookAndEnjoy,
+				categoryGamingAccessories, categoryGamingGames
 			};
 
 			this.Alter(entities);
@@ -8200,6 +8951,32 @@ namespace SmartStore.Data.Setup
             //    this.CategoryTemplates().Where(pt => pt.Name == "Products in Grid or Lines").FirstOrDefault();
 
             //categories
+
+            #region EA Sports
+
+            var manufacturerWarnerHome = new Manufacturer
+            {
+                Name = "EA Sports",
+                ManufacturerTemplateId = manufacturerTemplateInGridAndLines.Id,
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "manufacturer_EA_Sports.png"), "image/png", GetSeName("EA Sports")),
+                Published = true,
+                DisplayOrder = 1
+            };
+
+            #endregion EA Sports
+
+            #region Warner Home Video Games
+
+            var manufacturerEASports = new Manufacturer
+            {
+                Name = "Warner Home Video Games",
+                ManufacturerTemplateId = manufacturerTemplateInGridAndLines.Id,
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "manufacturer_wb.png"), "image/png", GetSeName("Warner Home Video Games")),
+                Published = true,
+                DisplayOrder = 1
+            };
+
+            #endregion Warner Home Video Games
 
             #region Breitling
 
@@ -8593,7 +9370,7 @@ namespace SmartStore.Data.Setup
 
 			var entities = new List<Manufacturer>
 			{
-              manufacturerBreitling,manufacturerTissot,manufacturerSeiko, manufacturerTitleist,manufacturerApple,manufacturerSamsung,manufacturerLG,manufacturerTrekStor, manufacturerWesternDigital,manufacturerDell, manufacturerMSI,
+              manufacturerEASports,manufacturerWarnerHome,manufacturerBreitling,manufacturerTissot,manufacturerSeiko, manufacturerTitleist,manufacturerApple,manufacturerSamsung,manufacturerLG,manufacturerTrekStor, manufacturerWesternDigital,manufacturerDell, manufacturerMSI,
 			  manufacturerCanon, manufacturerCasio, manufacturerPanasonic, manufacturerBlackBerry, manufacturerHTC, manufacturerFestina, manufacturerCertina, 
 			  manufacturerHP, manufacturerAcer, manufacturerSony, manufacturerUbisoft,manufacturerOakley,manufacturerRayban,manufacturerAdidas, manufacturerWilson,manufacturerPuma,manufacturerNike
             };
@@ -8605,69 +9382,11 @@ namespace SmartStore.Data.Setup
 		private List<Product> GetFashionProducts()
 		{
 			var result = new List<Product>();
-			var productTemplateSimple = _ctx.Set<ProductTemplate>().First(x => x.ViewPath == "ProductTemplate.Simple");
-			var firstDeliveryTime = _ctx.Set<DeliveryTime>().First(sa => sa.DisplayOrder == 0);
-			var fashionCategory = _ctx.Set<Category>().First(c => c.Alias == "Fashion");
+			var productTemplateSimple = _ctx.Set<ProductTemplate>().First(x => x.ViewPath == "Product");
+			var firstDeliveryTime = _ctx.Set<DeliveryTime>().First(x => x.DisplayOrder == 0);
+			var fashionCategory = _ctx.Set<Category>().First(x => x.Alias == "Fashion");
 			var specialPriceEndDate = DateTime.UtcNow.AddMonths(1);
-
-			// Men’s T
-			var mensShirt = new Product
-			{
-				ProductType = ProductType.SimpleProduct,
-				VisibleIndividually = true,
-				Name = "Men’s T",
-				MetaTitle = "Mens shirt",
-				ShortDescription = "Men's shirt with trendy hem",
-				FullDescription = "<p>Topcloth (140 g/m²): 100% cotton 100% organic cotton, single jersey round neck and sleeve with hem. In the trendy colors heather grey and red.</p>",
-				Sku = "Fashion-112345",
-				ManufacturerPartNumber = "JN8002",
-				ProductTemplateId = productTemplateSimple.Id,
-				AllowCustomerReviews = true,
-				Published = true,
-				Price = 15.90M,
-				OldPrice = 24.90M,
-				SpecialPrice = 12.00M,
-				SpecialPriceStartDateTimeUtc = new DateTime(2017, 5, 1, 0, 0, 0),
-				SpecialPriceEndDateTimeUtc = specialPriceEndDate,
-				ManageInventoryMethod = ManageInventoryMethod.ManageStock,
-				OrderMinimumQuantity = 1,
-				OrderMaximumQuantity = 10000,
-				StockQuantity = 10000,
-				NotifyAdminForQuantityBelow = 1,
-				IsShipEnabled = true,
-				DeliveryTime = firstDeliveryTime,
-				DisplayOrder = 3
-			};
-
-			mensShirt.ProductCategories.Add(new ProductCategory
-			{
-				Category = fashionCategory,
-				DisplayOrder = 1
-			});
-
-			mensShirt.ProductPictures.Add(new ProductPicture
-			{
-				Picture = CreatePicture(File.ReadAllBytes(_sampleImagesPath + "product_mens_tshirt_red.jpg"), "image/jpeg", "mens-tshirt-red"),
-				DisplayOrder = 1
-			});
-			mensShirt.ProductPictures.Add(new ProductPicture
-			{
-				Picture = CreatePicture(File.ReadAllBytes(_sampleImagesPath + "product_mens_tshirt_gray.jpg"), "image/jpeg", "mens-tshirt-gray"),
-				DisplayOrder = 2
-			});
-
-			mensShirt.TierPrices.Add(new TierPrice
-			{
-				Quantity = 10,
-				Price = 10.00M
-			});
-			mensShirt.TierPrices.Add(new TierPrice
-			{
-				Quantity = 50,
-				Price = 8.00M
-			});
-
-			result.Add(mensShirt);
+			var specOptionCotton = _ctx.Set<SpecificationAttribute>().First(x => x.DisplayOrder == 8).SpecificationAttributeOptions.First(x => x.DisplayOrder == 9);
 
 			// Converse All Star
 			var converseAllStar = new Product
@@ -8711,6 +9430,14 @@ namespace SmartStore.Data.Setup
 				});
 			}
 
+			converseAllStar.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute
+			{
+				AllowFiltering = true,
+				ShowOnProductPage = true,
+				DisplayOrder = 1,
+				SpecificationAttributeOption = specOptionCotton
+			});
+
 			result.Add(converseAllStar);
 
 			// Shirt Meccanica
@@ -8720,6 +9447,7 @@ namespace SmartStore.Data.Setup
 				VisibleIndividually = true,
 				Name = "Sleeveless shirt Meccanica",
 				MetaTitle = "Sleeveless shirt Meccanica",
+				ShortDescription = "Woman shirt with trendy imprint",
 				FullDescription = "<p>Also in summer, the Ducati goes with fashion style! With the sleeveless shirt Meccanica, every woman can express her passion for Ducati with a comfortable and versatile piece of clothing. The shirt is available in black and vintage red. It carries on the front the traditional lettering in plastisol print, which makes it even clearer and more radiant, while on the back in the neck area is the famous logo with the typical \"wings\" of the fifties.</p>",
 				Sku = "Fashion-987693502",
 				ManufacturerPartNumber = "987693502",
@@ -8744,6 +9472,17 @@ namespace SmartStore.Data.Setup
 				DisplayOrder = 1
 			});
 
+			shirtMeccanica.TierPrices.Add(new TierPrice
+			{
+				Quantity = 10,
+				Price = 36.00M
+			});
+			shirtMeccanica.TierPrices.Add(new TierPrice
+			{
+				Quantity = 50,
+				Price = 29.00M
+			});
+
 			var shirtMeccanicaImages = new string[] { "product_shirt_meccanica_red_1.jpg", "product_shirt_meccanica_red_2.jpg", "product_shirt_meccanica_red_3.jpg",
 				"product_shirt_meccanica_red_4.jpg", "product_shirt_meccanica_black_1.jpg", "product_shirt_meccanica_black_2.jpg", "product_shirt_meccanica_black_3.jpg" };
 
@@ -8755,6 +9494,14 @@ namespace SmartStore.Data.Setup
 					DisplayOrder = i + 1
 				});
 			}
+
+			shirtMeccanica.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute
+			{
+				AllowFiltering = true,
+				ShowOnProductPage = true,
+				DisplayOrder = 1,
+				SpecificationAttributeOption = specOptionCotton
+			});
 
 			result.Add(shirtMeccanica);
 
@@ -8805,6 +9552,14 @@ namespace SmartStore.Data.Setup
 				});
 			}
 
+			ladiesJacket.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute
+			{
+				AllowFiltering = true,
+				ShowOnProductPage = true,
+				DisplayOrder = 1,
+				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().First(x => x.DisplayOrder == 8).SpecificationAttributeOptions.First(x => x.DisplayOrder == 11)
+			});
+
 			result.Add(ladiesJacket);
 
 			// Clark Premium Blue Jeans
@@ -8843,8 +9598,194 @@ namespace SmartStore.Data.Setup
 				DisplayOrder = 1
 			});
 
+			clarkJeans.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute
+			{
+				AllowFiltering = true,
+				ShowOnProductPage = true,
+				DisplayOrder = 1,
+				SpecificationAttributeOption = specOptionCotton
+			});
+
 			result.Add(clarkJeans);
 
+
+			return result;
+		}
+
+		private List<Product> GetFurnitureProducts()
+		{
+			var result = new List<Product>();
+			var productTemplateSimple = _ctx.Set<ProductTemplate>().First(x => x.ViewPath == "Product");
+			var thirdDeliveryTime = _ctx.Set<DeliveryTime>().First(x => x.DisplayOrder == 2);
+			var furnitureCategory = _ctx.Set<Category>().First(x => x.MetaTitle == "Furniture");
+
+			// Le Corbusier LC 6 table
+			var corbusierTable = new Product
+			{
+				ProductType = ProductType.SimpleProduct,
+				VisibleIndividually = true,
+				Name = "Le Corbusier LC 6 dining table (1929)",
+				MetaTitle = "Le Corbusier LC 6 dining table (1929)",
+				ShortDescription = "Dining table LC 6, designer: Le Corbusier, W x H x D: 225 x 69/74 (adjustable) x 85 cm, substructure: steel pipe, glass plate: Clear or sandblasted, 15 or 19 mm, height-adjustable.",
+				FullDescription = "<p>Four small plates carry a glass plate. The structure of the steel pipe is covered in clear structures. The LC6 is a true classic of Bauhaus art and is used in combination with the swivel chairs LC7 as a form-beautiful Le Corbusier dining area. In addition, the table is also increasingly found in offices or in halls. It is height-adjustable and can thus be perfectly adapted to the respective purpose.</p><p>Le Corbusier's beautifully shaped table is available with a clear or sandblasted glass plate. The substructure consists of oval steel tubes.</p>",
+				Sku = "Furniture-lc6",
+				ProductTemplateId = productTemplateSimple.Id,
+				AllowCustomerReviews = true,
+				Published = true,
+				Price = 749.00M,
+				HasTierPrices = true,
+				ManageInventoryMethod = ManageInventoryMethod.ManageStock,
+				OrderMinimumQuantity = 1,
+				OrderMaximumQuantity = 10000,
+				StockQuantity = 10000,
+				NotifyAdminForQuantityBelow = 1,
+				IsShipEnabled = true,
+				DeliveryTime = thirdDeliveryTime
+			};
+
+			corbusierTable.ProductCategories.Add(new ProductCategory
+			{
+				Category = furnitureCategory,
+				DisplayOrder = 1
+			});
+
+			var corbusierTableImages = new string[] { "product_corbusier_lc6_table_1.jpg", "product_corbusier_lc6_table_2.jpg", "product_corbusier_lc6_table_3.jpg",
+				"product_corbusier_lc6_table_4.jpg" };
+
+			for (var i = 0; i < corbusierTableImages.Length; ++i)
+			{
+				corbusierTable.ProductPictures.Add(new ProductPicture
+				{
+					Picture = CreatePicture(File.ReadAllBytes(_sampleImagesPath + corbusierTableImages[i]), "image/jpeg", corbusierTableImages[i].Replace("product_", "").Replace(".jpg", "")),
+					DisplayOrder = i + 1
+				});
+			}
+
+			corbusierTable.TierPrices.Add(new TierPrice
+			{
+				Quantity = 2,
+				Price = 647.10M
+			});
+			corbusierTable.TierPrices.Add(new TierPrice
+			{
+				Quantity = 4,
+				Price = 636.65M
+			});
+
+			result.Add(corbusierTable);
+
+			// Ball Chair
+			var ballChair = new Product
+			{
+				ProductType = ProductType.SimpleProduct,
+				VisibleIndividually = true,
+				Name = "Eero Aarnio Ball Chair (1966)",
+				MetaTitle = "Eero Aarnio Ball Chair (1966)",
+				FullDescription = "<p>The ball chair, or also called the Globe chair, is a real masterpiece of the legendary designer Eero Aarnio. The ball chair from the Sixties has written designer history. The egg designed armchair rests on a trumpet foot and is not lastly appreciated due to its shape and the quiet atmosphere inside this furniture. The design of the furniture body allows noise and disturbing outer world elements in the Hintergurnd us. A place as created for resting and relaxing. With its wide range of colours, the eyeball chair fits in every living and working environment. A chair that stands out for its timeless design and always has the modern look. The ball chair is 360° to rotate to change the view of the surroundings. The outer shell in fiberglass white or black. The upholstery is mixed in leather or linen.</p><p>Dimension: Width 102 cm, depth 87 cm, height 124 cm, seat height: 44 cm.</p>",
+				Sku = "Furniture-ball-chair",
+				ProductTemplateId = productTemplateSimple.Id,
+				AllowCustomerReviews = true,
+				Published = true,
+				Price = 2199.00M,
+				HasTierPrices = true,
+				ManageInventoryMethod = ManageInventoryMethod.ManageStock,
+				OrderMinimumQuantity = 1,
+				OrderMaximumQuantity = 10000,
+				StockQuantity = 10000,
+				NotifyAdminForQuantityBelow = 1,
+				IsShipEnabled = true,
+				DeliveryTime = thirdDeliveryTime
+			};
+
+			ballChair.ProductCategories.Add(new ProductCategory
+			{
+				Category = furnitureCategory,
+				DisplayOrder = 1
+			});
+
+			ballChair.ProductPictures.Add(new ProductPicture
+			{
+				Picture = CreatePicture(File.ReadAllBytes(_sampleImagesPath + "product_ball_chair_white.jpg"), "image/jpeg", "ball_chair_white"),
+				DisplayOrder = 1
+			});
+			ballChair.ProductPictures.Add(new ProductPicture
+			{
+				Picture = CreatePicture(File.ReadAllBytes(_sampleImagesPath + "product_ball_chair_black.jpg"), "image/jpeg", "ball_chair_black"),
+				DisplayOrder = 2
+			});
+
+			ballChair.TierPrices.Add(new TierPrice
+			{
+				Quantity = 2,
+				Price = 1979.10M
+			});
+			ballChair.TierPrices.Add(new TierPrice
+			{
+				Quantity = 4,
+				Price = 1869.15M
+			});
+
+			result.Add(ballChair);
+
+			// Lounge chair
+			var loungeChair = new Product
+			{
+				ProductType = ProductType.SimpleProduct,
+				VisibleIndividually = true,
+				Name = "Charles Eames Lounge Chair (1956)",
+				MetaTitle = "Charles Eames Lounge Chair (1956)",
+				ShortDescription = "Club lounge chair, designer: Charles Eames, width 80 cm, depth 80 cm, height 60 cm, seat shell: plywood, foot (rotatable): Aluminium casting, cushion (upholstered) with leather cover.",
+				FullDescription = "<p>That's how you sit in a baseball glove. In any case, this was one of the ideas Charles Eames had in mind when designing this club chair. The lounge chair should be a comfort armchair, in which one can sink luxuriously. Through the construction of three interconnected, movable seat shells and a comfortable upholstery Charles Eames succeeded in the implementation. In fact, the club armchair with a swiveling foot is a contrast to the Bauhaus characteristics that emphasized minimalism and functionality. Nevertheless, he became a classic of Bauhaus history and still provides in many living rooms and clubs for absolute comfort with style.</p><p>Dimensions: Width 80 cm, depth 60 cm, height total 80 cm (height backrest: 60 cm). CBM: 0.70.</p><p>Lounge chair with seat shell of laminated curved plywood with rosewood veneer, walnut nature or in black. Rotatable base made of aluminium cast black with polished edges or optionally fully chromed. Elaborate upholstery of pillows in leather.</p><p>All upholstery units are removable at the Eames Lounge chair (seat, armrest, backrest, headrest).</p>",
+				Sku = "Furniture-lounge-chair",
+				ProductTemplateId = productTemplateSimple.Id,
+				AllowCustomerReviews = true,
+				Published = true,
+				Price = 1799.00M,
+				OldPrice = 1999.00M,
+				HasTierPrices = true,
+				ManageInventoryMethod = ManageInventoryMethod.ManageStock,
+				OrderMinimumQuantity = 1,
+				OrderMaximumQuantity = 10000,
+				StockQuantity = 10000,
+				NotifyAdminForQuantityBelow = 1,
+				IsShipEnabled = true,
+				DeliveryTime = thirdDeliveryTime
+			};
+
+			loungeChair.ProductCategories.Add(new ProductCategory
+			{
+				Category = furnitureCategory,
+				DisplayOrder = 1
+			});
+
+			loungeChair.ProductPictures.Add(new ProductPicture
+			{
+				Picture = CreatePicture(File.ReadAllBytes(_sampleImagesPath + "product_charles_eames_lounge_chair_white.jpg"), "image/jpeg", "charles_eames_lounge_chair_white"),
+				DisplayOrder = 1
+			});
+			loungeChair.ProductPictures.Add(new ProductPicture
+			{
+				Picture = CreatePicture(File.ReadAllBytes(_sampleImagesPath + "product_charles_eames_lounge_chair_black.jpg"), "image/jpeg", "charles_eames_lounge_chair_black"),
+				DisplayOrder = 2
+			});
+
+			loungeChair.TierPrices.Add(new TierPrice
+			{
+				Quantity = 2,
+				Price = 1709.05M
+			});
+			loungeChair.TierPrices.Add(new TierPrice
+			{
+				Quantity = 4,
+				Price = 1664.08M
+			});
+			loungeChair.TierPrices.Add(new TierPrice
+			{
+				Quantity = 6,
+				Price = 1619.10M
+			});
+
+			result.Add(loungeChair);
 
 			return result;
 		}
@@ -8860,8 +9801,7 @@ namespace SmartStore.Data.Setup
 			var sampleDownloadsPath = this._sampleDownloadsPath;
 
 			// Templates
-			var productTemplateSimple = _ctx.Set<ProductTemplate>().First(x => x.ViewPath == "ProductTemplate.Simple");
-			var productTemplateGrouped = _ctx.Set<ProductTemplate>().First(x => x.ViewPath == "ProductTemplate.Grouped");
+			var productTemplate = _ctx.Set<ProductTemplate>().First(x => x.ViewPath == "Product");
 
 			var firstDeliveryTime = _ctx.Set<DeliveryTime>().First(sa => sa.DisplayOrder == 0);
 
@@ -8884,7 +9824,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "For golfers who want maximum impact control and feedback.",
                 FullDescription = "​​<p><strong>Inspired by the best iron players in the world</strong> </p> <p>The new 'Spin Milled 6' wages establish a new performance class in three key areas of the Wedge game: precise length steps, bounce and maximum spin. </p> <p>   <br />   For each loft the center of gravity of the wedge is determined individually. Therefore, the SM6 offers a particularly precise length and flight curve control combined with great impact.   <br />   Bob Vokey's tourer-puffed sole cleat allows all golfers more bounce, adapted to their personal swing profile and the respective ground conditions. </p> <p>   <br />   A new, parallel face texture was developed for the absolutely exact and with 100% quality control machined grooves. The result is a consistently higher edge sharpness for more spin. </p> <p> </p> <ul>   <li>Precise lengths and flight curve control thanks to progressively placed center of gravity.</li>   <li>Improved bounce due to Bob Vokey's proven soles.</li>   <li>TX4 grooves produce more spin through a new surface and edge sharpness.</li>   <li>Multiple personalization options.</li> </ul> ",
                 Sku = "P-7004",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Titleist SM6 Tour Chrome",
@@ -8928,7 +9868,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Golf ball with high ball flight",
                 FullDescription = "​​The top players rely on the new Titleist Pro V1x. High ball flight, soft feel and more spin in the short game are the advantages of the V1x version. Perfect performance from the leading manufacturer. The new Titleist Pro V1 golf ball is exactly defined and promises penetrating ball flight with very soft hit feeling.",
                 Sku = "P-7001",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Titleist Pro V1x",
@@ -8971,7 +9911,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Training balls with perfect flying characteristics",
                 FullDescription = "​Perfect golf exercise ball with the characteristics like the 'original', but in a glass-fracture-proof execution. Massive core, an ideal training ball for yard and garden. Colors: white, yellow, orange.",
                 Sku = "P-7002",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Supreme Golfball",
@@ -9020,7 +9960,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Low spin for good golfing!",
                 FullDescription = "Your game wins with the GBB Epic Sub Zero Driver. A golf club with an extremely low spin and the phenomenal high-speed characteristic.",
                 Sku = "P-7003",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "GBB Epic Sub Zero Driver",
@@ -9069,11 +10009,12 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "GREAT TOUCH. HIGH VISIBILITY.",
                 FullDescription = "<p><strong>Enhance play everyday, with the Nike Strike Football. </strong> </p> <p>Reinforced rubber retains its shape for confident and consistent control. A stand out Visual Power graphic in black, green and orange is best for ball tracking, despite dark or inclement conditions. </p> <ul>   <li>Visual Power graphic helps give a true read on flight trajectory.</li>   <li>Textured casing offers superior touch.</li>   <li>Reinforced rubber bladder supports air and shape retention.</li>   <li>66% rubber/ 15% polyurethane/ 13% polyester/ 7% EVA.</li> </ul> ",  
                 Sku = "P-5004",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Nike Strike Football",
                 Price = 59.90M,
+                OldPrice = 69.90M,
                 IsGiftCard = false,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 OrderMinimumQuantity = 1,
@@ -9099,6 +10040,43 @@ namespace SmartStore.Data.Setup
                 DisplayOrder = 1,
             });
 
+            //attributes
+            productNikeStrikeFootball.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 3,
+                // Manufacturer -> Nike
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder ==20).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 20).Single()
+            });
+            productNikeStrikeFootball.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 3,
+                // Material -> rubber
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 8).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 12).Single()
+            });
+
+            #region tierPrieces
+            productNikeStrikeFootball.TierPrices.Add(new TierPrice()
+            {
+                Quantity = 6,
+                Price = 26.90M
+            });
+            productNikeStrikeFootball.TierPrices.Add(new TierPrice()
+            {
+                Quantity = 12,
+                Price = 24.90M
+            });
+            productNikeStrikeFootball.TierPrices.Add(new TierPrice()
+            {
+                Quantity = 24,
+                Price = 22.90M
+            });
+            productNikeStrikeFootball.HasTierPrices = true;
+            #endregion tierPrieces
+
             #endregion product Nike Strike Football
 
             #region product Evopower 5.3 Trainer HS Ball
@@ -9112,7 +10090,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Entry level training ball.",
                 FullDescription = "<p><strong>Entry level training ball.</strong></ p >< p > Constructed from 32 panels with equal surface areas for reduced seam-stress and a perfectly round shape.Handstitched panels with multilayered woven backing for enhanced stability and aerodynamics.</ p >",
                 Sku = "P-5003",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Evopower 5.3 Trainer HS Ball",
@@ -9142,6 +10120,24 @@ namespace SmartStore.Data.Setup
                 DisplayOrder = 1,
             });
 
+            //attributes
+            productNikeEvoPowerBall.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 3,
+                // Manufacturer -> Nike
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 20).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 20).Single()
+            });
+            productNikeEvoPowerBall.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 3,
+                // Material -> leather
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 8).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 5).Single()
+            });
+
             #endregion Evopower 5.3 Trainer HS Ball
 
             #region product Torfabrik official game ball
@@ -9155,7 +10151,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Available in different colors",
                 FullDescription = "",
                 Sku = "P-5002",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Torfabrik official game ball",
@@ -9175,31 +10171,31 @@ namespace SmartStore.Data.Setup
 
             productTorfabrikOfficialGameBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_white.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_white.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name) + "white"),
                 DisplayOrder = 1,
             });
 
             productTorfabrikOfficialGameBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_red.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_red.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name) + "red"),
                 DisplayOrder = 1,
             });
 
             productTorfabrikOfficialGameBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_yellow.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_yellow.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name) + "yellow"),
                 DisplayOrder = 1,
             });
 
             productTorfabrikOfficialGameBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_blue.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_blue.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name) + "blue"),
                 DisplayOrder = 1,
             });
 
             productTorfabrikOfficialGameBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_green.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_torfabrik-offizieller-spielball_green.png"), "image/png", GetSeName(productTorfabrikOfficialGameBall.Name) + "green"),
                 DisplayOrder = 1,
             });
 
@@ -9208,6 +10204,25 @@ namespace SmartStore.Data.Setup
                 Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Adidas").Single(),
                 DisplayOrder = 1,
             });
+
+            //attributes
+            productTorfabrikOfficialGameBall.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 3,
+                // Manufacturer -> Adidas
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 20).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 19).Single()
+            });
+            productTorfabrikOfficialGameBall.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 3,
+                // Material -> leather
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 8).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 5).Single()
+            });
+
 
             #endregion Torfabrik official game ball
 
@@ -9222,7 +10237,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "In different colors",
                 FullDescription = "<p><strong>TANGO SALA BALL</strong>   <br />   A SALA BALL TO MATCH YOUR INDOOR PLAYMAKING. </p> <p>Take the game indoors. With a design nod to the original Tango ball that set the performance standard, this indoor soccer is designed for low rebound and enhanced control for futsal. Machine-stitched for a soft touch and high durability. </p> <ul>   <li>Machine-stitched for soft touch and high durability</li>   <li>Low rebound for enhanced ball control</li>   <li>Butyl bladder for best air retention</li>   <li>Requires inflation</li>   <li>100% natural rubber</li>   <li>Imported</li> </ul> <p> </p> ",
                 Sku = "P-5001",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Adidas TANGO SALA BALL",
@@ -9242,43 +10257,43 @@ namespace SmartStore.Data.Setup
 
             productAdidasTangoSalaBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-white.png"), "image/png", GetSeName(productAdidasTangoSalaBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-white.png"), "image/png", GetSeName(productAdidasTangoSalaBall.Name) + "-white"),
                 DisplayOrder = 1,
             });
 
             productAdidasTangoSalaBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-yellow.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-yellow.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name) + "-yellow"),
                 DisplayOrder = 1,
             });
 
             productAdidasTangoSalaBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-red.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-red.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name) + "-red"),
                 DisplayOrder = 1,
             });
 
             productAdidasTangoSalaBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-green.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-green.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name) + "-green"),
                 DisplayOrder = 1,
             });
 
             productAdidasTangoSalaBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-gray.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-gray.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name) + "-gray"),
                 DisplayOrder = 1,
             });
 
             productAdidasTangoSalaBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-brown.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-brown.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name) + "-brown"),
                 DisplayOrder = 1,
             });
 
             productAdidasTangoSalaBall.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-blue.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_adidas-tango-pasadena-ball-blue.jpg"), "image/png", GetSeName(productAdidasTangoSalaBall.Name) + "-blue"),
                 DisplayOrder = 1,
             });
 
@@ -9286,6 +10301,24 @@ namespace SmartStore.Data.Setup
             {
                 Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Adidas").Single(),
                 DisplayOrder = 1,
+            });
+
+            //attributes
+            productAdidasTangoSalaBall.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 3,
+                // Manufacturer -> Adidas
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 20).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 19).Single()
+            });
+            productAdidasTangoSalaBall.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 3,
+                // Material -> leather
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 8).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 5).Single()
             });
 
             #endregion Adidas TANGO SALA BALL
@@ -9307,7 +10340,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "A DURABLE BASKETBALL ALL SURFACES",
                 FullDescription = "<p><strong>All-Court Prep Ball</strong> </p> <p>A durable basketball for all surfaces. </p> <p>Whether on parquet or on asphalt - the adidas All-Court Prep Ball hat has only one goal: the basket. This basketball is made of durable artificial leather, was also predestined for indoor games also for outdoor games. </p> <ul>   <li>Composite cover made of artificial leather</li>   <li>suitable for indoors and outdoors</li>   <li>Delivered unpumped</li> </ul> ",
                 Sku = "P-4001",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Evolution High School Game Basketball",
@@ -9351,7 +10384,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "A DURABLE BASKETBALL ALL SURFACES",
                 FullDescription = "<p><strong>All-Court Prep Ball</strong> </p> <p>A durable basketball for all surfaces. </p> <p>Whether on parquet or on asphalt - the adidas All-Court Prep Ball hat has only one goal: the basket. This basketball is made of durable artificial leather, was also predestined for indoor games also for outdoor games. </p> <ul>   <li>Composite cover made of artificial leather</li>   <li>suitable for indoors and outdoors</li>   <li>Delivered unpumped</li> </ul> ",
                 Sku = "P-4002",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "All-Court Basketball",
@@ -9400,7 +10433,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "The Ray-Ban Original Wayfarer is the most famous style in the history of sunglasses. With the original design from 1952 the Wayfarer is popular with celebrities, musicians, artists and fashion experts.",
                 FullDescription = "Die Sonnenbrille Ray-Ban ® RB3183 mir ihrer aerodynamischen Form eine reminiszenzist an Geschwindigkeit. <br> Eine rechteckige Form und das auf den Bügeln aufgedruckte klassische Ray-Ban Logo zeichnet dieses leichte Halbrand-Modell aus.",
                 Sku = "P-3004",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Ray-Ban Top Bar RB 3183",
@@ -9455,7 +10488,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "The Ray-Ban Original Wayfarer is the most famous style in the history of sunglasses. With the original design from 1952 the Wayfarer is popular with celebrities, musicians, artists and fashion experts.",
                 FullDescription = "<p><strong>Radar® EV Path™ PRIZM™ Road</strong> </p> <p>A new milestone in the heritage of performance, Radar® EV takes breakthroughs of a revolutionary design even further with a taller lens that extends the upper field of view. From the comfort and protection of the O Matter® frame to the grip of its Unobtanium® components, this premium design builds on the legacy of Radar innovation and style. </p> <p><strong>Features</strong> </p> <ul>   <li>PRIZM™ is a revolutionary lens technology that fine-tunes vision for specific sports and environments. See what you’ve been missing. Click here to learn more about Prizm Lens Technology.</li>   <li>Path lenses enhance performance if traditional lenses touch your cheeks and help extend the upper field of view</li>   <li>Engineered for maximized airflow for optimal ventilation to keep you cool</li>   <li>Unobtanium® earsocks and nosepads keep glasses in place, increasing grip despite perspiration</li>   <li>Interchangeable Lenses let you change lenses in seconds to optimize vision in any sport environment</li> </ul>",
                 Sku = "P-3003",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "ORIGINAL WAYFARER AT COLLECTION",
@@ -9528,7 +10561,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "",
                 FullDescription = "<p><strong>Radar® EV Path™ PRIZM™ Road</strong> </p> <p>A new milestone in the heritage of performance, Radar® EV takes breakthroughs of a revolutionary design even further with a taller lens that extends the upper field of view. From the comfort and protection of the O Matter® frame to the grip of its Unobtanium® components, this premium design builds on the legacy of Radar innovation and style. </p> <p><strong>Features</strong> </p> <ul>   <li>PRIZM™ is a revolutionary lens technology that fine-tunes vision for specific sports and environments. See what you’ve been missing. Click here to learn more about Prizm Lens Technology.</li>   <li>Path lenses enhance performance if traditional lenses touch your cheeks and help extend the upper field of view</li>   <li>Engineered for maximized airflow for optimal ventilation to keep you cool</li>   <li>Unobtanium® earsocks and nosepads keep glasses in place, increasing grip despite perspiration</li>   <li>Interchangeable Lenses let you change lenses in seconds to optimize vision in any sport environment</li> </ul>",
                 Sku = "P-3001",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Radar EV Prizm Sports Sunglasses",
@@ -9571,7 +10604,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "",
                 FullDescription = "<p><strong>Radar® EV Path™ PRIZM™ Road</strong> </p> <p>A new milestone in the heritage of performance, Radar® EV takes breakthroughs of a revolutionary design even further with a taller lens that extends the upper field of view. From the comfort and protection of the O Matter® frame to the grip of its Unobtanium® components, this premium design builds on the legacy of Radar innovation and style. </p> <p><strong>Features</strong> </p> <ul>   <li>PRIZM™ is a revolutionary lens technology that fine-tunes vision for specific sports and environments. See what you’ve been missing. Click here to learn more about Prizm Lens Technology.</li>   <li>Path lenses enhance performance if traditional lenses touch your cheeks and help extend the upper field of view</li>   <li>Engineered for maximized airflow for optimal ventilation to keep you cool</li>   <li>Unobtanium® earsocks and nosepads keep glasses in place, increasing grip despite perspiration</li>   <li>Interchangeable Lenses let you change lenses in seconds to optimize vision in any sport environment</li> </ul>",
                 Sku = "P-3002",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Custom Flak Sunglasses",
@@ -9628,7 +10661,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "iPhone 7 dramatically improves the most important aspects of the iPhone experience. It introduces advanced new camera systems. The best performance and battery life ever in an iPhone. Immersive stereo speakers. The brightest, most colorful iPhone display. Splash and water resistance.1 And it looks every bit as powerful as it is. This is iPhone 7.",
                 FullDescription = "",
                 Sku = "P-2001",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "iPhone Plus",
@@ -9751,11 +10784,12 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Live a better day. Built-in GPS. Water resistance to 50 meters.1 A lightning-fast dual‑core processor. And a display that’s two times brighter than before. Full of features that help you stay active, motivated, and connected, Apple Watch Series 2 is the perfect partner for a healthy life.",
                 FullDescription = "",
                 Sku = "P-2002",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Watch Series 2",
                 Price = 299M,
+                OldPrice = 399M,
                 IsGiftCard = false,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 OrderMinimumQuantity = 1,
@@ -9787,6 +10821,42 @@ namespace SmartStore.Data.Setup
                 DisplayOrder = 1,
             });
 
+            //attributes
+            productIphoneplus.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 1,
+                // offer type -> offer of the day
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 22).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 6).Single()
+            });
+            productIphoneplus.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 1,
+                // manufacturer -> apple
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 20).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
+            });
+            productIphoneplus.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 1,
+                // storage capacity -> 32gb
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 27).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
+            });
+            
+            productIphoneplus.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+            {
+                AllowFiltering = true,
+                ShowOnProductPage = true,
+                DisplayOrder = 1,
+                // operating system -> ios
+                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 5).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 9).Single()
+            });
+
+
             #endregion product Watch Series 2
 
             #region product Airpods
@@ -9800,7 +10870,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Wireless. Effortless. Magical. Just take them out and they’re ready to use with all your devices. Put them in your ears and they connect instantly. Speak into them and your voice sounds clear. Introducing AirPods. Simplicity and technology, together like never before. The result is completely magical.",
                 FullDescription = "",
                 Sku = "P-2003",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "AirPods",
@@ -9820,37 +10890,37 @@ namespace SmartStore.Data.Setup
 
             productAirpods.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_white.jpg"), "image/png", GetSeName(productAirpods.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_white.jpg"), "image/png", GetSeName(productAirpods.Name) + "-white"),
                 DisplayOrder = 1,
             });
 
             productAirpods.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_turquoise.jpg"), "image/png", GetSeName(productAirpods.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_turquoise.jpg"), "image/png", GetSeName(productAirpods.Name) + "-turquoise"),
                 DisplayOrder = 2,
             });
 
             productAirpods.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_lightblue.jpg"), "image/png", GetSeName(productAirpods.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_lightblue.jpg"), "image/png", GetSeName(productAirpods.Name) + "-lightblue"),
                 DisplayOrder = 3,
             });
 
             productAirpods.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_rose.jpg"), "image/png", GetSeName(productAirpods.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_rose.jpg"), "image/png", GetSeName(productAirpods.Name) + "-rose"),
                 DisplayOrder = 4,
             });
 
             productAirpods.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_gold.jpg"), "image/png", GetSeName(productAirpods.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_gold.jpg"), "image/png", GetSeName(productAirpods.Name) + "-gold"),
                 DisplayOrder = 5,
             });
 
             productAirpods.ProductPictures.Add(new ProductPicture()
             {
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_mint.jpg"), "image/png", GetSeName(productAirpods.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_airpods_mint.jpg"), "image/png", GetSeName(productAirpods.Name) + "-mint"),
                 DisplayOrder = 6,
             });
 
@@ -9873,7 +10943,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Save with this set 5%!",
                 FullDescription = "As an Apple fan and hipster, it is your basic need to always have the latest Apple products. So you do not have to spend four times a year in front of the Apple Store, simply subscribe to the Ultimate Apple Pro Hipster Set in the year subscription!",
                 Sku = "P-2005-Bundle",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Ultimate Apple Pro Hipster Bundle",
@@ -9943,7 +11013,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Flat-out fun. Learn, play, surf, create. iPad gives you the incredible display, performance, and apps to do what you love to do. Anywhere. Easily. Magically.",
                 FullDescription = "<ul>  <li>9,7' Retina Display mit True Tone und</li>  <li>A9X Chip der dritten Generation mit 64-Bit Desktoparchitektur</li>  <li>Touch ID Fingerabdrucksensor</li>  <li>12 Megapixel iSight Kamera mit 4K Video</li>  <li>5 Megapixel FaceTime HD Kamera</li>  <li>802.11ac WLAN mit MIMO</li>  <li>Bis zu 10 Stunden Batterielaufzeit***</li>  <li>4-Lautsprecher-Audio</li></ul>",
                 Sku = "P-2004",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 ShowOnHomePage = true,
@@ -10092,21 +11162,21 @@ namespace SmartStore.Data.Setup
 
             var categoryGiftCards = this._ctx.Set<Category>().First(c => c.Alias == "Gift Cards");
 
-			#region product5GiftCard
+			#region product10GiftCard
 
-			var product5GiftCard = new Product()
+			var product10GiftCard = new Product()
 			{
 				ProductType = ProductType.SimpleProduct,
 				VisibleIndividually = true,
-				Name = "$5 Virtual Gift Card",
+				Name = "$10 Virtual Gift Cardxxx",
 				IsEsd = true,
-				ShortDescription = "$5 Gift Card. Gift Cards must be redeemed through our site Web site toward the purchase of eligible products.",
+				ShortDescription = "$10 Gift Card. Gift Cards must be redeemed through our site Web site toward the purchase of eligible products.",
 				FullDescription = "<p>Gift Cards must be redeemed through our site Web site toward the purchase of eligible products. Purchases are deducted from the GiftCard balance. Any unused balance will be placed in the recipient's GiftCard account when redeemed. If an order exceeds the amount of the GiftCard, the balance must be paid with a credit card or other available payment method.</p>",
                 Sku = "P-1000",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
-				MetaTitle = "$5 Virtual Gift Card",
+				MetaTitle = "$10 Virtual Gift Card",
 				Price = 5M,
 				IsGiftCard = true,
 				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
@@ -10114,36 +11184,38 @@ namespace SmartStore.Data.Setup
 				OrderMaximumQuantity = 10000,
 				StockQuantity = 10000,
 				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false
+				AllowBackInStockSubscriptions = false,
+                DisplayOrder = 1
+                
 			};
 
-            product5GiftCard.ProductCategories.Add(new ProductCategory() { Category = categoryGiftCards, DisplayOrder = 1 });
+            product10GiftCard.ProductCategories.Add(new ProductCategory() { Category = categoryGiftCards, DisplayOrder = 1 });
 
-			//var productTag = _productTagRepository.Table.Where(pt => pt.Name == "gift").FirstOrDefault();
-			//productTag.ProductCount++;
-			//productTag.Products.Add(product5GiftCard);
-			//_productTagRepository.Update(productTag);
+            //var productTag = _productTagRepository.Table.Where(pt => pt.Name == "gift").FirstOrDefault();
+            //productTag.ProductCount++;
+            //productTag.Products.Add(product5GiftCard);
+            //_productTagRepository.Update(productTag);
 
-			product5GiftCard.ProductPictures.Add(new ProductPicture()
+            product10GiftCard.ProductPictures.Add(new ProductPicture()
 			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_giftcart.png"), "image/png", GetSeName(product5GiftCard.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "gift-card.jpg"), "image/png", GetSeName(product10GiftCard.Name)),
 				DisplayOrder = 1,
 			});
 
-			#endregion product5GiftCard
+            #endregion product10GiftCard
 
-			#region product25GiftCard
+            #region product25GiftCard
 
-			var product25GiftCard = new Product()
+            var product25GiftCard = new Product()
 			{
 				ProductType = ProductType.SimpleProduct,
 				VisibleIndividually = true,
-				Name = "$25 Virtual Gift Card",
+				Name = "$25 Virtual Gift Cardxxx",
 				IsEsd = true,
 				ShortDescription = "$25 Gift Card. Gift Cards must be redeemed through our site Web site toward the purchase of eligible products.",
 				FullDescription = "<p>Gift Cards must be redeemed through our site Web site toward the purchase of eligible products. Purchases are deducted from the GiftCard balance. Any unused balance will be placed in the recipient's GiftCard account when redeemed. If an order exceeds the amount of the GiftCard, the balance must be paid with a credit card or other available payment method.</p>",
                 Sku = "P-1001",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "$25 Virtual Gift Card",
@@ -10155,15 +11227,16 @@ namespace SmartStore.Data.Setup
 				OrderMaximumQuantity = 10000,
 				StockQuantity = 10000,
 				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false
-			};
+				AllowBackInStockSubscriptions = false,
+                DisplayOrder = 2
+            };
 
             product25GiftCard.ProductCategories.Add(new ProductCategory() { Category = categoryGiftCards, DisplayOrder = 1 });
 
 			product25GiftCard.ProductPictures.Add(new ProductPicture()
 			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_giftcart.png"), "image/png", GetSeName(product25GiftCard.Name)),
-				DisplayOrder = 1,
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "gift-card.jpg"), "image/png", GetSeName(product25GiftCard.Name)),
+				DisplayOrder = 2,
 			});
 
 			#endregion product25GiftCard
@@ -10174,12 +11247,12 @@ namespace SmartStore.Data.Setup
 			{
 				ProductType = ProductType.SimpleProduct,
 				VisibleIndividually = true,
-				Name = "$50 Virtual Gift Card",
+				Name = "$50 Virtual Gift Cardxxx",
 				IsEsd = true,
 				ShortDescription = "$50 Gift Card. Gift Cards must be redeemed through our site Web site toward the purchase of eligible products.",
 				FullDescription = "<p>Gift Cards must be redeemed through our site Web site toward the purchase of eligible products. Purchases are deducted from the GiftCard balance. Any unused balance will be placed in the recipient's GiftCard account when redeemed. If an order exceeds the amount of the GiftCard, the balance must be paid with a credit card or other available payment method.</p>",
                 Sku = "P-1002",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "$50 Virtual Gift Card",
@@ -10191,22 +11264,60 @@ namespace SmartStore.Data.Setup
 				OrderMaximumQuantity = 10000,
 				StockQuantity = 10000,
 				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false
-			};
+				AllowBackInStockSubscriptions = false,
+                DisplayOrder = 3
+            };
 
             product50GiftCard.ProductCategories.Add(new ProductCategory() { Category = categoryGiftCards, DisplayOrder = 1 });
 
 			product50GiftCard.ProductPictures.Add(new ProductPicture()
 			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_giftcart.png"), "image/png", GetSeName(product50GiftCard.Name)),
-				DisplayOrder = 1,
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "gift-card.jpg"), "image/png", GetSeName(product50GiftCard.Name)),
+				DisplayOrder = 3,
 			});
 
-			#endregion product50GiftCard
+            #endregion product50GiftCard
 
-			#endregion category Gift Cards
+            #region product100GiftCard
 
-			#region category books
+            var product100GiftCard = new Product()
+            {
+                ProductType = ProductType.SimpleProduct,
+                VisibleIndividually = true,
+                Name = "$100 Virtual Gift Cardxxx",
+                IsEsd = true,
+                ShortDescription = "$100 Gift Card. Gift Cards must be redeemed through our site Web site toward the purchase of eligible products.",
+                FullDescription = "<p>Gift Cards must be redeemed through our site Web site toward the purchase of eligible products. Purchases are deducted from the GiftCard balance. Any unused balance will be placed in the recipient's GiftCard account when redeemed. If an order exceeds the amount of the GiftCard, the balance must be paid with a credit card or other available payment method.</p>",
+                Sku = "P-100999",
+                ProductTemplateId = productTemplate.Id,
+                AllowCustomerReviews = true,
+                Published = true,
+                MetaTitle = "$100 Virtual Gift Card",
+                Price = 100M,
+                IsGiftCard = true,
+                GiftCardType = GiftCardType.Virtual,
+                ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
+                OrderMinimumQuantity = 1,
+                OrderMaximumQuantity = 10000,
+                StockQuantity = 10000,
+                NotifyAdminForQuantityBelow = 1,
+                AllowBackInStockSubscriptions = false,
+                DisplayOrder = 4
+            };
+
+            product100GiftCard.ProductCategories.Add(new ProductCategory() { Category = categoryGiftCards, DisplayOrder = 1 });
+
+            product100GiftCard.ProductPictures.Add(new ProductPicture()
+            {
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "gift-card.jpg"), "image/png", GetSeName(product100GiftCard.Name)),
+                DisplayOrder = 4,
+            });
+
+            #endregion product100GiftCard
+
+            #endregion category Gift Cards
+
+            #region category books
 
             var categorySpiegelBestseller = this._ctx.Set<Category>().First(c => c.Alias == "SPIEGEL-Bestseller");
             var categoryCookAndEnjoy = this._ctx.Set<Category>().First(c => c.Alias == "Cook and enjoy");
@@ -10222,7 +11333,7 @@ namespace SmartStore.Data.Setup
 				ShortDescription = "(Hardcover)",
 				FullDescription = "<p>From idiots to riches - and back ... Ever since it with my Greek financial advisors were no more delicious cookies to meetings, I should have known something. Was the last cookie it when I bought a Romanian forest funds and leveraged discount certificates on lean hogs - which is sort of a more stringent bet that the price of lean hogs will remain stable, and that's nothing special because it is also available for cattle and cotton and fat pig. Again and again and I joked Kosmas Nikiforos Sarantakos. About all the part-time seer who tremblingly put for fear the euro crisis gold coins under the salami slices of their frozen pizzas And then came the day that revealed to me in almost Sarantakos fraudulent casualness that my plan had not worked out really. 'Why all of a sudden> my plan', 'I heard myself asking yet, but it was in the garage I realized what that really meant minus 211.2 percent in my portfolio report: personal bankruptcy, gutter and Drug Addiction with subsequent loss of the incisors . Not even the study of my friend, I would still be able to finance. The only way out was to me as quickly as secretly again to draw from this unspeakable Greek shit - I had to be Überman! By far the bekloppteste story about 'idiot' Simon Peter! »Tommy Jaud – Deutschlands witzigste Seite.« Alex Dengler, Bild am Sonntag</p>",
                 Sku = "P-1003",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "Überman: The novel",
@@ -10278,7 +11389,7 @@ namespace SmartStore.Data.Setup
 				Name = "The Prisoner of Heaven: A Novel",
 				ShortDescription = "(Hardcover)",
 				FullDescription = "<p>By Shadow of the Wind and The Angel's Game, the new large-Barcelona novel by Carlos Ruiz Zafón. - Barcelona, Christmas 1957th The bookseller Daniel Sempere and his friend Fermín be drawn again into a great adventure. In the continuation of his international success with Carlos Ruiz Zafón takes the reader on a fascinating journey into his Barcelona. Creepy and fascinating, with incredible suction power and humor, the novel, the story of Fermin, who 'rose from the dead, and the key to the future is.' Fermin's life story linking the threads of The Shadow of the Wind with those from The Angel's Game. A masterful puzzle that keeps the reader around the world in thrall. </p> <p> Product Hardcover: 416 pages Publisher: S. Fischer Verlag; 1 edition (October 25, 2012) Language: German ISBN-10: 3,100,954,025 ISBN-13: 978-3100954022 Original title: El prisionero del cielo Size and / or weight: 21.4 x 13.6 cm x 4.4 </p>",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
                 Sku = "P-1004",
 				AllowCustomerReviews = true,
 				Published = true,
@@ -10341,7 +11452,7 @@ namespace SmartStore.Data.Setup
 				Name = "Best Grilling Recipes",
 				ShortDescription = "More Than 100 Regional Favorites Tested and Perfected for the Outdoor Cook (Hardcover)",
 				FullDescription = "<p> Take a winding cross-country trip and you'll discover barbecue shacks with offerings like tender-smoky Baltimore pit beef and saucy St. Louis pork steaks. To bring you the best of these hidden gems, along with all the classics, the editors of Cook's Country magazine scoured the country, then tested and perfected their favorites. HEre traditions large and small are brought into the backyard, from Hawaii's rotisserie favorite, the golden-hued Huli Huli Chicken, to fall-off-the-bone Chicago Barbecued Ribs. In Kansas City, they're all about the sauce, and for our saucy Kansas City Sticky Ribs, we found a surprise ingredient-root beer. We also tackle all the best sides. </p> <p> Not sure where or how to start? This cookbook kicks off with an easy-to-follow primer that will get newcomers all fired up. Whether you want to entertain a crowd or just want to learn to make perfect burgers, Best Grilling Recipes shows you the way. </p>",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
                 Sku = "P-1005",
 				AllowCustomerReviews = true,
 				Published = true,
@@ -10403,7 +11514,7 @@ namespace SmartStore.Data.Setup
 				Name = "Cooking for Two",
 				ShortDescription = "More Than 200 Foolproof Recipes for Weeknights and Special Occasions (Hardcover)",
 				FullDescription = "<p>In Cooking for Two, the test kitchen's goal was to take traditional recipes and cut them down to size to serve just twowith tailored cooking techniques and smart shopping tips that will cut down on wasted food and wasted money. Great lasagna starts to lose its luster when you're eating the leftovers for the fourth day in a row. While it may seem obvious that a recipe for four can simply be halved to work, our testing has proved that this is not always the case; cooking with smaller amounts of ingredients often requires different preparation techniques, cooking time, temperature, and the proportion of ingredients. This was especially true as we worked on scaled-down desserts; baking is an unforgiving science in which any changes in recipe amounts often called for changes in baking times and temperatures. </p> <p> Hardcover: 352 pages<br> Publisher: America's Test Kitchen (May 2009)<br> Language: English<br> ISBN-10: 1933615435<br> ISBN-13: 978-1933615431<br> </p>",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
                 Sku = "P-1006",
 				AllowCustomerReviews = true,
 				Published = true,
@@ -10466,7 +11577,7 @@ namespace SmartStore.Data.Setup
 				ShortDescription = "Hardcover",
 				FullDescription = "<p> For some, the car is only a useful means of transportation. For everyone else, there are 'cars - The Ultimate Guide' of art-connoisseur Michael Doerflinger. With authentic images, all important data and a lot of information can be presented to the fastest, most innovative, the strongest, the most unusual and the most successful examples of automotive history. A comprehensive manual for the specific reference and extensive browsing. </p>",
                 Sku = "P-1007",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "Car of superlatives",
@@ -10529,7 +11640,7 @@ namespace SmartStore.Data.Setup
 				ShortDescription = "Hardcover",
 				FullDescription = "<p> Motorcycles are like no other means of transportation for the great dream of freedom and adventure. This richly illustrated atlas image portrayed in brilliant color photographs and informative text, the most famous bikes of the world's motorcycle history. From the primitive steam engine under the saddle of the late 19th Century up to the hugely powerful, equipped with the latest electronics and computer technology superbikes of today he is an impressive picture of the development and fabrication of noble and fast-paced motorcycles. The myth of the motorcycle is just as much investigated as a motorcycle as a modern lifestyle product of our time. Country-specific, company-historical background information and interesting stories and History about the people who preceded drove one of the seminal inventions of recent centuries and evolved, make this comprehensive illustrated book an incomparable reference for any motorcycle enthusiast and technology enthusiasts. </p> <p> • Extensive history of the legendary models of all major motorcycle manufacturers worldwide<br> • With more than 350 brilliant color photographs and fascinating background information relating<br> • With informative drawings, stunning detail shots and explanatory info-boxes<br> </p> <p> content • 1817 1913: The beginning of a success story<br> • 1914 1945: mass mobility<br> • 1946 1990: Battle for the World Market<br> • In 1991: The modern motorcycle<br> • motorcycle cult object: From Transportation to Lifestyle<br> </p>",
                 Sku = "P-1008",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "Picture Atlas Motorcycles",
@@ -10591,7 +11702,7 @@ namespace SmartStore.Data.Setup
 				ShortDescription = "Hardcover",
 				FullDescription = "<p> Makes, models, milestones<br> The car - for some, a utensil for other expression of lifestyle, cult object and passion. Few inventions have changed their lives as well as the good of the automobile 125 years ago - one more reason for this extensive chronicle. The car-book brings the history of the automobile to life. It presents more than 1200 important models - Karl Benz 'Motorwagen about legendary cult car to advanced hybrid vehicles. It explains the milestones in engine technology and portrays the big brands and their designers. Characteristics from small cars to limousines and send racing each era invite you to browse and discover. The most comprehensive and bestbebildert illustrated book on the market - it would be any car lover! </p> <p> Hardcover: 360 pages<br> Publisher: Dorling Kindersley Publishing (September 27, 2012)<br> Language: German<br> ISBN-10: 3,831,022,062<br> ISBN-13: 978-3831022069<br> Size and / or weight: 30.6 x 25.8 x 2.8 cm<br> </p>",
                 Sku = "P-1009",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "The Car Book",
@@ -10653,7 +11764,7 @@ namespace SmartStore.Data.Setup
 				ShortDescription = "spiral bound",
 				FullDescription = "<p> Large Size: 48.5 x 34 cm.<br> This impressive picture calendar with silver ring binding thrilled with impressive photographs of exclusive sports cars. Who understands cars not only as a pure commercial vehicles, will find the most sought-after status symbols at all: fast cars are effectively set to the razor sharp and vivid photos in scene and convey freedom, speed, strength and the highest technical perfection. Starting with the 450-horsepower Maserati GranTurismo MC Stradale on the stylish, luxurious Aston Martin Virage Volante accompany up to the produced only in small numbers Mosler Photon MT900S the fast racer with style and elegance through the months. </p> <p> Besides the calendar draws another picture to look at interesting details. There are the essential information on any sports car in the English language. After this year, the high-quality photos are framed an eye-catcher on the wall of every lover of fast cars. Even as a gift this beautiful years companion is wonderfully suited. 12 calendar pages, neutral and discreet held calendar. Printed on paper from sustainable forests. For lovers of luxury vintage cars also available in ALPHA EDITION: the large format image Classic Cars Calendar 2013: ISBN 9,783,840,733,376th </p> <p> Spiral-bound: 14 pages<br> Publisher: Alpha Edition (June 1, 2012)<br> Language: German<br> ISBN-10: 3,840,733,383<br> ISBN-13: 978-3840733383<br> Size and / or weight: 48.8 x 34.2 x 0.6 cm<br> </p>",
                 Sku = "P-1010",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "Fast Cars",
@@ -10715,7 +11826,7 @@ namespace SmartStore.Data.Setup
 				ShortDescription = "Hardcover",
 				FullDescription = "<p> Modern travel enduro bikes are ideal for adventure travel. Their technique is complex, their weight considerably. The driving behavior changes depending on the load and distance. </p> <p> Before the tour starts, you should definitely attend a training course. This superbly illustrated book presents practical means of many informative series photos the right off-road driving in mud and sand, gravel and rock with and without luggage. In addition to the driving course full of information and tips on choosing the right motorcycle for travel planning and practical issues may be on the way. </p>",
                 Sku = "P-1011",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "Motorcycle Adventures",
@@ -10771,415 +11882,415 @@ namespace SmartStore.Data.Setup
 
 			#region computer
 
-            var categoryComputer = this._ctx.Set<Category>().First(c => c.Alias == "Computers");
-            var categoryNotebooks = this._ctx.Set<Category>().First(c => c.Alias == "Notebooks");
-            var categoryDesktops = this._ctx.Set<Category>().First(c => c.Alias == "Desktops");
+   //         var categoryComputer = this._ctx.Set<Category>().First(c => c.Alias == "Computers");
+   //         var categoryNotebooks = this._ctx.Set<Category>().First(c => c.Alias == "Notebooks");
+   //         var categoryDesktops = this._ctx.Set<Category>().First(c => c.Alias == "Desktops");
 
-			#region productComputerDellInspiron23
+			//#region productComputerDellInspiron23
 
-			var productComputerDellInspiron23 = new Product()
-			{
-				ProductType = ProductType.SimpleProduct,
-				VisibleIndividually = true,
-				Name = "Dell Inspiron One 23",
-				ShortDescription = "This 58 cm (23'')-All-in-One PC with Full HD, Windows 8 and powerful Intel ® Core ™ processor third generation allows practical interaction with a touch screen.",
-				FullDescription = "<p>Ultra high performance all-in-one i7 PC with Windows 8, Intel ® Core ™ processor, huge 2TB hard drive and Blu-Ray drive. </p> <p> Intel® Core™ i7-3770S Processor ( 3,1 GHz, 6 MB Cache)<br> Windows 8 64bit , english<br> 8 GB1 DDR3 SDRAM at 1600 MHz<br> 2 TB-Serial ATA-Harddisk (7.200 rot/min)<br> 1GB AMD Radeon HD 7650<br> </p>",
-                Sku = "P-1012",
-				ProductTemplateId = productTemplateSimple.Id,
-				AllowCustomerReviews = true,
-				Published = true,
-				MetaTitle = "Dell Inspiron One 23",
-				Price = 589.00M,
-				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
-				OrderMinimumQuantity = 1,
-				OrderMaximumQuantity = 10000,
-				StockQuantity = 10000,
-				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false,
-				IsShipEnabled = true,
-				DeliveryTime = _ctx.Set<DeliveryTime>().Where(sa => sa.DisplayOrder == 0).Single()
-			};
+			//var productComputerDellInspiron23 = new Product()
+			//{
+			//	ProductType = ProductType.SimpleProduct,
+			//	VisibleIndividually = true,
+			//	Name = "Dell Inspiron One 23",
+			//	ShortDescription = "This 58 cm (23'')-All-in-One PC with Full HD, Windows 8 and powerful Intel ® Core ™ processor third generation allows practical interaction with a touch screen.",
+			//	FullDescription = "<p>Ultra high performance all-in-one i7 PC with Windows 8, Intel ® Core ™ processor, huge 2TB hard drive and Blu-Ray drive. </p> <p> Intel® Core™ i7-3770S Processor ( 3,1 GHz, 6 MB Cache)<br> Windows 8 64bit , english<br> 8 GB1 DDR3 SDRAM at 1600 MHz<br> 2 TB-Serial ATA-Harddisk (7.200 rot/min)<br> 1GB AMD Radeon HD 7650<br> </p>",
+   //             Sku = "P-1012",
+			//	ProductTemplateId = productTemplateSimple.Id,
+			//	AllowCustomerReviews = true,
+			//	Published = true,
+			//	MetaTitle = "Dell Inspiron One 23",
+			//	Price = 589.00M,
+			//	ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
+			//	OrderMinimumQuantity = 1,
+			//	OrderMaximumQuantity = 10000,
+			//	StockQuantity = 10000,
+			//	NotifyAdminForQuantityBelow = 1,
+			//	AllowBackInStockSubscriptions = false,
+			//	IsShipEnabled = true,
+			//	DeliveryTime = _ctx.Set<DeliveryTime>().Where(sa => sa.DisplayOrder == 0).Single()
+			//};
 
-            productComputerDellInspiron23.ProductCategories.Add(new ProductCategory() { Category = categoryComputer, DisplayOrder = 1 });
-            productComputerDellInspiron23.ProductCategories.Add(new ProductCategory() { Category = categoryDesktops, DisplayOrder = 1 });
+   //         productComputerDellInspiron23.ProductCategories.Add(new ProductCategory() { Category = categoryComputer, DisplayOrder = 1 });
+   //         productComputerDellInspiron23.ProductCategories.Add(new ProductCategory() { Category = categoryDesktops, DisplayOrder = 1 });
 
-			#region pictures
+			//#region pictures
 
-			//pictures
-			productComputerDellInspiron23.ProductPictures.Add(new ProductPicture()
-			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_dellinspiron23.png"), "image/png", GetSeName(productComputerDellInspiron23.Name)),
-				DisplayOrder = 1,
-			});
-			productComputerDellInspiron23.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000954_dell-inspiron-one-23.jpeg"), "image/jpeg", GetSeName(productComputerDellInspiron23.Name)),
-				DisplayOrder = 2,
-			});
-			productComputerDellInspiron23.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000956_dell-inspiron-one-23.jpeg"), "image/jpeg", GetSeName(productComputerDellInspiron23.Name)),
-				DisplayOrder = 3,
-			});
+			////pictures
+			//productComputerDellInspiron23.ProductPictures.Add(new ProductPicture()
+			//{
+   //             Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_dellinspiron23.png"), "image/png", GetSeName(productComputerDellInspiron23.Name)),
+			//	DisplayOrder = 1,
+			//});
+			//productComputerDellInspiron23.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000954_dell-inspiron-one-23.jpeg"), "image/jpeg", GetSeName(productComputerDellInspiron23.Name)),
+			//	DisplayOrder = 2,
+			//});
+			//productComputerDellInspiron23.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000956_dell-inspiron-one-23.jpeg"), "image/jpeg", GetSeName(productComputerDellInspiron23.Name)),
+			//	DisplayOrder = 3,
+			//});
 
-			#endregion pictures
+			//#endregion pictures
 
-			#region manufacturer
+			//#region manufacturer
 
-			//manufacturer
-			productComputerDellInspiron23.ProductManufacturers.Add(new ProductManufacturer()
-			{
-				Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Dell").Single(),
-				DisplayOrder = 1,
-			});
+			////manufacturer
+			//productComputerDellInspiron23.ProductManufacturers.Add(new ProductManufacturer()
+			//{
+			//	Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Dell").Single(),
+			//	DisplayOrder = 1,
+			//});
 
-            #endregion manufacturer
+   //         #endregion manufacturer
 
-            #region SpecificationAttributes
-            //attributes
-            productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-            {
-                AllowFiltering = true,
-                ShowOnProductPage = true,
-                DisplayOrder = 1,
-                // CPU -> Intel
-                SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 1).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
-            });
-            productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 2,
-				// RAM -> 4 GB 
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 4).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
-			});
-			productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 3,
-				// Harddisk-Typ / HDD
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 16).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
-			});
-			productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 4,
-				// Harddisk-Capacity / 750 GB
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 3).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 3).Single()
-			});
-			productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 5,
-				// OS / Windows 7 32 Bit
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 5).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
-			});
-			#endregion SpecificationAttributes
+   //         #region SpecificationAttributes
+   //         //attributes
+   //         productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+   //         {
+   //             AllowFiltering = true,
+   //             ShowOnProductPage = true,
+   //             DisplayOrder = 1,
+   //             // CPU -> Intel
+   //             SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 1).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
+   //         });
+   //         productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 2,
+			//	// RAM -> 4 GB 
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 4).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
+			//});
+			//productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 3,
+			//	// Harddisk-Typ / HDD
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 16).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
+			//});
+			//productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 4,
+			//	// Harddisk-Capacity / 750 GB
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 3).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 3).Single()
+			//});
+			//productComputerDellInspiron23.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 5,
+			//	// OS / Windows 7 32 Bit
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 5).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
+			//});
+			//#endregion SpecificationAttributes
 
-			#endregion productComputerDellInspiron23
+			//#endregion productComputerDellInspiron23
 
-			#region productComputerDellOptiplex3010
+			//#region productComputerDellOptiplex3010
 
-			var productComputerDellOptiplex3010 = new Product()
-			{
-				ProductType = ProductType.SimpleProduct,
-				VisibleIndividually = true,
-				Name = "Dell Optiplex 3010 DT Base",
-				ShortDescription = "SPECIAL OFFER: Extra 50 € discount on all Dell OptiPlex desktops from a value of € 549. Online Coupon:? W8DWQ0ZRKTM1, valid until 04/12/2013.",
-				FullDescription = "<p>Also included in this system include To change these selections, the</p> <p> 1 Year Basic Service - On-Site NBD - No Upgrade Selected<br> No asset tag required </p> <p> The following options are default selections included with your order. <br> German (QWERTY) Dell KB212-B Multimedia USB Keyboard Black<br> X11301001<br> WINDOWS LIVE <br> OptiPlex ™ order - Germany  <br> OptiPlex ™ Intel ® Core ™ i3 sticker <br> Optical software is not required, operating system software sufficiently   <br> </p>",
-                Sku = "P-1013",
-				ProductTemplateId = productTemplateSimple.Id,
-				AllowCustomerReviews = true,
-				Published = true,
-				MetaTitle = "Dell Optiplex 3010 DT Base",
-				Price = 419.00M,
-				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
-				OrderMinimumQuantity = 1,
-				OrderMaximumQuantity = 10000,
-				StockQuantity = 10000,
-				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false,
-				IsShipEnabled = true,
-				DeliveryTime = _ctx.Set<DeliveryTime>().Where(sa => sa.DisplayOrder == 0).Single()
-			};
+			//var productComputerDellOptiplex3010 = new Product()
+			//{
+			//	ProductType = ProductType.SimpleProduct,
+			//	VisibleIndividually = true,
+			//	Name = "Dell Optiplex 3010 DT Base",
+			//	ShortDescription = "SPECIAL OFFER: Extra 50 € discount on all Dell OptiPlex desktops from a value of € 549. Online Coupon:? W8DWQ0ZRKTM1, valid until 04/12/2013.",
+			//	FullDescription = "<p>Also included in this system include To change these selections, the</p> <p> 1 Year Basic Service - On-Site NBD - No Upgrade Selected<br> No asset tag required </p> <p> The following options are default selections included with your order. <br> German (QWERTY) Dell KB212-B Multimedia USB Keyboard Black<br> X11301001<br> WINDOWS LIVE <br> OptiPlex ™ order - Germany  <br> OptiPlex ™ Intel ® Core ™ i3 sticker <br> Optical software is not required, operating system software sufficiently   <br> </p>",
+   //             Sku = "P-1013",
+			//	ProductTemplateId = productTemplateSimple.Id,
+			//	AllowCustomerReviews = true,
+			//	Published = true,
+			//	MetaTitle = "Dell Optiplex 3010 DT Base",
+			//	Price = 419.00M,
+			//	ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
+			//	OrderMinimumQuantity = 1,
+			//	OrderMaximumQuantity = 10000,
+			//	StockQuantity = 10000,
+			//	NotifyAdminForQuantityBelow = 1,
+			//	AllowBackInStockSubscriptions = false,
+			//	IsShipEnabled = true,
+			//	DeliveryTime = _ctx.Set<DeliveryTime>().Where(sa => sa.DisplayOrder == 0).Single()
+			//};
 
-            productComputerDellOptiplex3010.ProductCategories.Add(new ProductCategory() { Category = categoryComputer, DisplayOrder = 1 });
-            productComputerDellOptiplex3010.ProductCategories.Add(new ProductCategory() { Category = categoryDesktops, DisplayOrder = 1 });
+   //         productComputerDellOptiplex3010.ProductCategories.Add(new ProductCategory() { Category = categoryComputer, DisplayOrder = 1 });
+   //         productComputerDellOptiplex3010.ProductCategories.Add(new ProductCategory() { Category = categoryDesktops, DisplayOrder = 1 });
 
-			#region pictures
+			//#region pictures
 
-			//pictures
-			productComputerDellOptiplex3010.ProductPictures.Add(new ProductPicture()
-			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_dellinspiron23.png"), "image/png", GetSeName(productComputerDellOptiplex3010.Name)),
-				DisplayOrder = 1,
-			});
-			productComputerDellOptiplex3010.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000954_dell-inspiron-one-23.jpeg"), "image/jpeg", GetSeName(productComputerDellOptiplex3010.Name)),
-				DisplayOrder = 2,
-			});
-			productComputerDellOptiplex3010.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000956_dell-inspiron-one-23.jpeg"), "image/jpeg", GetSeName(productComputerDellOptiplex3010.Name)),
-				DisplayOrder = 3,
-			});
+			////pictures
+			//productComputerDellOptiplex3010.ProductPictures.Add(new ProductPicture()
+			//{
+   //             Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_dellinspiron23.png"), "image/png", GetSeName(productComputerDellOptiplex3010.Name)),
+			//	DisplayOrder = 1,
+			//});
+			//productComputerDellOptiplex3010.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000954_dell-inspiron-one-23.jpeg"), "image/jpeg", GetSeName(productComputerDellOptiplex3010.Name)),
+			//	DisplayOrder = 2,
+			//});
+			//productComputerDellOptiplex3010.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000956_dell-inspiron-one-23.jpeg"), "image/jpeg", GetSeName(productComputerDellOptiplex3010.Name)),
+			//	DisplayOrder = 3,
+			//});
 
-			#endregion pictures
+			//#endregion pictures
 
-			#region manufacturer
+			//#region manufacturer
 
-			//manufacturer
-			productComputerDellOptiplex3010.ProductManufacturers.Add(new ProductManufacturer()
-			{
-				Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Dell").Single(),
-				DisplayOrder = 1,
-			});
+			////manufacturer
+			//productComputerDellOptiplex3010.ProductManufacturers.Add(new ProductManufacturer()
+			//{
+			//	Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Dell").Single(),
+			//	DisplayOrder = 1,
+			//});
 
-			#endregion manufacturer
+			//#endregion manufacturer
 
-			#region SpecificationAttributes
-			//attributes
-			productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 1,
-				// CPU -> Intel
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 1).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
-			});
-			productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 2,
-				// RAM -> 4 GB 
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 4).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
-			});
-			productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 3,
-				// Harddisk-Typ / HDD
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 16).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
-			});
-			productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 4,
-				// Harddisk-Capacity / 750 GB
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 3).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
-			});
-			productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 5,
-				// OS / Windows 7 32 Bit
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 5).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 4).Single()
-			});
-			#endregion SpecificationAttributes
+			//#region SpecificationAttributes
+			////attributes
+			//productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 1,
+			//	// CPU -> Intel
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 1).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
+			//});
+			//productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 2,
+			//	// RAM -> 4 GB 
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 4).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
+			//});
+			//productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 3,
+			//	// Harddisk-Typ / HDD
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 16).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
+			//});
+			//productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 4,
+			//	// Harddisk-Capacity / 750 GB
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 3).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 2).Single()
+			//});
+			//productComputerDellOptiplex3010.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 5,
+			//	// OS / Windows 7 32 Bit
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 5).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 4).Single()
+			//});
+			//#endregion SpecificationAttributes
 
-			#endregion productComputerDellOptiplex3010
+			//#endregion productComputerDellOptiplex3010
 
-			#region productComputerAcerAspireOne
-			var productComputerAcerAspireOne = new Product()
-			{
-				ProductType = ProductType.SimpleProduct,
-				VisibleIndividually = true,
-				Name = "Acer Aspire One 8.9\" Mini-Notebook Case - (Black)",
-				ShortDescription = "Acer Aspire One 8.9\" Mini-Notebook and 6 Cell Battery model (AOA150-1447)",
-				FullDescription = "<p>Acer Aspire One 8.9&quot; Memory Foam Pouch is the perfect fit for Acer Aspire One 8.9&quot;. This pouch is made out of premium quality shock absorbing memory form and it provides extra protection even though case is very light and slim. This pouch is water resistant and has internal supporting bands for Acer Aspire One 8.9&quot;. Made In Korea.</p>",
-                Sku = "P-1014",
-				ProductTemplateId = productTemplateSimple.Id,
-				AllowCustomerReviews = true,
-				Published = true,
-				MetaTitle = "Acer Aspire One 8.9",
-				ShowOnHomePage = true,
-				Price = 210.6M,
-				IsShipEnabled = true,
-				Weight = 2,
-				Length = 2,
-				Width = 2,
-				Height = 3,
-				ManageInventoryMethod = ManageInventoryMethod.ManageStock,
-				StockQuantity = 10000,
-				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false,
-				DisplayStockAvailability = true,
-				LowStockActivity = LowStockActivity.DisableBuyButton,
-				BackorderMode = BackorderMode.NoBackorders,
-				OrderMinimumQuantity = 1,
-				OrderMaximumQuantity = 10000,
-				DeliveryTime = _ctx.Set<DeliveryTime>().Where(sa => sa.DisplayOrder == 0).Single()
-			};
+			//#region productComputerAcerAspireOne
+			//var productComputerAcerAspireOne = new Product()
+			//{
+			//	ProductType = ProductType.SimpleProduct,
+			//	VisibleIndividually = true,
+			//	Name = "Acer Aspire One 8.9\" Mini-Notebook Case - (Black)",
+			//	ShortDescription = "Acer Aspire One 8.9\" Mini-Notebook and 6 Cell Battery model (AOA150-1447)",
+			//	FullDescription = "<p>Acer Aspire One 8.9&quot; Memory Foam Pouch is the perfect fit for Acer Aspire One 8.9&quot;. This pouch is made out of premium quality shock absorbing memory form and it provides extra protection even though case is very light and slim. This pouch is water resistant and has internal supporting bands for Acer Aspire One 8.9&quot;. Made In Korea.</p>",
+   //             Sku = "P-1014",
+			//	ProductTemplateId = productTemplateSimple.Id,
+			//	AllowCustomerReviews = true,
+			//	Published = true,
+			//	MetaTitle = "Acer Aspire One 8.9",
+			//	ShowOnHomePage = true,
+			//	Price = 210.6M,
+			//	IsShipEnabled = true,
+			//	Weight = 2,
+			//	Length = 2,
+			//	Width = 2,
+			//	Height = 3,
+			//	ManageInventoryMethod = ManageInventoryMethod.ManageStock,
+			//	StockQuantity = 10000,
+			//	NotifyAdminForQuantityBelow = 1,
+			//	AllowBackInStockSubscriptions = false,
+			//	DisplayStockAvailability = true,
+			//	LowStockActivity = LowStockActivity.DisableBuyButton,
+			//	BackorderMode = BackorderMode.NoBackorders,
+			//	OrderMinimumQuantity = 1,
+			//	OrderMaximumQuantity = 10000,
+			//	DeliveryTime = _ctx.Set<DeliveryTime>().Where(sa => sa.DisplayOrder == 0).Single()
+			//};
 
-            productComputerAcerAspireOne.ProductCategories.Add(new ProductCategory() { Category = categoryComputer, DisplayOrder = 1 });
-            productComputerAcerAspireOne.ProductCategories.Add(new ProductCategory() { Category = categoryNotebooks, DisplayOrder = 1 });
+   //         productComputerAcerAspireOne.ProductCategories.Add(new ProductCategory() { Category = categoryComputer, DisplayOrder = 1 });
+   //         productComputerAcerAspireOne.ProductCategories.Add(new ProductCategory() { Category = categoryNotebooks, DisplayOrder = 1 });
 
-			#region manufacturer
+			//#region manufacturer
 
-			//manufacturer
-			productComputerAcerAspireOne.ProductManufacturers.Add(new ProductManufacturer()
-			{
-				Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Acer").Single(),
-				DisplayOrder = 1,
-			});
+			////manufacturer
+			//productComputerAcerAspireOne.ProductManufacturers.Add(new ProductManufacturer()
+			//{
+			//	Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Acer").Single(),
+			//	DisplayOrder = 1,
+			//});
 
-			#endregion manufacturer
+			//#endregion manufacturer
 
-			#region tierPrieces
-			productComputerAcerAspireOne.TierPrices.Add(new TierPrice()
-			{
-				Quantity = 2,
-				Price = 205
-			});
-			productComputerAcerAspireOne.TierPrices.Add(new TierPrice()
-			{
-				Quantity = 5,
-				Price = 189
-			});
-			productComputerAcerAspireOne.TierPrices.Add(new TierPrice()
-			{
-				Quantity = 10,
-				Price = 155
-			});
-			productComputerAcerAspireOne.HasTierPrices = true;
-			#endregion tierPrieces
+			//#region tierPrieces
+			//productComputerAcerAspireOne.TierPrices.Add(new TierPrice()
+			//{
+			//	Quantity = 2,
+			//	Price = 205
+			//});
+			//productComputerAcerAspireOne.TierPrices.Add(new TierPrice()
+			//{
+			//	Quantity = 5,
+			//	Price = 189
+			//});
+			//productComputerAcerAspireOne.TierPrices.Add(new TierPrice()
+			//{
+			//	Quantity = 10,
+			//	Price = 155
+			//});
+			//productComputerAcerAspireOne.HasTierPrices = true;
+			//#endregion tierPrieces
 
-			#region pictures
-			productComputerAcerAspireOne.ProductPictures.Add(new ProductPicture()
-			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_aceraspiresl1500.png"), "image/png", GetSeName(productComputerAcerAspireOne.Name)),
-				DisplayOrder = 1,
-			});
-			productComputerAcerAspireOne.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "01-12Hand_Aspire1.jpg"), "image/jpeg", GetSeName(productComputerAcerAspireOne.Name)),
-				DisplayOrder = 2,
-			});
-			productComputerAcerAspireOne.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "58_00007561.jpg"), "image/jpeg", GetSeName(productComputerAcerAspireOne.Name)),
-				DisplayOrder = 3,
-			});
+			//#region pictures
+			//productComputerAcerAspireOne.ProductPictures.Add(new ProductPicture()
+			//{
+   //             Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_aceraspiresl1500.png"), "image/png", GetSeName(productComputerAcerAspireOne.Name)),
+			//	DisplayOrder = 1,
+			//});
+			//productComputerAcerAspireOne.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "01-12Hand_Aspire1.jpg"), "image/jpeg", GetSeName(productComputerAcerAspireOne.Name)),
+			//	DisplayOrder = 2,
+			//});
+			//productComputerAcerAspireOne.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "58_00007561.jpg"), "image/jpeg", GetSeName(productComputerAcerAspireOne.Name)),
+			//	DisplayOrder = 3,
+			//});
 
-			#endregion tierPrieces
+			//#endregion tierPrieces
 
-			#endregion productComputerAcerAspireOne
+			//#endregion productComputerAcerAspireOne
 
 			#endregion computer
 
 			#region Smartphones
 
-            var categoryCellPhones = this._ctx.Set<Category>().First(c => c.Alias == "Cell phones");
+   //         var categoryCellPhones = this._ctx.Set<Category>().First(c => c.Alias == "Cell phones");
 
-			#region productSmartPhonesAppleIphone
+			//#region productSmartPhonesAppleIphone
 
-			var productSmartPhonesAppleIphone = new Product()
-			{
-				ProductType = ProductType.SimpleProduct,
-				VisibleIndividually = true,
-				Name = "Apple iPhone 6",
-				ShortDescription = "The biggest thing to happen to iPhone since iPhone.",
-				FullDescription = "<p>Available in silver, gold, and space gray, iPhone 6 Plus features an A8 chip, Touch ID, faster LTE wireless, a new 8MP iSight camera with Focus Pixels, and iOS 8.</p><p>Weight and Dimensions: Height: 6.22 inches (158.1 mm), Width: 3.06 inches (77.8 mm), Depth: 0.28 inch (7.1 mm), Weight: 6.07 ounces (172 grams).</p><p><ul><li>A8 chip with 64-bit architecture. M8 motion coprocessor.</li><li>New 8-megapixel iSight camera with 1.5µ pixels. Autofocus with Focus Pixels.</li><li>1080p HD video recording (30 fps or 60 fps).</li><li>Retina HD display. 4.7-inch (diagonal) LED-backlit widescreen Multi Touch display with IPS technology.</li><li>1334-by-750-pixel resolution at 326 ppi. 1400:1 contrast ratio (typical). 500 cd/m2 max brightness (typical).</li><li>Fingerprint identity sensor built into the Home button.</li><li>802.11a/b/g/n/ac Wi-Fi. Bluetooth 4.0 wireless technology. NFC.</li><li>RAM	1GB, Internal storage 16GB.</li><li>Colors: Silver, Gold, Space Gray.</li></ul></p>",
-                Sku = "Apple-1001",
-				ProductTemplateId = productTemplateSimple.Id,
-				AllowCustomerReviews = true,
-				Published = true,
-				MetaTitle = "Apple iPhone 6",
-				ShowOnHomePage = true,
-				Price = 579.00M,
-				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
-				OrderMinimumQuantity = 1,
-				OrderMaximumQuantity = 10000,
-				StockQuantity = 10000,
-				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false,
-				IsShipEnabled = true,
-				DeliveryTime = _ctx.Set<DeliveryTime>().Where(sa => sa.DisplayOrder == 2).Single()
-			};
+			//var productSmartPhonesAppleIphone = new Product()
+			//{
+			//	ProductType = ProductType.SimpleProduct,
+			//	VisibleIndividually = true,
+			//	Name = "Apple iPhone 6",
+			//	ShortDescription = "The biggest thing to happen to iPhone since iPhone.",
+			//	FullDescription = "<p>Available in silver, gold, and space gray, iPhone 6 Plus features an A8 chip, Touch ID, faster LTE wireless, a new 8MP iSight camera with Focus Pixels, and iOS 8.</p><p>Weight and Dimensions: Height: 6.22 inches (158.1 mm), Width: 3.06 inches (77.8 mm), Depth: 0.28 inch (7.1 mm), Weight: 6.07 ounces (172 grams).</p><p><ul><li>A8 chip with 64-bit architecture. M8 motion coprocessor.</li><li>New 8-megapixel iSight camera with 1.5µ pixels. Autofocus with Focus Pixels.</li><li>1080p HD video recording (30 fps or 60 fps).</li><li>Retina HD display. 4.7-inch (diagonal) LED-backlit widescreen Multi Touch display with IPS technology.</li><li>1334-by-750-pixel resolution at 326 ppi. 1400:1 contrast ratio (typical). 500 cd/m2 max brightness (typical).</li><li>Fingerprint identity sensor built into the Home button.</li><li>802.11a/b/g/n/ac Wi-Fi. Bluetooth 4.0 wireless technology. NFC.</li><li>RAM	1GB, Internal storage 16GB.</li><li>Colors: Silver, Gold, Space Gray.</li></ul></p>",
+   //             Sku = "Apple-1001",
+			//	ProductTemplateId = productTemplateSimple.Id,
+			//	AllowCustomerReviews = true,
+			//	Published = true,
+			//	MetaTitle = "Apple iPhone 6",
+			//	ShowOnHomePage = true,
+			//	Price = 579.00M,
+			//	ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
+			//	OrderMinimumQuantity = 1,
+			//	OrderMaximumQuantity = 10000,
+			//	StockQuantity = 10000,
+			//	NotifyAdminForQuantityBelow = 1,
+			//	AllowBackInStockSubscriptions = false,
+			//	IsShipEnabled = true,
+			//	DeliveryTime = _ctx.Set<DeliveryTime>().Where(sa => sa.DisplayOrder == 2).Single()
+			//};
 
-            productSmartPhonesAppleIphone.ProductCategories.Add(new ProductCategory() { Category = categoryCellPhones, DisplayOrder = 1 });
+   //         productSmartPhonesAppleIphone.ProductCategories.Add(new ProductCategory() { Category = categoryCellPhones, DisplayOrder = 1 });
 
-			#region pictures
+			//#region pictures
 
-			//pictures
-			productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000789-apple-iphone.jpg"), "image/jpeg", GetSeName(productSmartPhonesAppleIphone.Name)),
-				DisplayOrder = 1,
-			});
-			productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000785-apple-iphone.png"), "image/png", GetSeName(productSmartPhonesAppleIphone.Name)),
-				DisplayOrder = 2,
-			});
-			productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000786-apple-iphone.png"), "image/png", GetSeName(productSmartPhonesAppleIphone.Name)),
-				DisplayOrder = 3,
-			});
-			productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000787-apple-iphone.jpg"), "image/jpeg", GetSeName(productSmartPhonesAppleIphone.Name)),
-				DisplayOrder = 4,
-			});
-			productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000788-apple-iphone.png"), "image/png", GetSeName(productSmartPhonesAppleIphone.Name)),
-				DisplayOrder = 5,
-			});
+			////pictures
+			//productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000789-apple-iphone.jpg"), "image/jpeg", GetSeName(productSmartPhonesAppleIphone.Name)),
+			//	DisplayOrder = 1,
+			//});
+			//productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000785-apple-iphone.png"), "image/png", GetSeName(productSmartPhonesAppleIphone.Name)),
+			//	DisplayOrder = 2,
+			//});
+			//productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000786-apple-iphone.png"), "image/png", GetSeName(productSmartPhonesAppleIphone.Name)),
+			//	DisplayOrder = 3,
+			//});
+			//productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000787-apple-iphone.jpg"), "image/jpeg", GetSeName(productSmartPhonesAppleIphone.Name)),
+			//	DisplayOrder = 4,
+			//});
+			//productSmartPhonesAppleIphone.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "0000788-apple-iphone.png"), "image/png", GetSeName(productSmartPhonesAppleIphone.Name)),
+			//	DisplayOrder = 5,
+			//});
 
 
 
-			#endregion pictures
+			//#endregion pictures
 
-			#region manufacturer
+			//#region manufacturer
 
-			//manufacturer
-			productSmartPhonesAppleIphone.ProductManufacturers.Add(new ProductManufacturer()
-			{
-				Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Apple").Single(),
-				DisplayOrder = 1,
-			});
+			////manufacturer
+			//productSmartPhonesAppleIphone.ProductManufacturers.Add(new ProductManufacturer()
+			//{
+			//	Manufacturer = _ctx.Set<Manufacturer>().Where(c => c.Name == "Apple").Single(),
+			//	DisplayOrder = 1,
+			//});
 
-			#endregion manufacturer
+			//#endregion manufacturer
 
-			#region SpecificationAttributes
-			//attributes
-			productSmartPhonesAppleIphone.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 1,
-				// housing > alu
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 8).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 4).Single()
-			});
-			productSmartPhonesAppleIphone.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 2,
-				// manufacturer > apple
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 20).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
-			});
-			productSmartPhonesAppleIphone.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
-			{
-				AllowFiltering = true,
-				ShowOnProductPage = true,
-				DisplayOrder = 5,
-				// OS / Windows 7 32 Bit
-				SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 5).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 9).Single()
-			});
-            #endregion SpecificationAttributes
+			//#region SpecificationAttributes
+			////attributes
+			//productSmartPhonesAppleIphone.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 1,
+			//	// housing > alu
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 8).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 4).Single()
+			//});
+			//productSmartPhonesAppleIphone.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 2,
+			//	// manufacturer > apple
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 20).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 1).Single()
+			//});
+			//productSmartPhonesAppleIphone.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute()
+			//{
+			//	AllowFiltering = true,
+			//	ShowOnProductPage = true,
+			//	DisplayOrder = 5,
+			//	// OS / Windows 7 32 Bit
+			//	SpecificationAttributeOption = _ctx.Set<SpecificationAttribute>().Where(sa => sa.DisplayOrder == 5).Single().SpecificationAttributeOptions.Where(sao => sao.DisplayOrder == 9).Single()
+			//});
+   //         #endregion SpecificationAttributes
 
-            #endregion productSmartPhonesAppleIphone
+            //#endregion productSmartPhonesAppleIphone
 
             #endregion Smartphones
 
@@ -11198,7 +12309,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "E-Book, 465 pages",
                 FullDescription = "",
                 Sku = "P-6001",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Ebook 'Stone of the Wise' in 'Lorem ipsum'",
@@ -11276,7 +12387,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "MP3, 320 kbit/s",
                 FullDescription = "<p>Antonio Vivaldi: Spring</p> <p>Antonio Lucio Vivaldi (March 4, 1678 in Venice, &dagger; 28 July 1741 in Vienna) was a Venetian composer and violinist in the Baroque.</p> <p>The Four Seasons (Le quattro stagioni Italian) is perhaps the most famous works of Antonio Vivaldi. It's four violin concertos with extra-musical programs, each portraying a concert season. This is the individual concerts one - probably written by Vivaldi himself - Sonnet preceded by consecutive letters in front of the lines and in the appropriate places in the score arrange the verbal description of the music.</p> <p>Vivaldi had previously always been experimenting with non-musical programs, which often reflected in his tracks, the exact interpretation of the individual points score is unusual for him. His experience as a virtuoso violinist allowed him access to particularly effective playing techniques, as an opera composer, he had developed a strong sense of effects, both of which benefitted from him.</p> <p>As the title suggests, especially to imitate natural phenomena - gentle winds, severe storms and thunderstorms are elements that are common to all four concerts. There are also various birds and even a dog, further human activities such as hunting, a barn dance, ice skating, including stumbling and falling to the heavy sleep of a drunkard.</p> <p>The work dates from 1725 and is available in two print editions, which appeared more or less simultaneously published in Amsterdam and Paris.</p>",
                 Sku = "P-1016",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Antonio Vivaldi: spring",
@@ -11351,7 +12462,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Ludwig van Beethoven's most popular compositions",
                 FullDescription = "<p> The score was not published until 1867, 40 years after the composer's death in 1827. The discoverer of the piece, Ludwig Nohl, affirmed that the original autographed manuscript, now lost, was dated 27 April 1810.[4] The version of \"Für Elise\" we hear today is an earlier version that was transcribed by Ludwig Nohl. There is a later version, with drastic changes to the accompaniment which was transcribed from a later manuscript by Barry Cooper. The most notable difference is in the first theme, the left-hand arpeggios are delayed by a 16th note beat. There are a few extra bars in the transitional section into the B section; and finally, the rising A minor arpeggio figure is moved later into the piece. The tempo marking Poco Moto is believed to have been on the manuscript that Ludwig Nohl transcribed (now lost). The later version includes the marking Molto Grazioso. It is believed that Beethoven intended to add the piece to a cycle of bagatelles.[citation needed] </p> <p> Therese Malfatti, widely believed to be the dedicatee of \"Für Elise\" The pianist and musicologist Luca Chiantore (es) argued in his thesis and his 2010 book Beethoven al piano that Beethoven might not have been the person who gave the piece the form that we know today. Chiantore suggested that the original signed manuscript, upon which Ludwig Nohl claimed to base his transcription, may never have existed.[5] On the other hand, the musicologist Barry Cooper stated, in a 1984 essay in The Musical Times, that one of two surviving sketches closely resembles the published version.[6] </p>",
                 Sku = "P-1017",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Ludwig van Beethoven: Für Elise",
@@ -11433,10 +12544,10 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "The Transocean Chronograph interprets the factual aesthetics of classic chronographs of the 1950s and 1960s in a decidedly contemporary style.",
                 FullDescription = "<p>The Transocean Chronograph interprets the factual aesthetics of classic chronographs of the 1950s and 1960s in a decidedly contemporary style. The high-performance caliber 01, designed and manufactured entirely in the Breitling studios, works in its form, which is reduced to the essentials. </p> <p> </p> <table style='width: 425px;'>   <tbody>     <tr>       <td style='width: 185px;'>Caliber       </td>       <td style='width: 237px;'>Breitling 01 (Manufactory caliber)       </td>     </tr>     <tr>       <td style='width: 185px;'>Movement       </td>       <td style='width: 237px;'>Mechanically, Automatic       </td>     </tr>     <tr>       <td style='width: 185px;'>Power reserve       </td>       <td style='width: 237px;'>Min. 70 hour       </td>     </tr>     <tr>       <td style='width: 185px;'>Chronograph       </td>       <td style='width: 237px;'>1/4-Seconds, 30 Minutes, 12 Hours       </td>     </tr>     <tr>       <td style='width: 185px;'>Half vibrations       </td>       <td style='width: 237px;'>28 800 a/h       </td>     </tr>     <tr>       <td style='width: 185px;'>Rubies       </td>       <td style='width: 237px;'>47 Rubies       </td>     </tr>     <tr>       <td style='width: 185px;'>Calendar       </td>       <td style='width: 237px;'>Window       </td>     </tr>   </tbody> </table> ",
                 Sku = "P-9001",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
-                MetaTitle = "RANSOCEAN CHRONOGRAPH",
+                MetaTitle = "TRANSOCEAN CHRONOGRAPH",
                 ShowOnHomePage = true,
                 Price = 24110.00M,
                 OldPrice = 26230.00M,
@@ -11554,7 +12665,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "The beam of the Tissot T-Touch Expert Solar on the dial ensures that the Super-LumiNova®-coated indexes and hands illuminate in the dark, and on the other hand, charges the battery of the watch. This model is a force package in every respect.",
                 FullDescription = "<p>The T-Touch Expert Solar is an important new model in the Tissot range. </p> <p>Tissot’s pioneering spirit is what led to the creation of tactile watches in 1999. </p> <p>Today, it is the first to present a touch-screen watch powered by solar energy, confirming its position as leader in tactile technology in watchmaking. </p> <p>Extremely well designed, it showcases clean lines in both sports and timeless pieces. </p> <p>Powered by solar energy with 25 features including weather forecasting, altimeter, second time zone and a compass it is the perfect travel companion. </p> ",
                 Sku = "P-9002",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Tissot T-Touch Expert Solar",
@@ -11675,7 +12786,7 @@ namespace SmartStore.Data.Setup
                 ShortDescription = "Seiko Mechanical Automatic SRPA49K1",
                 FullDescription = "<p><strong>Seiko 5 Sports Automatic Watch SRPA49K1 SRPA49</strong> </p> <ul>   <li>Unidirectional Rotating Bezel</li>   <li>Day And Date Display</li>   <li>See Through Case Back</li>   <li>100M Water Resistance</li>   <li>Stainless Steel Case</li>   <li>Automatic Movement</li>   <li>24 Jewels</li>   <li>Caliber: 4R36</li> </ul> ",
                 Sku = "P-9003",
-                ProductTemplateId = productTemplateSimple.Id,
+                ProductTemplateId = productTemplate.Id,
                 AllowCustomerReviews = true,
                 Published = true,
                 MetaTitle = "Seiko Mechanical Automatic SRPA49K1",
@@ -11789,7 +12900,7 @@ namespace SmartStore.Data.Setup
 				ShortDescription = "C001.617.26.037.00",
 				FullDescription = "<p>Since 1888, Certina has maintained an enviable reputation for its excellent watches and reliable movements. From the time of its integration into the SMH (today's Swatch Group) in the early 1980s, every Certina has been equipped with a high-quality ETA movement.</p><p>In a quartz watch movement, high-frequency oscillations are generated in a tiny synthetic crystal, then divided down electronically to provide the extreme accuracy of the Certina internal clock. A battery supplies the necessary energy.</p><p>The quartz movement is sometimes equipped with an end-of-life (EOL) indicator. When the seconds hand begins moving in four-second increments, the battery should be replaced within two weeks.</p><p>An automatic watch movement is driven by a rotor. Arm and wrist movements spin the rotor, which in turn winds the main spring. Energy is continuously produced, eliminating the need for a battery. The rate precision therefore depends on a rigorous manufacturing process and the original calibration, as well as the lifestyle of the user.</p><p>Most automatic movements are driven by an offset rotor. To earn the title of chronometer, a watch must be equipped with a movement that has obtained an official rate certificate from the COSC (Contrôle Officiel Suisse des Chronomètres). To obtain this, precision tests in different positions and at different temperatures must be carried out. These tests take place over a 15-day period. Thermocompensated means that the effective temperature inside the watch is measured and taken into account when improving precision. This allows fluctuations in the rate precision of a normal quartz watch due to temperature variations to be reduced by several seconds a week. The precision is 20 times more accurate than on a normal quartz watch, i.e. +/- 10 seconds per year (0.07 seconds/day).</p>",
                 Sku = "P-9004",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "Certina DS Podium Big Size",
@@ -11896,26 +13007,29 @@ namespace SmartStore.Data.Setup
             #region gaming
 
             var manuSony = _ctx.Set<Manufacturer>().First(c => c.Name == "Sony");
-			var manuUbisoft = _ctx.Set<Manufacturer>().First(c => c.Name == "Ubisoft");
+            var manuEASports = _ctx.Set<Manufacturer>().First(c => c.Name == "EA Sports");
+            var manuUbisoft = _ctx.Set<Manufacturer>().First(c => c.Name == "Ubisoft");
 			var categoryGaming = this._ctx.Set<Category>().First(c => c.Alias == "Gaming");
 			var categoryGamingAccessories = this._ctx.Set<Category>().First(c => c.Alias == "Gaming Accessories");
 			var categoryGamingGames = this._ctx.Set<Category>().First(c => c.Alias == "Games");
+            var manuWarnerHomme = _ctx.Set<Manufacturer>().First(c => c.Name == "Warner Home Video Games");
+            
+            #region bundlePs3AssassinCreed
 
-			#region bundlePs3AssassinCreed
-
-			var productPs3 = new Product()
+            var productPs3 = new Product()
 			{
 				ProductType = ProductType.SimpleProduct,
 				VisibleIndividually = true,
 				Sku = "Sony-PS399000",
-				Name = "Playstation 3 Super Slim",
-				ShortDescription = "The Sony PlayStation 3 is the multi media console for next-generation digital home entertainment. It offers the Blu-ray technology, which enables you to enjoy movies in high definition.",
-				FullDescription = "<ul><li>PowerPC-base Core @3.2GHz</li><li>1 VMX vector unit per core</li><li>512KB L2 cache</li><li>7 x SPE @3.2GHz</li><li>7 x 128b 128 SIMD GPRs</li><li>7 x 256KB SRAM for SPE</li><li>* 1 of 8 SPEs reserved for redundancy total floating point performance: 218 GFLOPS</li><li> 1.8 TFLOPS floating point performance</li><li>Full HD (up to 1080p) x 2 channels</li><li>Multi-way programmable parallel floating point shader pipelines</li><li>GPU: RSX @550MHz</li><li>256MB XDR Main RAM @3.2GHz</li><li>256MB GDDR3 VRAM @700MHz</li><li>Sound: Dolby 5.1ch, DTS, LPCM, etc. (Cell-base processing)</li><li>Wi-Fi: IEEE 802.11 b/g</li><li>USB: Front x 4, Rear x 2 (USB2.0)</li><li>Memory Stick: standard/Duo, PRO x 1</li></ul>",
-				ProductTemplateId = productTemplateSimple.Id,
+				Name = "Playstation 4 Pro",
+				ShortDescription = "The Sony PlayStation 4 Pro is the multi media console for next-generation digital home entertainment. It offers the Blu-ray technology, which enables you to enjoy movies in high definition.",
+				FullDescription = "<ul><li>PowerPC-base Core @5.2GHz</li><li>1 VMX vector unit per core</li><li>512KB L2 cache</li><li>7 x SPE @5.2GHz</li><li>7 x 128b 128 SIMD GPRs</li><li>7 x 256MB SRAM for SPE</li><li>* 1 of 8 SPEs reserved for redundancy total floating point performance: 218 GFLOPS</li><li> 1.8 TFLOPS floating point performance</li><li>Full HD (up to 1080p) x 2 channels</li><li>Multi-way programmable parallel floating point shader pipelines</li><li>GPU: RSX @550MHz</li><li>256MB XDR Main RAM @3.2GHz</li><li>256MB GDDR3 VRAM @700MHz</li><li>Sound: Dolby 5.1ch, DTS, LPCM, etc. (Cell-base processing)</li><li>Wi-Fi: IEEE 802.11 b/g</li><li>USB: Front x 4, Rear x 2 (USB2.0)</li><li>Memory Stick: standard/Duo, PRO x 1</li></ul>",
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
-				MetaTitle = "Playstation 3 Super Slim",
-				Price = 189.00M,
+                //MetaTitle = "Playstation 4 Super Slim",
+                MetaTitle = "Playstation 4 Pro",
+                Price = 189.00M,
 				OldPrice = 199.99M,
 				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
 				OrderMinimumQuantity = 1,
@@ -11932,29 +13046,30 @@ namespace SmartStore.Data.Setup
 
 			productPs3.ProductPictures.Add(new ProductPicture()
 			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_sony_ps3_black.png"), "image/png", GetSeName(productPs3.Name) + "-black"),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_ps4_w_controller.jpg"), "image/png", GetSeName(productPs3.Name) + "-controller"),
 				DisplayOrder = 1
 			});
 			productPs3.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "sony-ps3-white.jpg"), "image/jpeg", GetSeName(productPs3.Name) + "-white"),
+            {
+				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_ps4_wo_controller.jpg"), "image/jpeg", GetSeName(productPs3.Name) + "-single"),
 				DisplayOrder = 2
 			});
 
 
-			var productDualshock3Controller = new Product()
+            var productDualshock4Controller = new Product()
 			{
 				ProductType = ProductType.SimpleProduct,
 				VisibleIndividually = true,
 				Sku = "Sony-PS399004",
-				Name = "DUALSHOCK 3 Wireless Controller",
-				ShortDescription = "Equipped with SIXAXIS™ motion sensing technology and pressure sensors in each action button, the DUALSHOCK®3 wireless controller for the PlayStation®3 provides the most intuitive game play experience.",
-				FullDescription = "<ul><li><h4>Weights and Measurements</h4><ul><li>Dimensions (Approx.) : 5.56\"(w) x 8.5\"(h) x 3.63\" (d)</li></ul></li></ul>",
-				ProductTemplateId = productTemplateSimple.Id,
+				Name = "DUALSHOCK 4 Wireless Controller",
+				ShortDescription = "Revolutionary. Intuitive. Precise. A revolutionary controller for a new era of gaming, the DualShock 4 Wireless Controller features familiar PlayStation controls and innovative new additions, such as a touch pad, light bar, and more.",
+				FullDescription = "<ul>  <li>Precision Controller for PlayStation 4: The feel, shape, and sensitivity of the DualShock 4’s analog sticks and trigger buttons have been enhanced to offer players absolute control for all games</li>  <li>Sharing at your Fingertips: The addition of the Share button makes sharing your greatest gaming moments as easy as a push of a button. Upload gameplay videos and screenshots directly from your system or live-stream your gameplay, all without disturbing the game in progress.</li>  <li>New ways to Play: Revolutionary features like the touch pad, integrated light bar, and built-in speaker offer exciting new ways to experience and interact with your games and its 3.5mm audio jack offers a practical personal audio solution for gamers who want to listen to their games in private.</li>  <li>Charge Efficiently: The DualShock 4 Wireless Controller can easily be recharged by plugging it into your PlayStation 4 system, even when on standby, or with any standard charger with a micro-USB port.</li></ul>",
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
-				MetaTitle = "DUALSHOCK 3 Wireless Controller",
+				MetaTitle = "DUALSHOCK 4 Wireless Controller",
 				Price = 54.90M,
+                OldPrice = 59.90M,
 				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
 				OrderMinimumQuantity = 1,
 				OrderMaximumQuantity = 10000,
@@ -11965,29 +13080,32 @@ namespace SmartStore.Data.Setup
 				DeliveryTime = firstDeliveryTime
 			};
 
-			productDualshock3Controller.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuSony, DisplayOrder = 1 });
-			productDualshock3Controller.ProductCategories.Add(new ProductCategory() { Category = categoryGamingAccessories, DisplayOrder = 1 });
+            productDualshock4Controller.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuSony, DisplayOrder = 1 });
+            productDualshock4Controller.ProductCategories.Add(new ProductCategory() { Category = categoryGamingAccessories, DisplayOrder = 1 });
 
-			productDualshock3Controller.ProductPictures.Add(new ProductPicture()
+            productDualshock4Controller.ProductPictures.Add(new ProductPicture()
 			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_playstation3dualshock3.png"), "image/png", GetSeName(productDualshock3Controller.Name)),
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_dualshock4.jpg"), "image/png", GetSeName(productDualshock4Controller.Name)),
 				DisplayOrder = 1
 			});
 
 
-			var productAssassinsCreed3 = new Product()
+			var productMinecraft = new Product()
 			{
 				ProductType = ProductType.SimpleProduct,
 				VisibleIndividually = true,
-				Sku = "Ubi-acreed3",
-				Name = "Assassin's Creed III",
+                //Sku = "Ubi-acreed3",
+                Sku = "PD-Minecraft4ps4",
+                Name = "Minecraft - Playstation 4 Edition",
 				ShortDescription = "Third-person action-adventure title set.",
 				FullDescription = "Assassin's Creed III is set in an open world and presented from the third-person perspective with a primary focus on using Desmond and Connor's combat and stealth abilities to eliminate targets and explore the environment. Connor is able to freely explore 18th-century Boston, New York and the American frontier to complete side missions away from the primary storyline. The game also features a multiplayer component, allowing players to compete online to complete solo and team based objectives including assassinations and evading pursuers. Ubisoft developed a new game engine, Anvil Next, for the game.",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
-				MetaTitle = "Assassin's Creed III",
-				Price = 49.90M,
+				//MetaTitle = "Assassin's Creed III",
+                MetaTitle = "Minecraft - Playstation 4 Edition",
+
+                Price = 49.90M,
 				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
 				OrderMinimumQuantity = 1,
 				OrderMaximumQuantity = 10000,
@@ -11998,12 +13116,12 @@ namespace SmartStore.Data.Setup
 				DeliveryTime = firstDeliveryTime
 			};
 
-			productAssassinsCreed3.ProductManufacturers.Add(new ProductManufacturer() {	Manufacturer = manuUbisoft,	DisplayOrder = 1 });
-			productAssassinsCreed3.ProductCategories.Add(new ProductCategory() { Category = categoryGamingGames, DisplayOrder = 4 });
+            productMinecraft.ProductManufacturers.Add(new ProductManufacturer() {	Manufacturer = manuSony,	DisplayOrder = 1 });
+            productMinecraft.ProductCategories.Add(new ProductCategory() { Category = categoryGamingGames, DisplayOrder = 4 });
 
-			productAssassinsCreed3.ProductPictures.Add(new ProductPicture()
+            productMinecraft.ProductPictures.Add(new ProductPicture()
 			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "ubisoft-assassins-creed-3.jpg"), "image/jpeg", GetSeName("Assassin Creed 3")),
+				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_minecraft.jpg"), "image/jpeg", GetSeName("Minecraft - Playstation 4 Edition")),
 				DisplayOrder = 1
 			});
 
@@ -12013,14 +13131,14 @@ namespace SmartStore.Data.Setup
 				ProductType = ProductType.BundledProduct,
 				VisibleIndividually = true,
 				Sku = "Sony-PS399105",
-				Name = "PlayStation 3 Assassin's Creed III Bundle",
-				ShortDescription = "500GB PlayStation®3 system, 2 × DUALSHOCK®3 wireless controller and Assassin's Creed® III.",
+				Name = "PlayStation 4 Minecraft Bundle",
+				ShortDescription = "100GB PlayStation®4 system, 2 × DUALSHOCK®4 wireless controller and Minecraft for PS4 Edition.",
 				FullDescription = 
 					"<ul><li><h4>Processor</h4><ul><li>Processor Technology : Cell Broadband Engine™</li></ul></li><li><h4>General</h4><ul><li>Communication : Ethernet (10BASE-T, 100BASE-TX, 1000BASE-T IEEE 802.11 b/g Wi-Fi<br tabindex=\"0\">Bluetooth 2.0 (EDR)</li><li>Inputs and Outputs : USB 2.0 X 2</li></ul></li><li><h4>Graphics</h4><ul><li>Graphics Processor : RSX</li></ul></li><li><h4>Memory</h4><ul><li>Internal Memory : 256MB XDR Main RAM<br>256MB GDDR3 VRAM</li></ul></li><li><h4>Power</h4><ul><li>Power Consumption (in Operation) : Approximately 250 watts</li></ul></li><li><h4>Storage</h4><ul><li>Storage Capacity : 2.5' Serial ATA (500GB)</li></ul></li><li><h4>Video</h4><ul><li>Resolution : 480i, 480p, 720p, 1080i, 1080p (24p/60p)</li></ul></li><li><h4>Weights and Measurements</h4><ul><li>Dimensions (Approx.) : Approximately 11.42\" (W) x 2.56\" (H) x 11.42\" (D) (290mm x 65mm x 290mm)</li><li>Weight (Approx.) : Approximately 7.055 lbs (3.2 kg)</li></ul></li></ul>",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
-				MetaTitle = "PlayStation 3 Assassin's Creed III Bundle",
+				MetaTitle = "PlayStation 4 Assassin's Creed III Bundle",
 				Price = 269.97M,
 				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
 				OrderMinimumQuantity = 1,
@@ -12041,7 +13159,7 @@ namespace SmartStore.Data.Setup
 
 			productBundlePs3AssassinCreed.ProductPictures.Add(new ProductPicture()
 			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "sony-PS3AssassinsCreedBundle.png"), "image/png", GetSeName(productBundlePs3AssassinCreed.Name)),
+				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "ps4_bundle_minecraft.jpg"), "image/png", GetSeName(productBundlePs3AssassinCreed.Name)),
 				DisplayOrder = 1
 			});
 
@@ -12054,10 +13172,12 @@ namespace SmartStore.Data.Setup
 				ProductType = ProductType.SimpleProduct,
 				VisibleIndividually = true,
 				Sku = "Sony-PS410034",
-				Name = "PlayStation 4",
+                //Sku = "PS410037",
+
+                Name = "PlayStation 4",
 				ShortDescription = "The best place to play. Working with some of the most creative minds in the industry, PlayStation®4 delivers breathtaking and unique gaming experiences.",
 				FullDescription = "<p><h4>The power to perform.</h4><div>PlayStation®4 was designed from the ground up to ensure that game creators can unleash their imaginations to develop the very best games and deliver new play experiences never before possible. With ultra-fast customized processors and 8GB of high-performance unified system memory, PS4™ is the home to games with rich, high-fidelity graphics and deeply immersive experiences that shatter expectations.</div></p><p><ul><li><h4>Processor</h4><ul><li>Processor Technology : Low power x86-64 AMD 'Jaguar', 8 cores</li></ul></li><li><h4>Software</h4><ul><li>Processor : Single-chip custom processor</li></ul></li><li><h4>Display</h4><ul><li>Display Technology : HDMI<br />Digital Output (optical)</li></ul></li><li><h4>General</h4><ul><li>Ethernet ports x speed : Ethernet (10BASE-T, 100BASE-TX, 1000BASE-T); IEEE 802.11 b/g/n; Bluetooth® 2.1 (EDR)</li><li>Hard disk : Built-in</li></ul></li><li><h4>General Specifications</h4><ul><li>Video : BD 6xCAV<br />DVD 8xCAV</li></ul></li><li><h4>Graphics</h4><ul><li>Graphics Processor : 1.84 TFLOPS, AMD Radeon™ Graphics Core Next engine</li></ul></li><li><h4>Interface</h4><ul><li>I/O Port : Super-Speed USB (USB 3.0), AUX</li></ul></li><li><h4>Memory</h4><ul><li>Internal Memory : GDDR5 8GB</li></ul></li></ul></p>",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "PlayStation 4",
@@ -12080,42 +13200,47 @@ namespace SmartStore.Data.Setup
                 Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_sony_ps4.png"), "image/png", GetSeName(productPs4.Name)),
 				DisplayOrder = 1
 			});
+            productPs4.ProductPictures.Add(new ProductPicture()
+            {
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_sony_dualshock4_wirelesscontroller.png"), "image/png", GetSeName(productPs4.Name)),
+                DisplayOrder = 1
+            });
 
 
-			var productDualshock4Controller = new Product()
-			{
-				ProductType = ProductType.SimpleProduct,
-				VisibleIndividually = true,
-				Sku = "Sony-PS410037",
-				Name = "DUALSHOCK 4 Wireless Controller",
-				ShortDescription = "Combining classic controls with innovative new ways to play, the DUALSHOCK®4 wireless controller is an evolutionary controller for a new era of gaming.",
-				FullDescription = "<p>Keys / Switches : PS button, SHARE button, OPTIONS button, Directional buttons (Up/Down/Left/Right), Action buttons (Triangle, Circle, Cross, Square), R1/L1/R2/L2/R3/L3, Right stick, Left stick, Touch Pad Button. The DualShock 4 is currently available in Jet Black, Magma Red, and Wave Blue.</p><p>The DualShock 4 features the following buttons: PS button, SHARE button, OPTIONS button, directional buttons, action buttons (triangle, circle, cross, square), shoulder buttons (R1/L1), triggers (R2/L2), analog stick click buttons (L3/R3) and a touch pad click button.[25] These mark several changes from the DualShock 3 and other previous PlayStation controllers. The START and SELECT buttons have been merged into a single OPTIONS button.[25][27] A dedicated SHARE button will allow players to upload video from their gameplay experiences.[25] The joysticks and triggers have been redesigned based on developer input.[25] with the ridged surface of the joysticks now featuring an outer ring surrounding the concave dome caps.</p><p>The DualShock 4 is backward compatible with the PlayStation 3, but only via a microUSB cable. Backward compatibility is not supported via Bluetooth.</p>",
-				ProductTemplateId = productTemplateSimple.Id,
-				AllowCustomerReviews = true,
-				Published = true,
-				MetaTitle = "DUALSHOCK 4 Wireless Controller",
-				Price = 59.99M,
-				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
-				OrderMinimumQuantity = 1,
-				OrderMaximumQuantity = 10,
-				StockQuantity = 10000,
-				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false,
-				IsShipEnabled = true,
-				DeliveryTime = firstDeliveryTime
-			};
+            //var productDualshock4Controller = new Product()
+            //{
+            //	ProductType = ProductType.SimpleProduct,
+            //	VisibleIndividually = true,
+            //	Sku = "Sony-PS410037",
+            //	Name = "DUALSHOCK 4 Wireless Controller",
+            //	ShortDescription = "Combining classic controls with innovative new ways to play, the DUALSHOCK®4 wireless controller is an evolutionary controller for a new era of gaming.",
+            //	FullDescription = "<p>Keys / Switches : PS button, SHARE button, OPTIONS button, Directional buttons (Up/Down/Left/Right), Action buttons (Triangle, Circle, Cross, Square), R1/L1/R2/L2/R3/L3, Right stick, Left stick, Touch Pad Button. The DualShock 4 is currently available in Jet Black, Magma Red, and Wave Blue.</p><p>The DualShock 4 features the following buttons: PS button, SHARE button, OPTIONS button, directional buttons, action buttons (triangle, circle, cross, square), shoulder buttons (R1/L1), triggers (R2/L2), analog stick click buttons (L3/R3) and a touch pad click button.[25] These mark several changes from the DualShock 3 and other previous PlayStation controllers. The START and SELECT buttons have been merged into a single OPTIONS button.[25][27] A dedicated SHARE button will allow players to upload video from their gameplay experiences.[25] The joysticks and triggers have been redesigned based on developer input.[25] with the ridged surface of the joysticks now featuring an outer ring surrounding the concave dome caps.</p><p>The DualShock 4 is backward compatible with the PlayStation 3, but only via a microUSB cable. Backward compatibility is not supported via Bluetooth.</p>",
+            //	ProductTemplateId = productTemplateSimple.Id,
+            //	AllowCustomerReviews = true,
+            //	Published = true,
+            //	MetaTitle = "DUALSHOCK 4 Wireless Controller",
+            //	Price = 59.99M,
+            //	ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
+            //	OrderMinimumQuantity = 1,
+            //	OrderMaximumQuantity = 10,
+            //	StockQuantity = 10000,
+            //	NotifyAdminForQuantityBelow = 1,
+            //	AllowBackInStockSubscriptions = false,
+            //	IsShipEnabled = true,
+            //	DeliveryTime = firstDeliveryTime
+            //};
 
-			productDualshock4Controller.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuSony, DisplayOrder = 1 });
-			productDualshock4Controller.ProductCategories.Add(new ProductCategory() { Category = categoryGamingAccessories, DisplayOrder = 2 });
+            //productDualshock4Controller.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuSony, DisplayOrder = 1 });
+            //productDualshock4Controller.ProductCategories.Add(new ProductCategory() { Category = categoryGamingAccessories, DisplayOrder = 2 });
 
-			productDualshock4Controller.ProductPictures.Add(new ProductPicture()
-			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_sony_dualshock4_wirelesscontroller.png"), "image/png", GetSeName(productDualshock4Controller.Name)),
-				DisplayOrder = 1
-			});
+            //productDualshock4Controller.ProductPictures.Add(new ProductPicture()
+            //{
+            //             Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_sony_dualshock4_wirelesscontroller.png"), "image/png", GetSeName(productDualshock4Controller.Name)),
+            //	DisplayOrder = 1
+            //});
 
 
-			var productPs4Camera = new Product()
+            var productPs4Camera = new Product()
 			{
 				ProductType = ProductType.SimpleProduct,
 				VisibleIndividually = true,
@@ -12123,7 +13248,7 @@ namespace SmartStore.Data.Setup
 				Name = "PlayStation 4 Camera",
 				ShortDescription = "Play, challenge and share your epic gaming moments with PlayStation®Camera and your PS4™. Multiplayer is enhanced through immediate, crystal clear audio and picture-in-picture video sharing.",
 				FullDescription = "<ul><li>When combined with the DualShock 4 Wireless Controller's light bar, the evolutionary 3D depth-sensing technology in the PlayStation Camera allows it to precisely track a player's position in the room.</li><li>From navigational voice commands to facial recognition, the PlayStation Camera adds incredible innovation to your gaming.</li><li>Automatically integrate a picture-in-picture video of yourself during gameplay broadcasts, and challenge your friends during play.</li><li>Never leave a friend hanging or miss a chance to taunt your opponents with voice chat that keeps the conversation going, whether it's between rounds, between games, or just while kicking back.</li></ul>",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "PlayStation 4 Camera",
@@ -12157,7 +13282,7 @@ namespace SmartStore.Data.Setup
 				ShortDescription = "PlayStation®4 system, DUALSHOCK®4 wireless controller and PS4 camera.",
 				FullDescription =
 					"<p><h4>The best place to play</h4><div>PlayStation 4 is the best place to play with dynamic, connected gaming, powerful graphics and speed, intelligent personalization, deeply integrated social capabilities, and innovative second-screen features. Combining unparalleled content, immersive gaming experiences, all of your favorite digital entertainment apps, and PlayStation exclusives, PS4 centers on gamers, enabling them to play when, where and how they want. PS4 enables the greatest game developers in the world to unlock their creativity and push the boundaries of play through a system that is tuned specifically to their needs.</div></p><p><h4>Gamer focused, developer inspired</h4><div>The PS4 system focuses on the gamer, ensuring that the very best games and the most immersive experiences are possible on the platform. The PS4 system enables the greatest game developers in the world to unlock their creativity and push the boundaries of play through a system that is tuned specifically to their needs. The PS4 system is centered around a powerful custom chip that contains eight x86-64 cores and a state of the art 1.84 TFLOPS graphics processor with 8 GB of ultra-fast GDDR5 unified system memory, easing game creation and increasing the richness of content achievable on the platform. The end result is new games with rich, high-fidelity graphics and deeply immersive experiences.</div></p><p><h4>Personalized, curated content</h4><div>The PS4 system has the ability to learn about your preferences. It will learn your likes and dislikes, allowing you to discover content pre-loaded and ready to go on your console in your favorite game genres or by your favorite creators. Players also can look over game-related information shared by friends, view friends’ gameplay with ease, or obtain information about recommended content, including games, TV shows and movies.</div></p><p><h4>New DUALSHOCK controller</h4><div>DUALSHOCK 4 features new innovations to deliver more immersive gaming experiences, including a highly sensitive six-axis sensor as well as a touch pad located on the top of the controller, which offers gamers completely new ways to play and interact with games.</div></p><p><h4>Shared game experiences</h4><div>Engage in endless personal challenges with your community and share your epic triumphs with the press of a button. Simply hit the SHARE button on the controller, scan through the last few minutes of gameplay, tag it and return to the game—the video uploads as you play. The PS4 system also enhances social spectating by enabling you to broadcast your gameplay in real-time.</div></p><p><h4>Remote play</h4><div>Remote Play on the PS4 system fully unlocks the PlayStation Vita system’s potential, making it the ultimate companion device. With the PS Vita system, gamers will be able to seamlessly play a range of PS4 titles on the beautiful 5-inch display over Wi-Fi access points in a local area network.</div></p><p><h4>PlayStation app</h4><div>The PlayStation App will enable iPhone, iPad, and Android-based smartphones and tablets to become second screens for the PS4 system. Once installed on these devices, players can view in-game items, purchase PS4 games and download them directly to the console at home, or remotely watch the gameplay of other gamers playing on their devices.</div></p><p><h4>PlayStation Plus</h4><div>Built to bring games and gamers together and fuel the next generation of gaming, PlayStation Plus helps you discover a world of exceptional gaming experiences. PlayStation Plus is a membership service that takes your gaming experience to the next level. Each month members receive an Instant Game Collection of top rated blockbuster and innovative Indie games, which they can download direct to their console.</div></p>",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "PlayStation 4 Bundle",
@@ -12195,7 +13320,7 @@ namespace SmartStore.Data.Setup
 				Name = "Accessories for unlimited gaming experience",
 				ShortDescription = "The future of gaming is now with dynamic, connected gaming, powerful graphics and speed, intelligent personalization, deeply integrated social capabilities, and innovative second-screen features. The brilliant culmination of the most creative minds in the industry, PlayStation®4 delivers a unique gaming environment that will take your breath away.",
 				FullDescription = "<ul><li>Immerse yourself in a new world of gameplay with powerful graphics and speed.</li><li>Eliminate lengthy load times of saved games with Suspend mode.</li><li>Immediately play digital titles without waiting for them to finish downloading thanks to background downloading and updating capability.</li><li>Instantly share images and videos of your favorite gameplay moments on Facebook with the SHARE button on the DUALSHOCK®4 controller.</li><li>Broadcast while you play in real-time through Ustream.</li></ul>",
-				ProductTemplateId = productTemplateGrouped.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "Accessories for unlimited gaming experience",
@@ -12223,37 +13348,37 @@ namespace SmartStore.Data.Setup
 
 			#region Ps3PlusOneGame
 
-			var productWatchDogs = new Product()
-			{
-				ProductType = ProductType.SimpleProduct,
-				VisibleIndividually = true,
-				Sku = "Ubi-watchdogs",
-				Name = "Watch Dogs",
-				ShortDescription = "Hack and control the city – Use the city systems as weapons: traffic lights, security cameras, movable bridges, gas pipes, electricity grid and more.",
-				FullDescription = "<p>In today's hyper-connected world, Chicago has the country’s most advanced computer system – one which controls almost every piece of city technology and holds key information on all of the city's residents.</p><p>You play as Aiden Pearce, a brilliant hacker but also a former thug, whose criminal past lead to a violent family tragedy. Now on the hunt for those who hurt your family, you'll be able to monitor and hack all who surround you while manipulating the city's systems to stop traffic lights, download personal information, turn off the electrical grid and more.</p><p>Use the city of Chicago as your ultimate weapon and exact your own style of revenge.</p><p>Monitor the masses – Everyone leaves a digital shadow - access all data on anyone and use it to your advantage.</p><p>State of the art graphics</p>",
-				ProductTemplateId = productTemplateSimple.Id,
-				AllowCustomerReviews = true,
-				Published = true,
-				MetaTitle = "Watch Dogs",
-				Price = 49.90M,
-				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
-				OrderMinimumQuantity = 1,
-				OrderMaximumQuantity = 10000,
-				StockQuantity = 10000,
-				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false,
-				IsShipEnabled = true,
-				DeliveryTime = firstDeliveryTime
-			};
+			//var productWatchDogs = new Product()
+			//{
+			//	ProductType = ProductType.SimpleProduct,
+			//	VisibleIndividually = true,
+			//	Sku = "Ubi-watchdogs",
+			//	Name = "Watch Dogs",
+			//	ShortDescription = "Hack and control the city – Use the city systems as weapons: traffic lights, security cameras, movable bridges, gas pipes, electricity grid and more.",
+			//	FullDescription = "<p>In today's hyper-connected world, Chicago has the country’s most advanced computer system – one which controls almost every piece of city technology and holds key information on all of the city's residents.</p><p>You play as Aiden Pearce, a brilliant hacker but also a former thug, whose criminal past lead to a violent family tragedy. Now on the hunt for those who hurt your family, you'll be able to monitor and hack all who surround you while manipulating the city's systems to stop traffic lights, download personal information, turn off the electrical grid and more.</p><p>Use the city of Chicago as your ultimate weapon and exact your own style of revenge.</p><p>Monitor the masses – Everyone leaves a digital shadow - access all data on anyone and use it to your advantage.</p><p>State of the art graphics</p>",
+			//	ProductTemplateId = productTemplateSimple.Id,
+			//	AllowCustomerReviews = true,
+			//	Published = true,
+			//	MetaTitle = "Watch Dogs",
+			//	Price = 49.90M,
+			//	ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
+			//	OrderMinimumQuantity = 1,
+			//	OrderMaximumQuantity = 10000,
+			//	StockQuantity = 10000,
+			//	NotifyAdminForQuantityBelow = 1,
+			//	AllowBackInStockSubscriptions = false,
+			//	IsShipEnabled = true,
+			//	DeliveryTime = firstDeliveryTime
+			//};
 
-			productWatchDogs.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuUbisoft, DisplayOrder = 1 });
-			productWatchDogs.ProductCategories.Add(new ProductCategory() { Category = categoryGamingGames, DisplayOrder = 1 });
+			//productWatchDogs.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuUbisoft, DisplayOrder = 1 });
+			//productWatchDogs.ProductCategories.Add(new ProductCategory() { Category = categoryGamingGames, DisplayOrder = 1 });
 
-			productWatchDogs.ProductPictures.Add(new ProductPicture()
-			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "ubisoft-watchdogs.jpg"), "image/jpeg", GetSeName(productWatchDogs.Name)),
-				DisplayOrder = 1
-			});
+			//productWatchDogs.ProductPictures.Add(new ProductPicture()
+			//{
+			//	Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "ubisoft-watchdogs.jpg"), "image/jpeg", GetSeName(productWatchDogs.Name)),
+			//	DisplayOrder = 1
+			//});
 
 			var productPrinceOfPersia = new Product()
 			{
@@ -12263,7 +13388,7 @@ namespace SmartStore.Data.Setup
 				Name = "Prince of Persia \"The Forgotten Sands\"",
 				ShortDescription = "Play the epic story of the heroic Prince as he fights and outwits his enemies in order to save his kingdom.",
 				FullDescription = "<p>This game marks the return to the Prince of Persia® Sands of Time storyline. Prince of Persia: The Forgotten Sands™ will feature many of the fan-favorite elements from the original series as well as new gameplay innovations that gamers have come to expect from Prince of Persia.</p><p>Experience the story, setting, and gameplay in this return to the Sands of Time universe as we follow the original Prince of Persia through a new untold chapter.</p><p>Created by Ubisoft Montreal, the team that brought you various Prince of Persia® and Assassin’s Creed® games, Prince of Persia The Forgotten Sands™ has been over 2 years in the making.</p>",
-				ProductTemplateId = productTemplateSimple.Id,
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
 				MetaTitle = "Prince of Persia",
@@ -12283,23 +13408,100 @@ namespace SmartStore.Data.Setup
 
 			productPrinceOfPersia.ProductPictures.Add(new ProductPicture()
 			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "ubisoft-prince-of-persia.jpg"), "image/jpeg", GetSeName(productPrinceOfPersia.Name)),
+				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "products_princeofpersia.jpg"), "image/jpeg", GetSeName(productPrinceOfPersia.Name)),
 				DisplayOrder = 1
 			});
+            #endregion Ps3PlusOneGame
 
-			var productDriverSanFrancisco = new Product()
+            #region Horizon Zero Down
+            var productHorizonZeroDown = new Product()
+            {
+                ProductType = ProductType.SimpleProduct,
+                VisibleIndividually = true,
+                //Sku = "Ubi-princepersia",
+                Sku = "PD-ZeroDown4PS4",
+                Name = "Horizon Zero Dawn - PlayStation 4",
+                ShortDescription = "Experience A Vibrant, Lush World Inhabited By Mysterious Mechanized Creatures",
+                FullDescription = "<ul>  <li>A Lush Post-Apocalyptic World – How have machines dominated this world, and what is their purpose? What happened to the civilization here before? Scour every corner of a realm filled with ancient relics and mysterious buildings in order to uncover your past and unearth the many secrets of a forgotten land.</li>  <li></li>  <li>Nature and Machines Collide – Horizon Zero Dawn juxtaposes two contrasting elements, taking a vibrant world rich with beautiful nature and filling it with awe-inspiring highly advanced technology. This marriage creates a dynamic combination for both exploration and gameplay.</li>  <li>Defy Overwhelming Odds – The foundation of combat in Horizon Zero Dawn is built upon the speed and cunning of Aloy versus the raw strength and size of the machines. In order to overcome a much larger and technologically superior enemy, Aloy must use every ounce of her knowledge, intelligence, and agility to survive each encounter.</li>  <li>Cutting Edge Open World Tech – Stunningly detailed forests, imposing mountains, and atmospheric ruins of a bygone civilization meld together in a landscape that is alive with changing weather systems and a full day/night cycle.</li></ul>",
+                ProductTemplateId = productTemplate.Id,
+                AllowCustomerReviews = true,
+                Published = true,
+                MetaTitle = "Horizon Zero Dawn - PlayStation 4",
+                Price = 69.90M,
+                OldPrice = 79.90M,
+                ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
+                OrderMinimumQuantity = 1,
+                OrderMaximumQuantity = 10000,
+                StockQuantity = 10000,
+                NotifyAdminForQuantityBelow = 1,
+                AllowBackInStockSubscriptions = false,
+                IsShipEnabled = true,
+                DeliveryTime = firstDeliveryTime
+            };
+
+            productHorizonZeroDown.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuSony, DisplayOrder = 1 });
+            productHorizonZeroDown.ProductCategories.Add(new ProductCategory() { Category = categoryGamingGames, DisplayOrder = 2 });
+
+            productHorizonZeroDown.ProductPictures.Add(new ProductPicture()
+            {
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_horizon.jpg"), "image/jpeg", GetSeName(productHorizonZeroDown.Name)),
+                DisplayOrder = 1
+            });
+            #endregion Horizon Zero Down
+
+            #region Fifa 17
+            var productFifa17 = new Product()
+            {
+                ProductType = ProductType.SimpleProduct,
+                VisibleIndividually = true,
+                //Sku = "Ubi-princepersia",
+                Sku = "PD-Fifa17",
+                Name = "FIFA 17 - PlayStation 4",
+                ShortDescription = "Powered by Frostbite",
+                FullDescription = "<ul>  <li>Powered by Frostbite: One of the industry’s leading game engines, Frostbite delivers authentic, true-to-life action, takes players to new football worlds, and introduces fans to characters full of depth and emotion in FIFA 17.</li>  <li>The Journey: For the first time ever in FIFA, live your story on and off the pitch as the Premier League’s next rising star, Alex Hunter. Play on any club in the premier league, for authentic managers and alongside some of the best players on the planet. Experience brand new worlds in FIFA 17, all while navigating your way through the emotional highs and lows of The Journey.</li>  <li>Own Every Moment: Complete innovation in the way players think and move, physically interact with opponents, and execute in attack puts you in complete control of every moment on the pitch.</li></ul>",
+                ProductTemplateId = productTemplate.Id,
+                AllowCustomerReviews = true,
+                Published = true,
+                MetaTitle = "FIFA 17 - PlayStation 4",
+                Price = 79.90M,
+                OldPrice = 89.90M,
+                ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
+                OrderMinimumQuantity = 1,
+                OrderMaximumQuantity = 10000,
+                StockQuantity = 10000,
+                NotifyAdminForQuantityBelow = 1,
+                AllowBackInStockSubscriptions = false,
+                IsShipEnabled = true,
+                DeliveryTime = firstDeliveryTime
+            };
+
+            productFifa17.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuEASports, DisplayOrder = 1 });
+            productFifa17.ProductCategories.Add(new ProductCategory() { Category = categoryGamingGames, DisplayOrder = 2 });
+
+            productFifa17.ProductPictures.Add(new ProductPicture()
+            {
+                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_fifa17.jpg"), "image/jpeg", GetSeName(productFifa17.Name)),
+                DisplayOrder = 1
+            });
+            #endregion Fifa 17
+
+            #region Lego Worlds
+            //productDriverSanFrancisco
+            var productLegoWorlds = new Product()
 			{
 				ProductType = ProductType.SimpleProduct,
 				VisibleIndividually = true,
-				Sku = "Ubi-driversanfrancisco",
-				Name = "Driver San Francisco",
-				ShortDescription = "Developed by Ubisoft Reflections, creators of the original DRIVER title, DRIVER SAN FRANCISCO is the return of the established action driving video game series that has sold 14 million copies worldwide. Players will race through the iconic streets of San Francisco and beyond in the largest open-world environment to date spanning over 200 square miles.",
-				FullDescription = "<p>With crime lord Charles Jericho now on the loose, San Francisco faces a terrible threat. Only one man can stand against him. He has driven the streets of a hundred cities and spent his whole life putting criminals behind bars. But to take Jericho down, there can be no turning back, and he knows that this may very well be his last ride. His name is John Tanner. He is the DRIVER.</p><p>An innovative gameplay feature enables players to seamlessly SHIFT between over 130 licensed muscle and super cars to keep them constantly in the heart of the action. With its timeless atmosphere, unique car handling and renewed playability, DRIVER SAN FRANCISCO revitalizes the classic free-roaming, cinematic car chase experience for the current generation of video game platforms.</p><p><h4>THE TRUE CAR CHASE EXPERIENCE</h4>Rediscover the cinematic driving sensations of DRIVER: loose suspension, long drifts, Hollywood-style crashes and high-speed pursuits in dense traffic. Drive over 130 fully destructible muscle and super cars with realistic handling and customization features that take fast-action driving to the next level.</p><p><h4>RELENTLESS MANHUNT</h4>Uncover a thrilling character-driven storyline in which personal revenge fuels Tanner’s relentless manhunt for Jericho. Follow Tanner's survival race across San Francisco and beyond to discover how this chase will bring him to a point of no return.</p><p><h4>SHIFT</h4>As Tanner recovers from a terrible crash, he realizes he has acquired a new ability, SHIFT, enabling him to instantly change vehicles and take control. Experience unprecedented intensity, diversity and freedom; SHIFT into a faster car, deploy civilian vehicles to destroy your enemies and even take control of your opponents’ car to force their demise. SHIFT also allows for thrilling new Multi-player modes within the game.</p><p><h4>A CAR CHASE PLAYGROUND</h4>Drive on more than 200 square miles of road network, over the Golden Gate Bridge, and through iconic locations of San Francisco. SHIFT from one car to the next and dip into the lives of different residents, a head-spinning array of characters, each with a unique perspective on a city under siege.</p><p><h4>MULTIPLAYER MAYHEM</h4>Experience 10 different addictive multi-player modes, including 6 on-line modes where the SHIFT feature allows players to be anywhere at any time. Ram, tail and overtake your friends in offline split-screen or online modes.</p><p><h4>…AND MORE</h4>Record your best stunts and chases with the Director replay mode to edit and share your movies. Test your driving skills with 20 challenging races and 80 “dares” spread all across the city. Listen to over 60 music tracks with songs from famous artists, not to mention the original memorable DRIVER theme.</p>",
-				ProductTemplateId = productTemplateSimple.Id,
+				//Sku = "Ubi-driversanfrancisco",
+                Sku = "Gaming-Lego-001",
+                Name = "LEGO Worlds - PlayStation 4",
+				ShortDescription = "Experience a galaxy of Worlds made entirely from LEGO bricks.",
+				FullDescription = "<ul>  <li>Experience a galaxy of Worlds made entirely from LEGO bricks.</li>  <li>LEGO Worlds is an open environment of procedurally-generated Worlds made entirely of LEGO bricks which you can freely manipulate and dynamically populate with LEGO models.</li>  <li>Create anything you can imagine one brick at a time, or use large-scale landscaping tools to create vast mountain ranges and dot your world with tropical islands.</li>  <li>Explore using helicopters, dragons, motorbikes or even gorillas and unlock treasures that enhance your gameplay.</li>  <li>Watch your creations come to life through characters and creatures that interact with you and each other in unexpected ways.</li></ul><p></p>",
+				ProductTemplateId = productTemplate.Id,
 				AllowCustomerReviews = true,
 				Published = true,
-				MetaTitle = "Driver San Francisco",
-				Price = 39.90M,
+				MetaTitle = "LEGO Worlds - PlayStation 4",
+				Price = 29.90M,
+                OldPrice = 34.90M,
 				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
 				OrderMinimumQuantity = 1,
 				OrderMaximumQuantity = 10000,
@@ -12310,67 +13512,71 @@ namespace SmartStore.Data.Setup
 				DeliveryTime = firstDeliveryTime
 			};
 
-			productDriverSanFrancisco.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuUbisoft, DisplayOrder = 1 });
-			productDriverSanFrancisco.ProductCategories.Add(new ProductCategory() { Category = categoryGamingGames, DisplayOrder = 3 });
+            productLegoWorlds.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuWarnerHomme, DisplayOrder = 1 });
+            productLegoWorlds.ProductCategories.Add(new ProductCategory() { Category = categoryGamingGames, DisplayOrder = 3 });
 
-			productDriverSanFrancisco.ProductPictures.Add(new ProductPicture()
+            productLegoWorlds.ProductPictures.Add(new ProductPicture()
 			{
-				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "ubisoft-driver-san-francisco.jpg"), "image/jpeg", GetSeName(productDriverSanFrancisco.Name)),
+				Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_legoworlds.jpg"), "image/jpeg", GetSeName(productLegoWorlds.Name)),
 				DisplayOrder = 1
 			});
+            #endregion Lego Worlds
 
-			var productPs3OneGame = new Product()
-			{
-				ProductType = ProductType.SimpleProduct,
-				VisibleIndividually = true,
-				Sku = "Sony-PS310111",
-				Name = "PlayStation 3 plus game cheaper",
-				ShortDescription = "Our special offer: PlayStation 3 plus one game of your choise cheaper.",
-				FullDescription = productPs3.FullDescription,
-				ProductTemplateId = productTemplateSimple.Id,
-				AllowCustomerReviews = true,
-				Published = true,
-				MetaTitle = "PlayStation 3 plus game cheaper",
-				Price = 160.00M,
-				ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
-				OrderMinimumQuantity = 1,
-				OrderMaximumQuantity = 3,
-				StockQuantity = 10000,
-				NotifyAdminForQuantityBelow = 1,
-				AllowBackInStockSubscriptions = false,
-				IsShipEnabled = true,
-				DeliveryTime = firstDeliveryTime
-			};
+            #region Ps3PlusOneGame
+            //var productPs3OneGame = new Product()
+            //{
+            //    ProductType = ProductType.SimpleProduct,
+            //    VisibleIndividually = true,
+            //    Sku = "Sony-PS310111",
+            //    Name = "PlayStation 3 plus game cheaper",
+            //    ShortDescription = "Our special offer: PlayStation 3 plus one game of your choise cheaper.",
+            //    FullDescription = productPs3.FullDescription,
+            //    ProductTemplateId = productTemplate.Id,
+            //    AllowCustomerReviews = true,
+            //    Published = true,
+            //    MetaTitle = "PlayStation 3 plus game cheaper",
+            //    Price = 160.00M,
+            //    ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
+            //    OrderMinimumQuantity = 1,
+            //    OrderMaximumQuantity = 3,
+            //    StockQuantity = 10000,
+            //    NotifyAdminForQuantityBelow = 1,
+            //    AllowBackInStockSubscriptions = false,
+            //    IsShipEnabled = true,
+            //    DeliveryTime = firstDeliveryTime
+            //};
 
-			productPs3OneGame.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuSony, DisplayOrder = 1 });
-			productPs3OneGame.ProductCategories.Add(new ProductCategory() { Category = categoryGaming, DisplayOrder = 6 });
+            //productPs3OneGame.ProductManufacturers.Add(new ProductManufacturer() { Manufacturer = manuSony, DisplayOrder = 1 });
+            //productPs3OneGame.ProductCategories.Add(new ProductCategory() { Category = categoryGaming, DisplayOrder = 6 });
 
-			productPs3OneGame.ProductPictures.Add(new ProductPicture()
-			{
-                Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_sony_ps3_plus_game.png"), "image/png", GetSeName(productPs3OneGame.Name)),
-				DisplayOrder = 1
-			});
+            //productPs3OneGame.ProductPictures.Add(new ProductPicture()
+            //{
+            //    Picture = CreatePicture(File.ReadAllBytes(sampleImagesPath + "product_sony_ps3_plus_game.png"), "image/png", GetSeName(productPs3OneGame.Name)),
+            //    DisplayOrder = 1
+            //});
 
-			#endregion Ps3PlusOneGame
+            #endregion Ps3PlusOneGame
 
-			#endregion gaming
 
-			var entities = new List<Product>
+            #endregion gaming
+
+            var entities = new List<Product>
 			{
                 productTRANSOCEANCHRONOGRAPH,productTissotTTouchExpertSolar,productSeikoSRPA49K1,productTitleistSM6TourChrome,productTitleistProV1x,productGBBEpicSubZeroDriver,productSupremeGolfball,productBooksStoneOfTheWise,productNikeStrikeFootball,productNikeEvoPowerBall,
                 productTorfabrikOfficialGameBall,productAdidasTangoSalaBall,productAllCourtBasketball,productEvolutionHighSchoolGameBasketball,productRayBanTopBar,
                 productOriginalWayfarer,productCustomFlakSunglasses,productRadarEVPrizmSportsSunglasses,productAppleProHipsterBundle,product97ipad,productAirpods,
-                productIphoneplus,productWatchSeries2,product5GiftCard, product25GiftCard, product50GiftCard, productBooksUberMan, productBooksGefangeneDesHimmels,
+                productIphoneplus,productWatchSeries2,product10GiftCard, product25GiftCard, product50GiftCard,product100GiftCard, productBooksUberMan, productBooksGefangeneDesHimmels,
 				productBooksBestGrillingRecipes, productBooksCookingForTwo, productBooksAutosDerSuperlative,  productBooksBildatlasMotorraeder, productBooksAutoBuch, productBooksFastCars,
-				productBooksMotorradAbenteuer,  productComputerDellInspiron23, productComputerDellOptiplex3010,productSmartPhonesAppleIphone, 
-				productInstantDownloadVivaldi, productComputerAcerAspireOne, productInstantDownloadBeethoven, productWatchesCertinaDSPodiumBigSize,
-				productPs3, productDualshock3Controller, productAssassinsCreed3, productBundlePs3AssassinCreed,
+				productBooksMotorradAbenteuer,  
+				productInstantDownloadVivaldi,  productInstantDownloadBeethoven, productWatchesCertinaDSPodiumBigSize,
+				productPs3, productMinecraft, productBundlePs3AssassinCreed,
 				productPs4, productDualshock4Controller, productPs4Camera, productBundlePs4,
 				productGroupAccessories,
-				productWatchDogs, productPrinceOfPersia, productDriverSanFrancisco, productPs3OneGame
-			};
+				productPrinceOfPersia, productLegoWorlds,productHorizonZeroDown,productFifa17
+            };
 
             entities.AddRange(GetFashionProducts());
+			entities.AddRange(GetFurnitureProducts());
 
 			this.Alter(entities);
 			return entities;
@@ -12431,11 +13637,12 @@ namespace SmartStore.Data.Setup
 
             #region gaming
 
-            var bundlePs3AssassinCreed = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS399105");
+            //var bundlePs3AssassinCreed = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS399105");
+            var bundlePs4Minecraft = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS399105");
 
-			var bundleItemPs3AssassinCreed1 = new ProductBundleItem()
+            var bundleItemPs4Minecraft1 = new ProductBundleItem()
 			{
-				BundleProduct = bundlePs3AssassinCreed,
+				BundleProduct = bundlePs4Minecraft,
 				Product = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS399000"),
 				Quantity = 1,
 				Discount = 20.0M,
@@ -12444,9 +13651,9 @@ namespace SmartStore.Data.Setup
 				DisplayOrder = 1
 			};
 
-			var bundleItemPs3AssassinCreed2 = new ProductBundleItem()
+			var bundleItemPs4Minecraft2 = new ProductBundleItem()
 			{
-				BundleProduct = bundlePs3AssassinCreed,
+				BundleProduct = bundlePs4Minecraft,
 				Product = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS399004"),
 				Quantity = 2,
 				Discount = 30.0M,
@@ -12455,10 +13662,10 @@ namespace SmartStore.Data.Setup
 				DisplayOrder = 2
 			};
 
-			var bundleItemPs3AssassinCreed3 = new ProductBundleItem()
+			var bundleItemPs4Minecraft3 = new ProductBundleItem()
 			{
-				BundleProduct = bundlePs3AssassinCreed,
-				Product = _ctx.Set<Product>().First(x => x.Sku == "Ubi-acreed3"),
+				BundleProduct = bundlePs4Minecraft,
+				Product = _ctx.Set<Product>().First(x => x.Sku == "PD-Minecraft4ps4"),
 				Quantity = 1,
 				Discount = 20.0M,
 				Visible = true,
@@ -12482,8 +13689,9 @@ namespace SmartStore.Data.Setup
 			var bundleItemPs42 = new ProductBundleItem
 			{
 				BundleProduct = bundlePs4,
-				Product = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS410037"),
-				Quantity = 1,
+				//Product = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS410037"),
+                Product = _ctx.Set<Product>().First(x => x.Sku == "Sony-PS399004"),
+                Quantity = 1,
 				Visible = true,
 				Published = true,
 				DisplayOrder = 2
@@ -12503,7 +13711,7 @@ namespace SmartStore.Data.Setup
 
 			var entities = new List<ProductBundleItem>
 			{
-				bundleItemPs3AssassinCreed1, bundleItemPs3AssassinCreed2, bundleItemPs3AssassinCreed3,
+                bundleItemPs4Minecraft1, bundleItemPs4Minecraft2, bundleItemPs4Minecraft3,
 				bundleItemPs41, bundleItemPs42, bundleItemPs43,bundleItemIproductIphoneplus, bundleItemProductWatchSeries2,bundleItemproductAirpods,bundleItemproductIpad
             };
 
@@ -12514,7 +13722,7 @@ namespace SmartStore.Data.Setup
 		public void AssignGroupedProducts(IList<Product> savedProducts)
 		{
 			int productGamingAccessoriesId = savedProducts.First(x => x.Sku == "Sony-GroupAccessories").Id;
-			var gamingAccessoriesSkus = new List<string>() { "Sony-PS399004", "Ubi-acreed3", "Sony-PS410037", "Sony-PS410040" };
+			var gamingAccessoriesSkus = new List<string>() { "Sony-PS399004", "PD-Minecraft4ps4", "Sony-PS410037", "Sony-PS410040" };
 
 			savedProducts
 				.Where(x => gamingAccessoriesSkus.Contains(x.Sku))
@@ -13191,6 +14399,15 @@ namespace SmartStore.Data.Setup
 				"<Attributes>",
 				FormatAttributeXml(attributeId1, valueId1, false),
 				FormatAttributeXml(attributeId2, valueId2, false),
+				"</Attributes>");
+		}
+		protected string FormatAttributeXml(int attributeId1, int valueId1, int attributeId2, int valueId2, int attributeId3, int valueId3)
+		{
+			return string.Concat(
+				"<Attributes>",
+				FormatAttributeXml(attributeId1, valueId1, false),
+				FormatAttributeXml(attributeId2, valueId2, false),
+				FormatAttributeXml(attributeId3, valueId3, false),
 				"</Attributes>");
 		}
 

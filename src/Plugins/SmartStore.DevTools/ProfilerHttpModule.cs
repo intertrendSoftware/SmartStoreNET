@@ -12,6 +12,11 @@ namespace SmartStore.DevTools
 		
 		public void Init(HttpApplication context)
 		{
+			if (DevToolsPlugin.HasPendingMigrations())
+			{
+				return;
+			}
+
 			context.BeginRequest += OnBeginRequest;
 			context.EndRequest += OnEndRequest;
 		}
@@ -52,20 +57,24 @@ namespace SmartStore.DevTools
 			if (url.StartsWith("~/admin", StringComparison.InvariantCultureIgnoreCase) 
 				|| url.StartsWith("~/mini-profiler", StringComparison.InvariantCultureIgnoreCase) 
 				|| url.StartsWith("~/bundles", StringComparison.InvariantCultureIgnoreCase)
+				|| url.StartsWith("~/plugin/", StringComparison.InvariantCultureIgnoreCase)
 				|| url.StartsWith("~/taskscheduler", StringComparison.InvariantCultureIgnoreCase))
 			{
 				return false;
 			}
 
-			ProfilerSettings settings;
+			ProfilerSettings settings = null;
 
-			try
+			if (EngineContext.Current.IsFullyInitialized)
 			{
-				settings = EngineContext.Current.Resolve<ProfilerSettings>();
-			}
-			catch
-			{
-				return false;
+				try
+				{
+					settings = EngineContext.Current.Resolve<ProfilerSettings>();
+				}
+				catch
+				{
+					return false;
+				}
 			}
 
 			return settings == null ? false : settings.EnableMiniProfilerInPublicStore;
