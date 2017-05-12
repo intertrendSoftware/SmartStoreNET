@@ -151,9 +151,14 @@ namespace SmartStore.Data.Migrations
 				setting.Value = "True";
 			}
 
-			// [...]
+            // Change CatalogSettings.ShowManufacturerPictures to true
+            setting = context.Set<Setting>().FirstOrDefault(x => x.Name == "CatalogSettings.ShowManufacturerPictures");
+            if (setting != null)
+            {
+                setting.Value = "True";
+            }
 
-			context.SaveChanges();
+            context.SaveChanges();
 
 			context.MigrateSettings(x =>
 			{
@@ -999,6 +1004,20 @@ namespace SmartStore.Data.Migrations
 
 			builder.AddOrUpdate("Admin.ContentManagement.Homepage", "Homepage", "Startseite");
 			builder.AddOrUpdate("Products.SavingBadgeLabel", "- {0} %", "- {0} %");
-		}
+            builder.AddOrUpdate("Admin.Themes.Sections", "Sections", "Sektionen");
+
+            builder.AddOrUpdate("Admin.ThemeVar.Boxed",
+                "Specifies whether the site will strech over the complete avaliable space.",
+                "Legt fest, ob sich die Seite über den kompletten verfügabren Platz streckt.");
+            builder.AddOrUpdate("Admin.ThemeVar.ArtActiveBgColor",
+                "Specifies the background color for product boxes when hovering over them.",
+                "Legt die Hintergrundfarbe von Produktboxen für den Hover-Effekt fest.");
+            builder.AddOrUpdate("Admin.ThemeVar.ArtActiveBorderColor",
+                "Specifies the border color for product boxes when hovering over them.",
+                "Legt die Rahmenfarbe von Produktboxen für den Hover-Effekt fest.");
+            builder.AddOrUpdate("Content.CopyrightNotice",
+                "Copyright &copy; {0} {1}. All rights reserved.",
+                "Copyright &copy; {0} {1}. Alle Rechte vorbehalten.");
+        }
 	}
 }

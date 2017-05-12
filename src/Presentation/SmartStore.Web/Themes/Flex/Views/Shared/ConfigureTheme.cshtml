@@ -11,7 +11,7 @@
 {
     var tabGeneral = x.Add().Text(T("Common.General").Text).Content(@TabGeneral()).Selected(true);
     var tabFonts = x.Add().Text(T("Admin.Themes.Fonts").Text).Content(@TabFonts());
-    var tabLayout = x.Add().Text("Layout").Content(@TabLayout());
+    var tabLayout = x.Add().Text(T("Admin.Themes.Sections").Text).Content(@TabLayout());
     var tabButtons = x.Add().Text(T("Admin.Themes.Buttons").Text).Content(@TabButtons());
     var tabStates = x.Add().Text(T("Admin.Themes.States").Text).Content(@TabStates());
     var tabComponents = x.Add().Text(T("Admin.Themes.Components").Text).Content(@TabComponents());
@@ -44,6 +44,15 @@
         @ThemeVarEditor("brand-danger")
         @ThemeVarEditor("brand-info")
         @ThemeVarEditor("brand-success")
+
+        @ThemeVarEditor("boxed", "Layout", T("Admin.ThemeVar.Boxed"))
+
+        @ThemeVarEditor("body-bg", "Site Colors")
+        @ThemeVarEditor("site-bg")
+        @ThemeVarEditor("body-color")
+        @ThemeVarEditor("text-muted")
+        @ThemeVarEditor("link-color")
+
     </table>
 }
 
@@ -67,6 +76,13 @@
         @ThemeVarEditor("headings-color")
         @ThemeVarEditor("lead-font-weight")
 
+        @ThemeVarEditor("font-size-h1", "Heading Sizes")
+        @ThemeVarEditor("font-size-h2")
+        @ThemeVarEditor("font-size-h3")
+        @ThemeVarEditor("font-size-h4")
+        @ThemeVarEditor("font-size-h5")
+        @ThemeVarEditor("font-size-h6")
+
         <tr>
             <td colspan="2" class="admin-config-group">
                 <div class="title">Google Fonts</div>
@@ -76,9 +92,7 @@
         <tr>
             <td colspan="2">
                 <div class="alert alert-info">
-                    
                     @T("Admin.Theme.GoogleFonts.Hint")
-
                 </div>
             </td>
         </tr>
@@ -92,14 +106,6 @@
 @helper TabLayout()
 {
     <table class="adminContent">
-        @ThemeVarEditor("boxed")
-
-        @ThemeVarEditor("body-bg", "Site Colors")
-        @ThemeVarEditor("site-bg")
-        @ThemeVarEditor("body-color")
-        @ThemeVarEditor("text-muted")
-        @ThemeVarEditor("link-color")
-
         @ThemeVarEditor("header-bg", "Header")
         @ThemeVarEditor("shopbar-label")
 
@@ -125,11 +131,12 @@
         @ThemeVarEditor("megamenu-text-color")
         @ThemeVarEditor("megamenu-rotator-bg")
 
-        @ThemeVarEditor("search-button-style", "Searchbox")
-        @ThemeVarEditor("searchbox-bg")
+        @ThemeVarEditor("searchbox-bg", "Searchbox")
         @ThemeVarEditor("searchbox-focus-bg")
         @ThemeVarEditor("searchbox-border-color")
         @ThemeVarEditor("searchbox-border-active-color")
+		@ThemeVarEditor("search-button-style")
+		@ThemeVarEditor("search-button-flat")
         @ThemeVarEditor("searchbox-hit-tag-color")
 
         @ThemeVarEditor("inverse-footer", "Footer")
@@ -228,8 +235,8 @@
         @ThemeVarEditor("cart-footer-bg")
         @ThemeVarEditor("costep-progress-color", null, T("Admin.ThemeVar.CostepPogressColor"))
         @ThemeVarEditor("offcanvas-cart-footer")
-        @ThemeVarEditor("art-active-bg-color")
-        @ThemeVarEditor("art-active-border-color")
+        @ThemeVarEditor("art-active-bg-color", null, T("Admin.ThemeVar.ArtActiveBgColor"))
+        @ThemeVarEditor("art-active-border-color", null, T("Admin.ThemeVar.ArtActiveBorderColor"))
     </table>
 }
 

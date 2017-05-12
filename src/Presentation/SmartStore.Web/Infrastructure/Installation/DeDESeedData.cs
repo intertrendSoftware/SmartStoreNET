@@ -2441,332 +2441,196 @@ namespace SmartStore.Web.Infrastructure.Installation
             base.Alter(entities);
 
             entities.WithKey(x => x.DisplayOrder)
-            #region Cpu-Hersteller
-.Alter(1, x =>
-                    {
-                        x.Name = "CPU-Hersteller";
-                        //var attributeOptionNames = x.SpecificationAttributeOptions.OrderBy(y => y.DisplayOrder).Select(y => y.Name).ToList();
-                        //foreach (var name in attributeOptionNames)
-                        //{
-                        //    name = 
-                        //}
-                    })
-            #endregion
-
-            #region Farbe
-.Alter(2, x =>
-                    {
-                        x.Name = "Farbe";
-                        var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                        attribOption1.First().Name = "weiss";
-
-                        var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                        attribOption2.First().Name = "schwarz";
-
-                        var attribOption3 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3);
-                        attribOption3.First().Name = "beige";
-
-                        var attribOption4 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4);
-                        attribOption4.First().Name = "rot";
-
-                        var attribOption5 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 5);
-                        attribOption5.First().Name = "blau";
-
-                        var attribOption6 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 6);
-                        attribOption6.First().Name = "grün";
-
-                        var attribOption7 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 7);
-                        attribOption7.First().Name = "gelb";
-
-                    })
-            #endregion
-
-            #region Festplatten-Kapazität
-.Alter(3, x =>
-                    {
-                        x.Name = "Festplatten-Kapazität";
-                    })
-
-            #endregion
-
-            #region Arbeitsspeicher
-.Alter(4, x =>
-                    {
-                        x.Name = "Arbeitsspeicher";
-                    })
-            #endregion
-
-            #region OS
-.Alter(5, x =>
-                    {
-                        x.Name = "Betriebssystem";
-                    })
-            #endregion
-
-            #region Anschluss
-.Alter(6, x =>
-                    {
-                        x.Name = "Anschluss";
-                    })
-            #endregion
-
-            #region Geschlecht
-.Alter(7, x =>
-                    {
-                        x.Name = "Geschlecht";
-                        var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                        attribOption1.First().Name = "Herren";
-
-                        var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                        attribOption2.First().Name = "Damen";
-                    })
-            #endregion
-
-            #region Material
-.Alter(8, x =>
-                    {
-                        x.Name = "Material";
-                        x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 1).Name = "Edelstahl";
-                        x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 2).Name = "Titan";
-						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 3).Name = "Kunststoff";
-						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 4).Name = "Aluminium";
-						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 5).Name = "Leder";
-						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 6).Name = "Nylon";
-						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 7).Name = "Silikon";
-						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 8).Name = "Keramik";
-						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 9).Name = "Baumwolle";
-						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 10).Name = "100% Bio-Baumwolle";
-						x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 11).Name = "Polyamid";
-					})
-            #endregion
-
-            #region Technische Ausführung
-            .Alter(9, x =>
-                    {
-                        x.Name = "Technische Ausführung";
-                        var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                        attribOption1.First().Name = "Automatik, selbstaufziehend";
-
-                        var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                        attribOption2.First().Name = "Automatik";
-
-                        var attribOption3 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3);
-                        attribOption3.First().Name = "Quarz, batteriebetrieben";
-                    })
-            #endregion
-
-            #region Verschluss
-.Alter(10, x =>
-                    {
-                        x.Name = "Verschluss";
-                        var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                        attribOption1.First().Name = "Faltschließe";
-
-                        var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                        attribOption2.First().Name = "Sicherheitsfaltschließe";
-
-                        var attribOption3 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3);
-                        attribOption2.First().Name = "Dornschließe";
-                    })
-            #endregion
-
-            #region Glas
-.Alter(11, x =>
-                    {
-                        x.Name = "Glas";
-                        var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                        attribOption1.First().Name = "Mineral";
-
-                        var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                        attribOption2.First().Name = "Saphir";
-                    })
-            #endregion
-
-            #region Sprache
-.Alter(12, x =>
-                    {
-                        x.Name = "Sprache";
-                        var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                        attribOption1.First().Name = "deutsch";
-
-                        var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                        attribOption2.First().Name = "englisch";
-
-                        var attribOption3 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3);
-                        attribOption2.First().Name = "französisch";
-
-                        var attribOption4 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4);
-                        attribOption2.First().Name = "italienisch";
-                    })
-            #endregion
-
-            #region Ausgabe
-            .Alter(13, x =>
-                    {
-                        x.Name = "Ausgabe";
-                        var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                        attribOption1.First().Name = "gebunden";
-
-                        var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                        attribOption2.First().Name = "Taschenbuch";
-                    })
-            #endregion
-
-            #region Kategorie
-            .Alter(14, x =>
-                    {
-                        x.Name = "Genre";
-                        var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                        attribOption1.First().Name = "Abenteuer";
-
-                        var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                        attribOption2.First().Name = "Science-Fiction";
-
-                        var attribOption3 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3);
-                        attribOption2.First().Name = "Geschichte";
-
-                        var attribOption4 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4);
-                        attribOption2.First().Name = "Internet & Computer";
-
-                        var attribOption5 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 5);
-                        attribOption2.First().Name = "Krimi";
-
-                        var attribOption6 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 6);
-                        attribOption2.First().Name = "Autos";
-
-                        var attribOption7 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 7);
-                        attribOption2.First().Name = "Roman";
-
-                        var attribOption8 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 8);
-                        attribOption2.First().Name = "Kochen & Backen";
-
-                        var attribOption9 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 9);
-                        attribOption2.First().Name = "Sachbuch";
-                    })
-
-            #endregion
-
-            #region Computer-Typ
-            .Alter(15, x =>
-            {
-                x.Name = "Computer-Typ";
-                var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                attribOption1.First().Name = "Desktop";
-
-                var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                attribOption2.First().Name = "All-in-One";
-
-                var attribOption3 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3);
-                attribOption2.First().Name = "Laptop";
-
-                var attribOption4 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4);
-                attribOption2.First().Name = "Tablet";
-            })
-
-            #endregion
-
-            #region Massenspeicher-Typ
-.Alter(16, x =>
-            {
-                x.Name = "Massenspeicher-Typ";
-            })
-
-            #endregion
-
-            #region Computer-Typ
-.Alter(17, x =>
-            {
-                x.Name = "Größe (externe HDD)";
-            })
-
-            #endregion
-
-            #region MP3-Qualität
-.Alter(18, x =>
-            {
-                x.Name = "MP3-Qualität";
-            })
-
-            #endregion
-
-            #region Musik-Genre
-.Alter(19, x =>
-            {
-                x.Name = "Genre";
-                var attribOption1 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1);
-                attribOption1.First().Name = "Blues";
-
-                var attribOption2 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2);
-                attribOption2.First().Name = "Jazz";
-
-                var attribOption3 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3);
-                attribOption2.First().Name = "Disko";
-
-                var attribOption4 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4);
-                attribOption2.First().Name = "pop";
-
-                var attribOption5 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 5);
-                attribOption2.First().Name = "Funk";
-
-                var attribOption6 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 6);
-                attribOption2.First().Name = "Klassik";
-
-                var attribOption7 = x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 7);
-                attribOption2.First().Name = "R&B";
-            })
-            #endregion
-
-            #region Hersteller
-.Alter(19, x =>
-            {
-                x.Name = "Hersteller";
-            })
-            #endregion
-
-            ;
-
-
-            #region old code
-            //entities.Clear();
-
-            //var sa1 = new SpecificationAttribute
-            //{
-            //    Name = "CPU-Hersteller",
-            //    DisplayOrder = 1,
-            //};
-            //sa1.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
-            //{
-            //    Name = "AMD''",
-            //    DisplayOrder = 1,
-            //});
-            //sa1.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
-            //{
-            //    Name = "Intel''",
-            //    DisplayOrder = 2,
-            //});
-            //sa1.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
-            //{
-            //    Name = "ARM''",
-            //    DisplayOrder = 3,
-            //});
-            //sa1.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
-            //{
-            //    Name = "Samsung''",
-            //    DisplayOrder = 4,
-            //});
-            //sa1.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
-            //{
-            //    Name = "Apple''",
-            //    DisplayOrder = 5,
-            //});
-
-
-            // add de-DE specific Tasks
-            //entities = new List<SpecificationAttribute>
-            //{
-            //    sa1,
-            //};
-            #endregion
+				.Alter(1, x =>
+                {
+                    x.Name = "CPU-Hersteller";
+                })
+				.Alter(2, x =>
+                {
+					x.Name = "Farbe";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Weiß";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Schwarz";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Beige";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4).First().Name = "Rot";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 5).First().Name = "Blau";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 6).First().Name = "Grün";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 7).First().Name = "Gelb";
+                })
+				.Alter(3, x =>
+				{
+					x.Name = "Festplatten-Kapazität";
+				})
+				.Alter(4, x =>
+				{
+					x.Name = "Arbeitsspeicher";
+				})
+				.Alter(5, x =>
+				{
+					x.Name = "Betriebssystem";
+				})
+				.Alter(6, x =>
+				{
+					x.Name = "Anschluss";
+				})
+				.Alter(7, x =>
+				{
+					x.Name = "Geschlecht";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Herren";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Damen";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Unisex";
+				})
+				.Alter(8, x =>
+				{
+					x.Name = "Material";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 1).Name = "Edelstahl";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 2).Name = "Titan";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 3).Name = "Kunststoff";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 4).Name = "Aluminium";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 5).Name = "Leder";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 6).Name = "Nylon";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 7).Name = "Silikon";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 8).Name = "Keramik";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 9).Name = "Baumwolle";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 10).Name = "100% Bio-Baumwolle";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 11).Name = "Polyamid";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 12).Name = "Gummi";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 13).Name = "Holz";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 14).Name = "Glas";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 15).Name = "Elasthan";
+					x.SpecificationAttributeOptions.First(y => y.DisplayOrder == 16).Name = "Polyester";
+				})
+				.Alter(9, x =>
+				{
+					x.Name = "Technische Ausführung";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Automatik, selbstaufziehend";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Automatik";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Quarz, batteriebetrieben";
+				})
+				.Alter(10, x =>
+				{
+					x.Name = "Verschluss";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Faltschließe";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Sicherheitsfaltschließe";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Dornschließe";
+				})
+				.Alter(11, x =>
+				{
+					x.Name = "Glas";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Mineral";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Saphir";
+				})
+				.Alter(12, x =>
+				{
+					x.Name = "Sprache";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Deutsch";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Englisch";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Französisch";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4).First().Name = "Italienisch";
+				})
+				.Alter(13, x =>
+				{
+					x.Name = "Ausgabe";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Gebunden";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Taschenbuch";
+				})
+				.Alter(14, x =>
+				{
+					x.Name = "Genre";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Abenteuer";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Science-Fiction";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Geschichte";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4).First().Name = "Internet & Computer";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 5).First().Name = "Krimi";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 6).First().Name = "Autos";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 7).First().Name = "Roman";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 8).First().Name = "Kochen & Backen";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 9).First().Name = "Sachbuch";
+				})
+				.Alter(15, x =>
+				{
+					x.Name = "Computer-Typ";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Desktop";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "All-in-One";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Laptop";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4).First().Name = "Tablet";
+				})
+				.Alter(16, x =>
+				{
+					x.Name = "Massenspeicher-Typ";
+				})
+				.Alter(17, x =>
+				{
+					x.Name = "Größe (externe HDD)";
+				})
+				.Alter(18, x =>
+				{
+					x.Name = "MP3-Qualität";
+				})
+				.Alter(19, x =>
+				{
+					x.Name = "Genre";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Blues";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Jazz";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Disko";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4).First().Name = "Pop";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 5).First().Name = "Funk";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 6).First().Name = "Klassik";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 7).First().Name = "R&B";
+				})
+				.Alter(20, x =>
+				{
+					x.Name = "Hersteller";
+				})
+				.Alter(21, x =>
+				{
+					x.Name = "Für wen";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Für ihn";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Für sie";
+				})
+				.Alter(22, x =>
+				{
+					x.Name = "Angebot";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Räumung";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Permanent günstigster Preis";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Aktion";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4).First().Name = "Preisreduzierung";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 5).First().Name = "Angebotspreis";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 6).First().Name = "Tagesangebot";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 7).First().Name = "Wochenangebot";
+				})
+				.Alter(23, x =>
+				{
+					x.Name = "Größe";
+				})
+				.Alter(24, x =>
+				{
+					x.Name = "Durchmesser";
+				})
+				.Alter(25, x =>
+				{
+					x.Name = "Verschluss";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Schnappverschluss";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Faltverschluss";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Stechverschluss";
+				})
+				.Alter(26, x =>
+				{
+					x.Name = "Form";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Oval";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Rund";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 3).First().Name = "Herzförmig";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 4).First().Name = "Winkelförmig";
+				})
+				.Alter(27, x =>
+				{
+					x.Name = "Speicherkapazität";
+				})
+				.Alter(28, x =>
+				{
+					x.Name = "Scheibenmaterial";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 1).First().Name = "Mineral";
+					x.SpecificationAttributeOptions.Where(y => y.DisplayOrder == 2).First().Name = "Saphir";
+				});
         }
 
         protected override void Alter(IList<ProductAttribute> entities)
@@ -2780,7 +2644,7 @@ namespace SmartStore.Web.Infrastructure.Installation
 				})
 				.Alter("custom-text", x =>
 				{
-					x.Name = "eigener Text";
+					x.Name = "Eigener Text";
 				})
 				.Alter("hdd", x =>
 				{
@@ -2814,6 +2678,10 @@ namespace SmartStore.Web.Infrastructure.Installation
 				{
 					x.Name = "Farbe";
 				})
+				.Alter("ipad-color", x =>
+				{
+					x.Name = "Farbe";
+				})
 				.Alter("memory-capacity", x =>
 				{
 					x.Name = "Speicherkapazität";
@@ -2834,6 +2702,10 @@ namespace SmartStore.Web.Infrastructure.Installation
 				{
 					x.Name = "Stärke der Tischplatte";
 				})
+				.Alter("ballsize", x =>
+				{
+					x.Name = "Ballgröße";
+				})
 				.Alter("leather-color", x =>
 				{
 					x.Name = "Lederfarbe";
@@ -2849,8 +2721,20 @@ namespace SmartStore.Web.Infrastructure.Installation
 				.Alter("style", x =>
 				{
 					x.Name = "Ausführung";
-				});
-		}
+				})
+                .Alter("framecolor", x =>
+                {
+                    x.Name = "Rahmenfarbe";
+                })
+                .Alter("lenscolor", x =>
+                {
+                    x.Name = "Glasfarbe";
+                })
+                .Alter("lenstype", x =>
+                 {
+                     x.Name = "Glas";
+                 });
+        }
 
 		protected override void Alter(IList<ProductAttributeOptionsSet> entities)
 		{
@@ -2902,12 +2786,26 @@ namespace SmartStore.Web.Infrastructure.Installation
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "fuliginous").Each(y => y.Name = "Rauchfarbig");
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "tomato-red").Each(y => y.Name = "Tomatenrot");
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "yellow").Each(y => y.Name = "Gelb");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "mint").Each(y => y.Name = "Mintgrün");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "lightblue").Each(y => y.Name = "Hellblau");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "turquoise").Each(y => y.Name = "Türkis");
 			});
 
-			entities.Where(x => x.ProductAttribute.Alias == "iphone-color").Each(x =>
+			entities.Where(x => x.ProductAttribute.Alias == "iphone-color" || x.ProductAttribute.Alias == "ipad-color").Each(x =>
 			{
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "black").Each(y => y.Name = "Schwarz");
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "silver").Each(y => y.Name = "Silber");
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "spacegray").Each(y => y.Name = "Space-Grau");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "purple").Each(y => y.Name = "Violett");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "lightblue").Each(y => y.Name = "Hellblau");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "turquoise").Each(y => y.Name = "Türkis");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "yellow").Each(y => y.Name = "Gelb");
+			});
+
+			entities.Where(x => x.ProductAttribute.Alias == "controller").Each(x =>
+			{
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "without_controller").Each(y => y.Name = "Ohne Controller");
+				x.ProductVariantAttributeValues.Where(y => y.Alias == "with_controller").Each(y => y.Name = "Mit Controller");
 			});
 
 			entities.Where(x => x.ProductAttribute.Alias == "game").Each(x =>
@@ -2940,7 +2838,9 @@ namespace SmartStore.Web.Infrastructure.Installation
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "leather-aniline").Each(y => y.Name = "Leder Anilin");
 				x.ProductVariantAttributeValues.Where(y => y.Alias == "mixed-linen").Each(y => y.Name = "Leinen gemischt");
 			});
-		}
+
+            
+        }
 
         protected override void Alter(IList<ProductTemplate> entities)
         {
@@ -3107,6 +3007,12 @@ namespace SmartStore.Web.Infrastructure.Installation
 					x.Name = "Charles Eames Lounge Sessel (1956)";
 					x.ShortDescription = "Club Sessel, Lounge Chair, Designer: Charles Eames, Breite 80 cm, Tiefe 80 cm, Höhe 60 cm, Sitzschale: Sperrholz, Fuß (drehbar): Aluminiumguss, Kissen (gepolstert) mit Lederbezug.";
 					x.FullDescription = "<p>So sitzt man in einem Baseball-Handschuh. Das war jedenfalls eine der Vorstellungen, die Charles Eames beim Entwurf dieses Clubsessels im Kopf hatte. Der Lounge Chair sollte ein Komfort-Sessel sein, in den man luxuriös einsinken kann. Durch die Konstruktion aus drei miteinander verbundenen, beweglichen Sitzschalen und einer bequemen Polsterung gelang Charles Eames die Umsetzung. Eigentlich ist der Clubsessel mit drehbarem Fuß ein Gegensatz zu den Bauhaus-Charakteristiken, die Minimalismus und Funktionalität in den Vordergrund stellten. Dennoch wurde er zu einem Klassiker der Bauhaus-Geschichte und sorgt noch heute in vielen Wohnräumen und Clubs für absoluten Komfort mit Stil.</p><p>Abmessung: Breite 80 cm, Tiefe 60 cm,  Höhe Gesamt 80 cm (Höhe Rückenlehne: 60 cm). CBM: 0,70.</p><p>Verarbeitung: Lounge Chair mit Sitzschale aus schichtverleimten gebogenen Sperrholz mit Palisander furniert, Nussbaum natur oder in schwarz. Drehbarer Fuß aus Aluminiumguss schwarz mit polierten Kanten oder auch wahlweise vollständig verchromt. Aufwendige Polsterung der Kissen in Leder.</p><p>Alle POLSTEREINHEITEN sind bei dem EAMES LOUNGE CHAIR (Sitz, Armlehne, Rückenlehne, Kopflehne) abnehmbar.</p><p></p>";
+				})
+				.Alter("Furniture-cube-chair", x =>
+				{
+					x.Name = "Josef Hoffmann Sessel Kubus (1910)";
+					x.ShortDescription = "Sessel Kubus, Designer: Josef Hoffmann, Breite 93 cm, Tiefe 72 cm, Höhe 77 cm, Grundgestell: massives Buchenholz, Polsterung: fester Polyurethan Schaum (formbeständig), Bezug: Leder";
+					x.FullDescription = "<p>Der Sessel Kubus von Josef Hoffmann hält, was der Name verspricht und das gleich in zweierlei Hinsicht. Er besteht aus vielen Quadraten, sowohl was die Konstruktion angeht als auch im Bezug auf das Design der Oberfläche. Zudem war der Kubus mit seiner rein geometrischen Form eine Art Vorbote des Kubismus. Der Sessel von Josef Hoffmann wurde 1910 entworfen und steht noch heute als Nachbau in zahlreichen Geschäfts- und Wohnräumen.</p><p>Ursprünglich war der Kubus ein Clubsessel. Zusammen mit dem zwei- und dem dreisitzigen Sofa der Serie entsteht eine gemütliche Sitzecke mit einer kultivierten und gehobenen Ausstrahlung. Das Grundgestell des Sessels besteht aus Holz. Die formbeständige Polsterung ist mit Leder überzogen und wurde mit einer speziellen Nähtechnik optisch zu Quadraten geformt.</p><p>Abmessung: Breite 93 cm, Tiefe 72 cm, Höhe 77 cm. CBM: 0,70.</p>";
 				});
 		}
 
@@ -3308,11 +3214,150 @@ namespace SmartStore.Web.Infrastructure.Installation
 
                 #endregion category Soccer
 
+                #region category Sunglasses
+
+                #region product Radar EV Prizm Sports Sunglasses
+
+                .Alter("Radar EV Prizm Sports Sunglasses", x =>
+                {
+                    x.Name = "Radar EV Prizm Sports Sonnenbrille";
+                    x.ShortDescription = "";
+                    x.FullDescription = "<p><strong>RADAR&nbsp;EV PATH&nbsp;PRIZM&nbsp;ROAD</strong></p><p>Ein neuer Meilenstein in der Geschichte des Performance-Designs: Die Radar® EV setzt den Innovationen eines ohnehin schon revolutionären Designs mit einem größeren Glas für ein erweitertes Blickfeld nach oben noch eins drauf. Vom Komfort und Schutz des Rahmens aus O Matter® bis zum griffigen Halt der Unobtainium®-Komponenten ist dieses Premium-Design im innovativen und stilvollen Erbe der Radar verwurzelt.</p><p><strong>EIGENSCHAFTEN</strong></p><ul>  <li>PRIZM™ ist eine neue Glastechnologie von Oakley, die die Sicht für spezielle Sportarten und Umgebungsbedingungen optimiert.</li>  <li>Path-Gläser für eine bessere Performance gegenüber traditionellen Gläsern, die Ihre Wangen berühren, und ein erweitertes Blickfeld</li>  <li>Speziell konstruiert für maximalen Luftstrom zur kühlenden Belüftung</li>  <li>Ohrbügel und Nasenpads aus Unobtainium® für einen sicheren Sitz der Gläser, der sich bei Schweiß sogar verstärkt</li>  <li>Wechselglassystem für sekundenschnelles Auswechseln der Gläser zur optimalen Sichtanpassung an jedes Sportumfeld</li></ul>";
+                    //x.Price = 29.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product Radar EV Prizm Sports Sunglasses
+
+                #region product Custom Flak Sunglasses
+
+                .Alter("Custom Flak Sunglasses", x =>
+                {
+                    x.Name = "Custom Flak® Sportsonnenbrille";
+                    x.ShortDescription = "";
+                    x.FullDescription = "Jede Brille wird  in Handarbeit für Sie zusammengesetzt.";
+                    //x.Price = 29.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product Custom Flak Sunglasses
+
+                #region product Rayban Top bar
+
+                .Alter("Ray-Ban Top Bar RB 3183", x =>
+                {
+                    x.Name = "Ray-Ban Top Bar RB 3183";
+                    x.ShortDescription = "";
+                    x.FullDescription = "<p>Die Sonnenbrille Ray-Ban ® RB3183 mir ihrer aerodynamischen Form eine reminiszenzist an Geschwindigkeit. Eine rechteckige Form und das auf den</p><p>Bügeln aufgedruckte klassische Ray-Ban Logo zeichnet dieses leichte Halbrand-Modell aus.</p>";
+                    //x.Price = 29.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product Rayban Top bar
+
+                #region product ORIGINAL WAYFARER AT COLLECTION
+
+                .Alter("ORIGINAL WAYFARER AT COLLECTION", x =>
+                {
+                    //x.Name = "ORIGINAL WAYFARER AT COLLECTION";
+                    x.ShortDescription = "Die Ray-Ban Original Wayfarer ist der bekannteste Style in der Geschichte der Sonnenbrillen. Mit dem original Design von 1952 ist die Wayfarer bei Prominenten, Musikern, Künstlern und Mode Experten beliebt. ";
+                    x.FullDescription = "";
+                    //x.Price = 29.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product ORIGINAL WAYFARER AT COLLECTION
+
+                #endregion category Sunglasses
+
+                #region category Basketball
+
+                #region product Wilson Evolution High School Game Basketball
+
+                .Alter("Evolution High School Game Basketball", x =>
+                {
+                    //x.Name = "Radar EV Prizm Sports Sonnenbrille";
+                    x.ShortDescription = "Für alle Positionen auf allen Spielstufen, Spieltag und jeden Tag";
+                    x.FullDescription = "<p>Die Wilson Evolution High School Spiel Basketball hat exklusive Mikrofaser-Composite-Leder-Konstruktion mit tiefen geprägten Kieselsteinen, um Ihnen die ultimative in Gefühl und Kontrolle.</p><p>Die patentierte Cushion Core Technologie erhöht die Haltbarkeit für längeres Spiel.</p><p>Diese Mikrofaser-Composite Evolution High School Basketball ist mit Composite-Kanäle für besseren Griff kieselig, hilft Spieler heben ihr Spiel auf die nächste Ebene.</p><p>Für alle Positionen auf allen Spielstufen, Spieltag und jeden Tag, liefert Wilson die Skill-Building-Performance, die Spieler verlangen. Diese Registern-Größe 29,5 'Wilson Basketball ist ein idealer Basketball für High-School - Spieler, und ist entweder für Freizeit - Nutzung oder für Liga - Spiele konzipiert.</ p >< p > Es ist NCAA und NFHS genehmigt, so dass Sie wissen, es ist ein qualitativ hochwertiger Basketball, der Ihnen helfen wird hone Ihr Shooting, Passing und Ball - Handling - Fähigkeiten.</ p >< p > Nehmen Sie Ihr Team den ganzen Weg zur Meisterschaft mit dem Wilson Evolution High School Game Basketball.</ p > ";
+                    //x.Price = 29.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product Wilson Evolution High School Game Basketball
+
+                #region product All Court Basketball
+
+                .Alter("All-Court Basketball", x =>
+                {
+                    //x.Name = "Custom Flak® Sportsonnenbrille";
+                    x.ShortDescription = "Ein langlebiger Basketball für alle Oberflächen";
+                    x.FullDescription = "<p></p><div>  <h2>All-Court Prep Ball  </h2>  <h4>Ein langlebiger Basketball für alle Oberflächen  </h4>  <div class='product-details-description clearfix'>    <div class='prod-details para-small' itemprop='description'>    </div>    <div class='prod-details para-small' itemprop='description'>Ob auf Parkett oder auf Asphalt – der adidas All-Court Prep Ball hat nur ein Ziel: den Korb. Dieser Basketball besteht aus langlebigem Kunstleder, was ihn sowohl für Hallenplätze als auch für Spiele im Freien prädestiniert.    </div>    <div class='prod-details para-small' itemprop='description'>    </div>    <ul class='bullets_list para-small'>      <li>Verbundüberzug aus Kunstleder</li>      <li>Für drinnen und draußen geeignet</li>      <li>Wird unaufgepumpt geliefert</li>    </ul>  </div></div>";
+                    //x.Price = 29.90M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Normal").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                    x.ProductReviews.Clear();
+                })
+                #endregion product All Court Basketball
+
+                #endregion category Basketball
 
                 #region category Gift Cards
-                .Alter("$5 Virtual Gift Card", x =>
+                .Alter("$10 Virtual Gift Card", x =>
 				{
-					x.Name = "5 € Geschenkgutschein";
+					x.Name = "10 € Geschenkgutschein";
 					x.ShortDescription = "5 € Geschenkgutschein. Eine ideale Geschenkidee.";
 					x.FullDescription = "<p>Wenn in letzter Minute mal wieder ein Geschenk fehlt oder man nicht weiß, was man schenken soll, dann bietet sich der Kauf eines Geschenkgutscheins an.</p>";
 				})
@@ -3480,7 +3525,7 @@ namespace SmartStore.Web.Infrastructure.Installation
 					x.Name = "Motorrad-Abenteuer: Fahrtechnik für Reise-Enduros";
 					x.ShortDescription = "Gebundene Ausgabe";
 					x.FullDescription = "<p> Moderne Reise-Enduros sind ideale Motorräder für eine Abenteuerreise. Ihre Technik ist jedoch komplex, ihr Gewicht beträchtlich. Das Fahrverhalten verändert sich je nach Zuladung und Strecke. Bevor die Reise losgeht, sollte man unbedingt ein Fahrtraining absolvieren. <br> Dieses hervorragend illustrierte Praxisbuch zeigt anhand vieler aussagekräftiger Serienfotos das richtige Fahren im Gelände in Sand und Schlamm, auf Schotter und Fels mit Gepäck und ohne. Neben dem Fahrtraining werden zahlreiche Informationen und Tipps zur Auswahl des richtigen Motorrades, zur Reiseplanung und zu praktischen Fragen unterwegs gegeben. </p>";
-					x.Price = 44.90M;
+					//x.Price = 44.90M;
 					x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
 					x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Ermäßigt").Single().Id;
 					x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
@@ -3493,15 +3538,33 @@ namespace SmartStore.Web.Infrastructure.Installation
 					x.IsShipEnabled = true;
 				})
 
-				#endregion Books : cars and motorcycles
+                #endregion Books : cars and motorcycles
 
-				#endregion Bücher
+                .Alter("The Prisoner of Heaven: A Novel", x =>
+                {
+                    x.Name = "Der Gefangene des Himmels";
+                    x.ShortDescription = "Gebundene Ausgabe";
+                    x.FullDescription = "<p>Der Gefangene des Himmels ist ein Roman des spanischen Autors Carlos Ruiz Zafón. </p><p>Er erschien 2011 bei Planeta S.A. in Barcelona unter dem Titel El prisionero del cielo.</p><p> Die deutsche Übersetzung stammt von Peter Schwaar und erschien 2012 im S. Fischer Verlag Frankfurt/Main. Der Roman ist der dritte Teil der Romantetralogie Friedhof der vergessenen Bücher, die noch die Bände Der Schatten des Windes, Das Spiel des Engels und Das Labyrinth der Lichter umfasst. Die wichtigsten Personen sind aus den beiden vorangegangenen Bänden bereits vertraut. Der dritte Roman beschreibt ihr Leben in den Jahren 1957–60 sowie in Rückblenden in den Jahren 1939–41./<p>";
+                    //x.Price = 22.99M;
+                    x.DeliveryTime = base.DbContext.Set<DeliveryTime>().Where(dt => dt.DisplayOrder == 0).Single();
+                    x.TaxCategoryId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == "Ermäßigt").Single().Id;
+                    x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
+                    x.OrderMinimumQuantity = 1;
+                    x.OrderMaximumQuantity = 10000;
+                    x.StockQuantity = 10000;
+                    x.NotifyAdminForQuantityBelow = 1;
+                    x.AllowBackInStockSubscriptions = false;
+                    x.Published = true;
+                    x.IsShipEnabled = true;
+                })
 
-				#region computer
+                #endregion Bücher
 
-				#region computer-desktops
+                #region computer
 
-				#region Dell Inspiron One 23
+                #region computer-desktops
+
+                #region Dell Inspiron One 23
                 .Alter("Dell Inspiron One 23", x =>
 				{
 					x.ShortDescription = "Dieser 58 cm (23'')-All-in-One-PC mit Full HD, Windows 8 und leistungsstarken Intel® Core™ Prozessoren der dritten Generation ermöglicht eine praktische Interaktion mit einem Touchscreen.";
@@ -3801,7 +3864,39 @@ namespace SmartStore.Web.Infrastructure.Installation
 					x.ShortDescription = "In Zusammenarbeit mit einigen der kreativsten Köpfe der Industrie entstanden, bietet die PlayStation® 4 atemberaubende und einzigartige Gaming-Erlebnis.";
 					x.FullDescription = ps4FullDescription;
 				})
-				.Alter("DUALSHOCK 4 Wireless Controller", x =>
+
+                .Alter("Playstation 4 Pro", x =>
+                {
+                    x.ShortDescription = "Die Sony PlayStation 4 Pro ist die Multi-Media-Konsole für die nächste Generation der digitalen Home Entertainment. Es bietet die Blu-ray-Technologie, mit der Sie Filme in High Definition genießen können.";
+                    x.FullDescription = ps4FullDescription;
+                })
+                .Alter("FIFA 17 - PlayStation 4", x =>
+                {
+                    x.ShortDescription = "Powered by Frostbite";
+                    x.FullDescription = "<ul>  <li>Powered by Frostbite: Einer der führenden Game-Engines der Branche, Frostbite liefert authentische, wahrheitsgetreue Action, nimmt Spieler auf neue Fußball-Welten und stellt Fans zu Charakteren voller Tiefe und Emotionen in der FIFA 17 vor.</li>  <li>Die Reise: Zum ersten Mal in der FIFA, lebe deine Geschichte auf und abseits des Platzes als der nächste aufsteigende Star der Premier League, Alex Hunter. Spielen Sie auf jedem Club in der Premier League, für authentische Manager und neben einigen der besten Spieler auf dem Planeten.</li>  <li>Erleben Sie brandneue Welten in der FIFA 17, während Sie sich durch die emotionalen Höhen und Tiefen der Reise bewegen.</li>  <li>Komplette Innovation in der Art und Weise, wie Spieler denken und bewegen, körperlich mit Gegnern interagieren und im Angriff ausführen, bringt euch die volle Kontrolle über jeden Moment auf dem Spielfeld.</li></ul>";
+                })
+                .Alter("Horizon Zero Dawn - PlayStation 4", x =>
+                {
+                    x.ShortDescription = "Erleben Sie eine lebendige, üppige Welt, die von geheimnisvollen mechanisierten Kreaturen bewohnt wird";
+                    x.FullDescription = "<Ul> <li> Eine üppige Post-Apokalyptische Welt - Wie haben Maschinen diese Welt dominiert und was ist ihr Zweck? Was ist mit der Zivilisation passiert? Scour jede Ecke eines Reiches mit alten Reliquien und geheimnisvollen Gebäuden gefüllt, um Ihre Vergangenheit aufzudecken und die vielen Geheimnisse eines vergessenen Landes zu entdecken. </ Li> <li> </ li> <li> Natur und Maschinen Collide - Horizon Zero Dawn stellt zwei kontrastierende Elemente vor, die eine lebendige Welt mit der wunderschönen Natur reichen und sie mit einer beeindruckenden hochentwickelten Technologie füllen. Diese Ehe schafft eine dynamische Kombination für Erkundung und Gameplay. </ Li> <li> Defy Overwhelming Odds - Die Gründung des Kampfes in Horizon Zero Dawn ist auf die Geschwindigkeit und Schlauheit von Aloy im Vergleich zu der Rohstärke und Größe der Maschinen gebaut. Um einen viel größeren und technologisch überlegenen Feind zu überwinden, muss Aloy jede Unze ihres Wissens, ihrer Intelligenz und ihrer Beweglichkeit nutzen, um jede Begegnung zu überleben. </ Li> <li> Cutting Edge Open World Tech - Atemberaubend detaillierte Wälder, Und atmosphärische Ruinen einer vergangenen Zivilisation verschmelzen in einer Landschaft, die mit wechselnden Wettersystemen und einem vollen Tag / Nacht-Zyklus lebendig ist. </ Li> </ ul>";
+                })
+                .Alter("LEGO Worlds - PlayStation 4", x =>
+                {
+                    x.ShortDescription = "Erleben Sie eine Galaxie von Welten, die ganz aus LEGO-Steinen hergestellt wurden.";
+                    x.FullDescription = "<Ul>   <Li> Erleben Sie eine Galaxie von Welten, die vollständig aus LEGO-Ziegeln hergestellt wurden. </ Li>   <Li> LEGO Worlds ist eine offene Umgebung von prozessual generierten Welten, die ganz aus LEGO-Steinen bestehen, die man mit LEGO-Modellen frei manipulieren und dynamisch bevölkern kann. </ Li>   <Li> Schaffen Sie alles, was Sie sich vorstellen können, einen Ziegelstein zu einer Zeit, oder verwenden Sie groß angelegte Landschafts-Werkzeuge, um riesige Gebirgszüge zu schaffen und Ihre Welt mit tropischen Inseln zu platzieren. </ Li>   <Li> Entdecken Sie mit Hubschraubern, Drachen, Motorrädern oder sogar Gorillas und entsperren Sie Schätze, die Ihr Gameplay verbessern. </ Li>   <Li> Beobachten Sie Ihre Kreationen durch Charaktere und Kreaturen, die mit Ihnen und einander in unerwarteter Weise interagieren, zum Leben. </ Li></ Ul><P></ P>";
+                })
+                .Alter("Minecraft - Playstation 4 Edition", x =>
+                {
+                    x.ShortDescription = "Third-Person Action-Abenteuer Titel Set.";
+                    x.FullDescription = "<P> <strong> Aufbau! Kunst! Erforschen! </ Strong> </ p> <p> Die kritisch gefeierte Minecraft kommt zu PlayStation 4 und bietet größere Welten und größere Distanz als die PS3- und PS-Vita-Editionen. </ P> <p> Erstellen Sie Ihre eigene Welt, dann bauen Sie Erforschen und erobern Wenn die Nacht fällt die Monster erscheinen, so sicher sein, einen Schutz zu errichten, bevor sie ankommen. </ P> <p> Die Welt ist nur durch Ihre Phantasie begrenzt! Größere Welten und größere Distanz als PS3 und PS Vita Editions Beinhaltet alle Features aus der PS3-Version Importieren Sie Ihre PS3 und PS Vita Welten auf die PS4-Bearbeitung. </ P>";
+                })
+                .Alter("PlayStation 4 Minecraft Bundle", x =>
+                {
+                    x.ShortDescription = "100GB PlayStation®4 system, 2 × DUALSHOCK®4 wireless controller unf Minecraft für PS4 Edition.";
+                    x.FullDescription = "'<Ul> <li> <h4> Prozessor </ h4> <ul> <li> Prozessortechnologie: Cell Broadband Engine ™ </ li> </ ul> </ li> <li> <h4> Allgemein </ h4 > <Ul> <li> Kommunikation: Ethernet (10BASE-T, 100BASE-TX, 1000BASE-T IEEE 802.11 b / g Wi-Fi <br tttdex=\'0\'> Bluetooth 2.0 (EDR) </ li> < Li> Eingänge und Ausgänge: USB 2.0 X 2 </ li> </ ul> </ li> <li> <h4> Grafik </ h4> <ul> <li> Grafikprozessor: RSX </ li> </ ul > </ Li> <li> <h4> Speicher </ h4> <ul> <li> Interner Speicher: 256MB XDR Haupt RAM <br> 256MB GDDR3 VRAM </ li> </ ul> </ li> <li> <H4> Power </ h4> <ul> <li> Stromverbrauch (im Betrieb): Ungefähr 250 Watt </ li> </ ul> </ li> <li> <h4> Speicher </ h4> <ul> <Li> Speicherkapazität: 2.5 'Serial ATA (500GB) </ li> </ ul> </ li> <li> <h4> Video </ h4> <ul> <li> Auflösung: 480i, 480p, 720p, 1080i, 1080p (24p / 60p) </ li> </ ul> </ li> <li> <h4> Gewichte und Maße </ h4> <ul> <li> Maße (ca.): Ungefähr 11.42 '( W) x 2,56 '(H) x 11,42' (D) (290 mm x 65 mm x 290 mm) </ li> <li> Gewicht (ungefähr): Ungefähr 7,05 kg (3,2 kg) </ li> </ ul > </ Li> </ ul> '";
+                })
+
+                .Alter("DUALSHOCK 4 Wireless Controller", x =>
 				{
 					x.ShortDescription = "Durch Kombination klassischer Steuerelemente mit innovativen neuen Möglichkeiten des Spielens, ist der Wireless Controller DUALSHOCK® 4 der evolutionäre Controller für eine neue Ära des Gaming.";
 					x.FullDescription = "<div><div><p>Der DualShock 4 Controller bietet einige neue Features, die völlig neue Wege des Spielens ermöglichen und wohlüberlegt mit Unterstützung aus der Entwickler-Community zusammengestellt wurden. Die “Share”-Taste erlaubt es Ihnen ganz einfach, Gameplay in Echtzeit über Streaming-Seiten wie Ustream zu veröffentlichen. Dort können andere Gamer Spiele kommentieren oder sogar direkt beitreten und aushelfen. Daneben können Sie über die “Share”-Taste Bilder oder Videos zu Facebook hochladen. Auf der Vorderseite des DualShock 4 befindet sich eine LED-Leuchte, die in unterschiedlichen Farben erstrahlen kann, um die Farbe des Charakters im Spiel abzubilden und einen Spieler so leicht zu identifizieren. Die Farben können dem Spieler auch nützliche Informationen liefern, zum Beispiel wenn der Charakter im Spiel Schaden nimmt.</p> <p>Der DualShock 4 wurde zusammen mit einem zweiten Peripherie-Gerät entwickelt, einer Kamera (nicht im Lieferumfang enthalten), die die Tiefe der Umgebung vor ihr wahrnehmen kann und die mithilfe der LED-Leuchte die Position des Controllers im dreidimensionalen Raum bestimmen kann.</p> <p>Der DualShock 4 bietet auf seiner Vorderseite ein Touchpad und somit eine neue Input-Methode. Zusätzlich gibt es einen eingebauten Lautsprecher und einen Headset-Anschluss, um hochklassige Soundeffekte aus den Spielen zu übertragen. Mithilfe eines Headsets (nicht im Lieferumfang enthalten) können Sie während des Online-Gamings mit Ihren Freunden chatten und Soundeffekte aus dem Controller hören können. Der DualShock 4 adaptiert die bekannte Form des kabellosen DualShock 3 Controllers und bietet einige entscheidende Verbesserungen:</p> <ul> <li>Ein neuer, hochsensibler SIXAXIS-Sensor ermöglicht eine erstklassige Bewegungssteuerung.</li> <li>Die Dual-Analogsticks wurden verbessert und bieten eine größere Präzision, ein besseres Material auf den Oberflächen sowie eine verbesserte Form, um eine noch genauere Steuerung zu ermöglichen.</li> <li>Die L2/R2-Tasten oben auf dem Controller wurden abgerundet und sind jetzt einfacher und flüssiger zu bedienen.</li> <li>Eine neue “Options”-Taste kombiniert die Funktionen der “Select”- und “Start”-Tasten auf dem DualShock 3 zur Steuerung der Ingame-Menüs.</li> </ul> <h4>Technische Spezifikationen</h4> <ul> <li>Außenabmessungen Ca. 162 × 52 × 98 mm (B × H × T) (vorläufig) </li><li>Gewicht Ca. 210 g (vorläufig) </li><li><b>Tasten / Schalter:</b> PS-Taste, SHARE-Taste, OPTIONS-Taste, Richtungstasten (oben/unten/links/rechts), Aktionstasten (Dreieck, Kreis, Kreuz, Quadrat), R1/L1/R2/L2-Taste, linker Stick / L3-Taste, rechter Stick / R3-Taste, Pad-Taste </li><li><b>Touchpad:</b> 2-Punkt-Touchpad, Klick-Mechanismus, kapazitiv</li> <li><b>Bewegungssensor:</b> Sechsachsiges Motion-Sensing-System (dreiachsiges Gyroskop, dreiachsiger Beschleunigungssensor) </li><li><b>Sonstige Funktionen:</b> Lichtbalken, Vibration, integrierter MonoLautsprecher</li> <li><b>Anschluss:</b> USB (Micro B), Erweiterungs-Port, Stereo-Kopfhörerbuchse </li><li><b>Wireless-Kommunikation:</b> Bluetooth 2.1+EDR</li> <li><b>Batterie:</b> Typ Eingebauter Lithium-Ionen-Akku</li> <li><b>Spannung:</b> 3,7 V Gleichspannung (vorläufig)</li> <li><b>Kapazität:</b> 1000 mAh (vorläufig)</li> <p></p> <p> <i>Kurzfristige Änderungen des Herstellers vorbehalten.</i> </p> </ul></div><div></div></div>";
@@ -3969,11 +4064,11 @@ namespace SmartStore.Web.Infrastructure.Installation
                 {
                     x.Name = "Geschenk";
                 })
-                .Alter("compact", x =>
-                {
-                    x.Name = "kompakt";
-                })
-                .Alter("cooking", x =>
+				.Alter("book", x =>
+				{
+					x.Name = "Buch";
+				})
+				.Alter("cooking", x =>
                 {
                     x.Name = "Kochen";
                 })
@@ -3985,14 +4080,6 @@ namespace SmartStore.Web.Infrastructure.Installation
                 {
                     x.Name = "Motorräder";
                 })
-                .Alter("computer", x =>
-                {
-                    x.Name = "Computer";
-                })
-                .Alter("notebook", x =>
-                {
-                    x.Name = "Notebook";
-                })
                 .Alter("download", x =>
                 {
                     x.Name = "Download";
@@ -4000,10 +4087,6 @@ namespace SmartStore.Web.Infrastructure.Installation
                 .Alter("watches", x =>
                 {
                     x.Name = "Uhren";
-                })
-                .Alter("book", x =>
-                {
-                    x.Name = "Buch";
                 });
         }
 
