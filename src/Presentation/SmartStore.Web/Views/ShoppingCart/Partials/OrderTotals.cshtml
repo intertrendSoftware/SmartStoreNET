@@ -134,6 +134,7 @@
 								</button>
 							</div>
 						}
+						<input type="hidden" name="giftCardId" value="@gc.Id" />
 						<div class="col cart-summary-pos">
 							@T("ShoppingCart.Totals.GiftCardInfo", gc.CouponCode)
 							<span class="text-muted text-nowrap small">@T("ShoppingCart.Totals.GiftCardInfo.Remaining", gc.Remaining)</span>
