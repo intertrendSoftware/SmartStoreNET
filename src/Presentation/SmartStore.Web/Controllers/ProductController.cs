@@ -311,28 +311,10 @@ namespace SmartStore.Web.Controllers
 				// No tier prices
 				return Content(""); 
 			}
-				
-			var model = product.TierPrices
-				.OrderBy(x => x.Quantity)
-				.FilterByStore(_services.StoreContext.CurrentStore.Id)
-				.FilterForCustomer(_services.WorkContext.CurrentCustomer)
-				.ToList()
-				.RemoveDuplicatedQuantities()
-				.Select(tierPrice =>
-				{
-					var m = new ProductDetailsModel.TierPriceModel
-					{
-						Quantity = tierPrice.Quantity,
-					};
-					decimal taxRate = decimal.Zero;
-					decimal priceBase = _taxService.GetProductPrice(product, _priceCalculationService.GetFinalPrice(product, _services.WorkContext.CurrentCustomer, decimal.Zero, _catalogSettings.DisplayTierPricesWithDiscounts, tierPrice.Quantity), out taxRate);
-					decimal price = _currencyService.ConvertFromPrimaryStoreCurrency(priceBase, _services.WorkContext.WorkingCurrency);
-					m.Price = _priceFormatter.FormatPrice(price, true, false);
-					return m;
-				})
-				.ToList();
 
-			return PartialView("Product.TierPrices", model);
+            var model = _helper.CreateTierPriceModel(product);
+            
+            return PartialView("Product.TierPrices", model);
 		}
 
 		[ChildActionOnly]
@@ -517,7 +499,7 @@ namespace SmartStore.Web.Controllers
 			int galleryStartIndex = -1;
 			string galleryHtml = null;
 			string dynamicThumbUrl = null;
-			bool isAssociated = itemType.IsCaseInsensitiveEqual("associateditem");
+			var isAssociated = itemType.IsCaseInsensitiveEqual("associateditem");
 			var pictureModel = new ProductDetailsPictureModel();
 			var m = new ProductDetailsModel();
 			var product = _productService.GetProductById(productId);
@@ -525,25 +507,19 @@ namespace SmartStore.Web.Controllers
 			IList<ProductBundleItemData> bundleItems = null;
 			ProductBundleItemData bundleItem = (bItem == null ? null : new ProductBundleItemData(bItem));
 
-			var warnings = new List<string>();
-			var attributes = _productAttributeService.GetProductVariantAttributesByProductId(productId);
-
-			var attributeXml = query.CreateSelectedAttributesXml(productId, 0, attributes, _productAttributeParser,
-				_localizationService, _downloadService, _catalogSettings, this.Request, warnings);
-
-			var areAllAttributesForCombinationSelected = _shoppingCartService.AreAllAttributesForCombinationSelected(attributeXml, product);
-
-			// quantity required for tier prices
+			// Quantity required for tier prices.
 			string quantityKey = form.AllKeys.FirstOrDefault(k => k.EndsWith("EnteredQuantity"));
 			if (quantityKey.HasValue())
+			{
 				int.TryParse(form[quantityKey], out quantity);
+			}
 
 			if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
 			{
 				bundleItems = _productService.GetBundleItems(product.Id);
 				if (query.Variants.Count > 0)
 				{
-					// may add elements to query object if they are preselected by bundle item filter
+					// May add elements to query object if they are preselected by bundle item filter.
 					foreach (var itemData in bundleItems)
 					{
 						_helper.PrepareProductDetailsPageModel(itemData.Item.Product, query, false, itemData, null);
@@ -551,28 +527,32 @@ namespace SmartStore.Web.Controllers
 				}
 			}
 
-			// get merged model data
+			// Get merged model data.
 			_helper.PrepareProductDetailModel(m, product, query, isAssociated, bundleItem, bundleItems, quantity);
 
-			if (bundleItem != null) // update bundle item thumbnail
+			if (bundleItem != null)
 			{
+				// Update bundle item thumbnail.
 				if (!bundleItem.Item.HideThumbnail)
 				{
 					var picture = m.GetAssignedPicture(_pictureService, null, bundleItem.Item.ProductId);
 					dynamicThumbUrl = _pictureService.GetPictureUrl(picture, _mediaSettings.BundledProductPictureSize, false);
 				}
 			}
-			else if (isAssociated) // update associated product thumbnail
+			else if (isAssociated)
 			{
+				// Update associated product thumbnail.
 				var picture = m.GetAssignedPicture(_pictureService, null, productId);
 				dynamicThumbUrl = _pictureService.GetPictureUrl(picture, _mediaSettings.AssociatedProductPictureSize, false);
 			}
-			else if (product.ProductType != ProductType.BundledProduct)     // update image gallery
+			else if (product.ProductType != ProductType.BundledProduct)
 			{
+				// Update image gallery.
 				var pictures = _pictureService.GetPicturesByProductId(productId);
 
-				if (pictures.Count <= _catalogSettings.DisplayAllImagesNumber)  // all pictures rendered... only index is required
+				if (pictures.Count <= _catalogSettings.DisplayAllImagesNumber)
 				{
+					// All pictures rendered... only index is required.
 					var picture = m.GetAssignedPicture(_pictureService, pictures);
 					galleryStartIndex = (picture == null ? 0 : pictures.IndexOf(picture));
 				}
@@ -606,12 +586,13 @@ namespace SmartStore.Web.Controllers
 			}
 			else
 			{
-				partials = new
+                partials = new
 				{
 					Attrs = this.RenderPartialViewToString("Product.Attrs", m),
 					Price = this.RenderPartialViewToString("Product.Offer.Price", m),
 					Stock = this.RenderPartialViewToString("Product.StockInfo", m),
-					BundlePrice = product.ProductType == ProductType.BundledProduct ? this.RenderPartialViewToString("Product.Bundle.Price", m) : (string)null
+                    TierPrices = this.RenderPartialViewToString("Product.TierPrices", _helper.CreateTierPriceModel(product, m.ProductPrice.PriceValue - product.Price)),
+                    BundlePrice = product.ProductType == ProductType.BundledProduct ? this.RenderPartialViewToString("Product.Bundle.Price", m) : (string)null
 				};
 			}
 
@@ -925,7 +906,8 @@ namespace SmartStore.Web.Controllers
 			model.ProductName = product.GetLocalized(x => x.Name);
 			model.ProductSeName = product.GetSeName();
 			model.YourEmailAddress = _services.WorkContext.CurrentCustomer.Email;
-			model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage;
+            model.AllowChangedCustomerEmail = _catalogSettings.AllowDifferingEmailAddressForEmailAFriend;
+            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage;
 			return View(model);
 		}
 
@@ -961,11 +943,6 @@ namespace SmartStore.Web.Controllers
 				model.ProductName = product.GetLocalized(x => x.Name);
 				model.ProductSeName = product.GetSeName();
 
-				//model.SuccessfullySent = true;
-				//model.Result = T("Products.EmailAFriend.SuccessfullySent");
-
-				//return View(model);
-
 				NotifySuccess(T("Products.EmailAFriend.SuccessfullySent"));
 
 				return RedirectToRoute("Product", new { SeName = model.ProductSeName });
@@ -975,7 +952,8 @@ namespace SmartStore.Web.Controllers
 			model.ProductId = product.Id;
 			model.ProductName = product.GetLocalized(x => x.Name);
 			model.ProductSeName = product.GetSeName();
-			model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage;
+            model.AllowChangedCustomerEmail = _catalogSettings.AllowDifferingEmailAddressForEmailAFriend;
+            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage;
 			return View(model);
 		}
 

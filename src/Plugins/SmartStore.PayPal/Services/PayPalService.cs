@@ -134,16 +134,21 @@ namespace SmartStore.PayPal.Services
 			decimal totalOrderItems = decimal.Zero;
 			var taxTotal = decimal.Zero;
 
+			var total = Math.Round(_orderTotalCalculationService.GetShoppingCartTotal(cart, out orderDiscountInclTax, out orderAppliedDiscount, out appliedGiftCards,
+				out redeemedRewardPoints, out redeemedRewardPointsAmount) ?? decimal.Zero, 2);
+
+			if (total == decimal.Zero)
+			{
+				return amount;
+			}
+
 			var shipping = Math.Round(_orderTotalCalculationService.GetShoppingCartShippingTotal(cart) ?? decimal.Zero, 2);
 
 			var additionalHandlingFee = _paymentService.GetAdditionalHandlingFee(cart, providerSystemName);
 			var paymentFeeBase = _taxService.GetPaymentMethodAdditionalFee(additionalHandlingFee, customer);
 			var paymentFee = Math.Round(_currencyService.ConvertFromPrimaryStoreCurrency(paymentFeeBase, currency), 2);
 
-			var total = Math.Round(_orderTotalCalculationService.GetShoppingCartTotal(cart, out orderDiscountInclTax, out orderAppliedDiscount, out appliedGiftCards,
-				out redeemedRewardPoints, out redeemedRewardPointsAmount) ?? decimal.Zero, 2);
-
-			// line items
+			// Line items.
 			foreach (var item in cart)
 			{
 				decimal unitPriceTaxRate = decimal.Zero;
@@ -198,7 +203,7 @@ namespace SmartStore.PayPal.Services
 
 				if (items != null && otherAmount != decimal.Zero)
 				{
-					// e.g. discount applied to cart total
+					// E.g. discount applied to cart total.
 					var line = new Dictionary<string, object>();
 					line.Add("quantity", "1");
 					line.Add("name", T("Plugins.SmartStore.PayPal.Other").Text.Truncate(127));
@@ -208,7 +213,7 @@ namespace SmartStore.PayPal.Services
 				}
 			}
 
-			// fill amount object
+			// Fill amount object.
 			amountDetails.Add("shipping", shipping.FormatInvariant());
 			amountDetails.Add("subtotal", totalOrderItems.FormatInvariant());
 
@@ -529,6 +534,11 @@ namespace SmartStore.PayPal.Services
 			else
 			{
 				request.Headers["Authorization"] = "Bearer " + accessToken.EmptyNull();
+
+				if (accessToken.IsEmpty())
+				{
+					Logger.Error(T("Plugins.SmartStore.PayPal.MissingAccessToken", method.NaIfEmpty(), path.NaIfEmpty()));
+				}
 			}
 
 			request.Headers["PayPal-Partner-Attribution-Id"] = "SmartStoreAG_Cart_PayPalPlus";
@@ -588,16 +598,40 @@ namespace SmartStore.PayPal.Services
 								{
 									if (!result.Success)
 									{
+										// Parse error details.
+										string message = null;
 										var name = (string)result.Json.name;
-										var message = (string)result.Json.message;
 
 										if (name.IsEmpty())
+										{
 											name = (string)result.Json.error;
+										}
+
+										if (name.IsCaseInsensitiveEqual("VALIDATION_ERROR"))
+										{
+											result.IsValidationError = true;
+
+											JArray details = result.Json.details;
+											if (details != null)
+											{
+												foreach (dynamic detail in details)
+												{
+													message = message.Grow((string)detail.issue, ". ");
+												}
+											}
+										}
 
 										if (message.IsEmpty())
-											message = (string)result.Json.error_description;
+										{
+											message = (string)result.Json.message;
+										}
 
-										result.ErrorMessage = "{0} ({1}).".FormatInvariant(message.NaIfEmpty(), name.NaIfEmpty());
+										if (message.IsEmpty())
+										{
+											message = (string)result.Json.error_description;
+										}
+
+										result.ErrorMessage = "{0}: {1}.".FormatInvariant(name.NaIfEmpty(), message.NaIfEmpty());
 									}
 								}
 							}
@@ -611,6 +645,7 @@ namespace SmartStore.PayPal.Services
 
 					if (!result.Success)
 					{
+						// Log all headers and raw response.
 						if (result.ErrorMessage.IsEmpty())
 							result.ErrorMessage = webResponse.StatusDescription;
 
@@ -623,7 +658,10 @@ namespace SmartStore.PayPal.Services
 							if (data.HasValue())
 							{
 								sb.AppendLine();
-								sb.AppendLine(JObject.Parse(data).ToString(Formatting.Indented));
+								if (data.StartsWith("["))
+									sb.AppendLine(JArray.Parse(data).ToString(Formatting.Indented));
+								else
+									sb.AppendLine(JObject.Parse(data).ToString(Formatting.Indented));
 							}
 							sb.AppendLine();
 							webResponse.Headers.AllKeys.Each(x => sb.AppendLine($"{x}: {webResponse.Headers[x]}"));
@@ -637,7 +675,10 @@ namespace SmartStore.PayPal.Services
 								sb.AppendLine(rawResponse);
 							}
 						}
-						catch { }
+						catch (Exception exception)
+						{
+							exception.Dump();
+						}
 
 						Logger.Log(LogLevel.Error, new Exception(sb.ToString()), result.ErrorMessage, null);
 					}
@@ -664,13 +705,11 @@ namespace SmartStore.PayPal.Services
 			if (session.AccessToken.IsEmpty() || DateTime.UtcNow >= session.TokenExpiration)
 			{
 				var result = CallApi("POST", "/v1/oauth2/token", null, settings, "grant_type=client_credentials");
-
 				if (result.Success)
 				{
 					session.AccessToken = (string)result.Json.access_token;
 
 					var expireSeconds = ((string)result.Json.expires_in).ToInt(5 * 60);
-
 					session.TokenExpiration = DateTime.UtcNow.AddSeconds(expireSeconds);
 				}
 				else
@@ -753,6 +792,10 @@ namespace SmartStore.PayPal.Services
 			data.Add("payer", payer);
 
 			var amount = CreateAmount(store, customer, cart, providerSystemName, items);
+			if (!amount.Any())
+			{
+				return null;
+			}
 
 			itemList.Add("items", items);
 
@@ -1131,6 +1174,7 @@ namespace SmartStore.PayPal.Services
 		public bool Success { get; set; }
 		public dynamic Json { get; set; }
 		public string ErrorMessage { get; set; }
+		public bool IsValidationError { get; set; }
 		public string Id { get; set; }
 	}
 
@@ -1142,6 +1186,7 @@ namespace SmartStore.PayPal.Services
 			OrderGuid = Guid.NewGuid();
 		}
 
+		public bool SessionExpired { get; set; }
 		public string AccessToken { get; set; }
 		public DateTime TokenExpiration { get; set; }
 		public string PaymentId { get; set; }

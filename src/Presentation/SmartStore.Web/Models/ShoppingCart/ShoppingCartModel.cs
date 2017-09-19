@@ -21,6 +21,7 @@ namespace SmartStore.Web.Models.ShoppingCart
             EstimateShipping = new EstimateShippingModel();
             DiscountBox = new DiscountBoxModel();
             GiftCardBox = new GiftCardBoxModel();
+            RewardPoints = new RewardPointsBoxModel();
             CheckoutAttributes = new List<CheckoutAttributeModel>();
             OrderReviewData = new OrderReviewDataModel();
 
@@ -37,11 +38,12 @@ namespace SmartStore.Web.Models.ShoppingCart
         public IList<CheckoutAttributeModel> CheckoutAttributes { get; set; }
 
         public IList<string> Warnings { get; set; }
-        public string MinOrderSubtotalWarning { get; set; }
+		public bool IsValidMinOrderSubtotal { get; set; }
         public bool TermsOfServiceEnabled { get; set; }
         public EstimateShippingModel EstimateShipping { get; set; }
         public DiscountBoxModel DiscountBox { get; set; }
         public GiftCardBoxModel GiftCardBox { get; set; }
+        public RewardPointsBoxModel RewardPoints { get; set; }
         public OrderReviewDataModel OrderReviewData { get; set; }
 
         public int MediaDimensions { get; set; }
@@ -194,6 +196,14 @@ namespace SmartStore.Web.Models.ShoppingCart
             public string Message { get; set; }
 			public bool IsWarning { get; set; }
 		}
+
+        public partial class RewardPointsBoxModel : ModelBase
+        {
+            public bool DisplayRewardPoints { get; set; }
+            public int RewardPointsBalance { get; set; }
+            public string RewardPointsAmount { get; set; }
+            public bool UseRewardPoints { get; set; }
+        }
 
         public partial class OrderReviewDataModel : ModelBase
         {

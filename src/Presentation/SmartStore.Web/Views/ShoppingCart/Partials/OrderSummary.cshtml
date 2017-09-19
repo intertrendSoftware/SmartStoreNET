@@ -86,11 +86,13 @@
 					<div class="row">
 						<div class="col-md-6">
 							@if (Model.IsEditable)
-							{
-								Html.RenderWidget("order_summary_actions_before");
-								Html.RenderPartial("_DiscountBox", Model.DiscountBox);
-								Html.RenderPartial("_GiftCardBox", Model.GiftCardBox);
-								Html.RenderPartial("EstimateShipping", Model.EstimateShipping);
+                            {
+                                Html.RenderWidget("order_summary_actions_before");
+                                Html.RenderPartial("_DiscountBox", Model.DiscountBox);
+                                Html.RenderPartial("_GiftCardBox", Model.GiftCardBox);
+                                Html.RenderPartial("_RewardPointsBox", Model.RewardPoints);
+                                Html.RenderPartial("EstimateShipping", Model.EstimateShipping);
+                                
 								Html.RenderWidget("order_summary_actions_after");
 							}
 							else
@@ -108,13 +110,6 @@
 								if (Model.IsEditable)
 								{
 									Html.RenderPartial("_CheckoutAttributes", Model.CheckoutAttributes, new ViewDataDictionary());
-
-									if (Model.MinOrderSubtotalWarning.HasValue())
-									{
-										<div class="alert alert-warning">
-											@Model.MinOrderSubtotalWarning
-										</div>
-									}
 								}
 								Html.RenderWidget("order_summary_totals_before");
 
@@ -141,8 +136,7 @@
 						</button>
 					</div>
 					<div class="col-sm-6 col-lg-4 ml-lg-auto">
-						@if (String.IsNullOrEmpty(Model.MinOrderSubtotalWarning))
-						{
+						<div id="start-checkout-buttons" class="@(Model.IsValidMinOrderSubtotal ? "" : "d-none")">
 							<div class="checkout-buttons">
 								<input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" class="d-none" />
 								<button type="button" id="checkout" name="checkout"
@@ -153,25 +147,23 @@
 								</button>
 							</div>
 
-                            if (Model.ButtonPaymentMethods.Items.Any())
-                            {
+							@if (Model.ButtonPaymentMethods.Items.Any())
+							{
+								<div class="addon-buttons">
+									<div class="d-flex justify-content-sm-end justify-content-center flex-wrap">
+										<div class="mt-3 mb-1 d-block col-12 text-center text-sm-right">
+											<span>@T("ShoppingCart.AlternativePaymentButtons")</span>
+										</div>
 
-
-                                <div class="addon-buttons">
-                                    <div class="d-flex justify-content-sm-end justify-content-center flex-wrap">
-                                        <div class="mt-3 mb-1 d-block col-12 text-center text-sm-right">
-                                            <span>@T("ShoppingCart.AlternativePaymentButtons")</span>
-                                        </div>
-
-                                        @*Payment method buttons (e.g. GoogleCheckoutButton, Paypal Express, Pay with Amazon)*@
-                                        @foreach (var item in Model.ButtonPaymentMethods.Items)
-                                        {
-                                            Html.RenderAction(item.ActionName, item.ControllerName, item.RouteValues);
-                                        }
-                                    </div>
-                                </div>
-                            }
-                        }
+										@*Payment method buttons (e.g. GoogleCheckoutButton, Paypal Express, Pay with Amazon)*@
+										@foreach (var item in Model.ButtonPaymentMethods.Items)
+										{
+											Html.RenderAction(item.ActionName, item.ControllerName, item.RouteValues);
+										}
+									</div>
+								</div>
+							}
+						</div>
 					</div>
 				</div>
 
@@ -269,6 +261,8 @@
 
                     var cartBody = $(".cart-body");
                     var totals = $("#order-totals");
+
+                    $("#start-checkout-buttons").toggleClass("d-none", !response.showCheckoutButtons);
 
                     if (response.success) {
                         // replace html

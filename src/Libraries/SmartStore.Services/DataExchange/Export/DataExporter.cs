@@ -12,10 +12,12 @@ using SmartStore.Core.Domain.Catalog;
 using SmartStore.Core.Domain.Common;
 using SmartStore.Core.Domain.Customers;
 using SmartStore.Core.Domain.DataExchange;
+using SmartStore.Core.Domain.Discounts;
 using SmartStore.Core.Domain.Localization;
 using SmartStore.Core.Domain.Media;
 using SmartStore.Core.Domain.Messages;
 using SmartStore.Core.Domain.Orders;
+using SmartStore.Core.Domain.Shipping;
 using SmartStore.Core.Domain.Stores;
 using SmartStore.Core.Email;
 using SmartStore.Core.Localization;
@@ -246,42 +248,63 @@ namespace SmartStore.Services.DataExchange.Export
 		{
 			try
 			{
-				_dbContext.DetachAll();
-			}
-			catch (Exception exception)
-			{
-				ctx.Log.Warn(exception, "Detaching all entities failed.");
-			}
-
-			try
-			{
-				// now again attach what is globally required
-				_dbContext.Attach(ctx.Request.Profile);
-				_dbContext.AttachRange(ctx.Stores.Values);
-            }
-			catch (Exception exception)
-			{
-				ctx.Log.Warn(exception, "Re-attaching entities failed.");
-			}
-
-			try
-			{
 				if (ctx.ProductExportContext != null)
+				{
+					_dbContext.DetachEntities(x =>
+					{
+						return x is Product || x is Discount || x is ProductVariantAttributeCombination || x is ProductVariantAttribute || 
+							   x is Picture || x is ProductBundleItem || x is ProductCategory || x is ProductManufacturer ||
+							   x is ProductPicture || x is ProductTag || x is ProductSpecificationAttribute || x is TierPrice;
+					});
+
 					ctx.ProductExportContext.Clear();
+				}
 
 				if (ctx.OrderExportContext != null)
-					ctx.OrderExportContext.Clear();
+				{
+					_dbContext.DetachEntities(x =>
+					{
+						return x is Order || x is Address || x is GenericAttribute || x is Customer ||
+							   x is OrderItem || x is RewardPointsHistory || x is Shipment;
+					});
 
-				if (ctx.ManufacturerExportContext != null)
-					ctx.ManufacturerExportContext.Clear();
+					ctx.OrderExportContext.Clear();
+				}
 
 				if (ctx.CategoryExportContext != null)
+				{
+					_dbContext.DetachEntities(x =>
+					{
+						return x is Category || x is Picture || x is ProductCategory;
+					});
+
 					ctx.CategoryExportContext.Clear();
+				}
+
+				if (ctx.ManufacturerExportContext != null)
+				{
+					_dbContext.DetachEntities(x =>
+					{
+						return x is Manufacturer || x is Picture || x is ProductManufacturer;
+					});
+
+					ctx.ManufacturerExportContext.Clear();
+				}
 
 				if (ctx.CustomerExportContext != null)
+				{
+					_dbContext.DetachEntities(x =>
+					{
+						return x is Customer || x is GenericAttribute || x is CustomerContent;
+					});
+
 					ctx.CustomerExportContext.Clear();
+				}
 			}
-			catch {	}
+			catch (Exception ex)
+			{
+				ctx.Log.Warn(ex, "Detaching entities failed.");
+			}
 		}
 
 		private IExportDataSegmenterProvider CreateSegmenter(DataExporterContext ctx, int pageIndex = 0)
@@ -532,13 +555,13 @@ namespace SmartStore.Services.DataExchange.Export
 
 		private void SendCompletionEmail(DataExporterContext ctx, string zipPath)
 		{
-			var	emailAccount = _emailAccountService.Value.GetEmailAccountById(ctx.Request.Profile.EmailAccountId);
-
+			var emailAccount = _emailAccountService.Value.GetEmailAccountById(ctx.Request.Profile.EmailAccountId);
 			if (emailAccount == null)
-				emailAccount = _emailAccountService.Value.GetDefaultEmailAccount();
+			{
+				return;
+			}
 
 			var downloadUrl = "{0}Admin/Export/DownloadExportFile/{1}?name=".FormatInvariant(_services.WebHelper.GetStoreLocation(ctx.Store.SslEnabled), ctx.Request.Profile.Id);
-
 			var languageId = ctx.Projection.LanguageId ?? 0;
 			var smtpContext = new SmtpContext(emailAccount);
 			var message = new EmailMessage();
@@ -607,7 +630,8 @@ namespace SmartStore.Services.DataExchange.Export
 		public virtual ProductExportContext CreateProductExportContext(
 			IEnumerable<Product> products = null,
 			Customer customer = null,
-			int? storeId = null)
+			int? storeId = null,
+			int? maxPicturesPerProduct = null)
 		{
 			if (customer == null)
 				customer = _services.WorkContext.CurrentCustomer;
@@ -624,7 +648,7 @@ namespace SmartStore.Services.DataExchange.Export
 				x => _manufacturerService.Value.GetProductManufacturersByProductIds(x),
 				x => _productService.Value.GetAppliedDiscountsByProductIds(x),
 				x => _productService.Value.GetBundleItemsByProductIds(x, true),
-				x => _pictureService.Value.GetPicturesByProductIds(x, withBlobs: true),
+				x => _pictureService.Value.GetPicturesByProductIds(x, maxPicturesPerProduct, true),
 				x => _productService.Value.GetProductPicturesByProductIds(x),
 				x => _productService.Value.GetProductTagsByProductIds(x)
 			);
@@ -643,6 +667,8 @@ namespace SmartStore.Services.DataExchange.Export
 				var createdTo = f.CreatedTo.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.CreatedTo.Value, _services.DateTimeHelper.CurrentTimeZone) : null;
 
 				var searchQuery = new CatalogSearchQuery()
+					.WithCurrency(ctx.ContextCurrency)
+					.WithLanguage(ctx.ContextLanguage)
 					.HasStoreId(ctx.Request.Profile.PerStore ? ctx.Store.Id : f.StoreId)
 					.VisibleIndividuallyOnly(true)
 					.PriceBetween(f.PriceMinimum, f.PriceMaximum)
@@ -794,10 +820,8 @@ namespace SmartStore.Services.DataExchange.Export
 
 		private IQueryable<Manufacturer> GetManufacturerQuery(DataExporterContext ctx, int skip, int take)
 		{
-			var showHidden = !ctx.Filter.IsPublished.HasValue;
-			var storeId = (ctx.Request.Profile.PerStore ? ctx.Store.Id : ctx.Filter.StoreId);
-
-			var query = _manufacturerService.Value.GetManufacturers(showHidden, storeId);
+			var storeId = ctx.Request.Profile.PerStore ? ctx.Store.Id : 0;
+			var query = _manufacturerService.Value.GetManufacturers(true, storeId);
 
 			if (ctx.Request.EntitiesToExport.Any())
 				query = query.Where(x => ctx.Request.EntitiesToExport.Contains(x.Id));
@@ -824,10 +848,8 @@ namespace SmartStore.Services.DataExchange.Export
 
 		private IQueryable<Category> GetCategoryQuery(DataExporterContext ctx, int skip, int take)
 		{
-			var showHidden = !ctx.Filter.IsPublished.HasValue;
-			var storeId = (ctx.Request.Profile.PerStore ? ctx.Store.Id : ctx.Filter.StoreId);
-
-			var query = _categoryService.Value.GetCategories(null, showHidden, null, true, storeId);
+			var storeId = ctx.Request.Profile.PerStore ? ctx.Store.Id : 0;
+			var query = _categoryService.Value.GetCategories(null, true, null, true, storeId);
 
 			if (ctx.Request.EntitiesToExport.Any())
 				query = query.Where(x => ctx.Request.EntitiesToExport.Contains(x.Id));
@@ -1312,11 +1334,7 @@ namespace SmartStore.Services.DataExchange.Export
 							}
 						}
 
-						if (ctx.Request.Profile.EmailAccountId != 0 && ctx.Request.Profile.CompletedEmailAddresses.HasValue())
-						{
-							SendCompletionEmail(ctx, zipPath);
-						}
-						else if (ctx.Request.Profile.IsSystemProfile && !ctx.Supports(ExportFeatures.CanOmitCompletionMail))
+						if (ctx.Request.Profile.EmailAccountId != 0 && !ctx.Supports(ExportFeatures.CanOmitCompletionMail))
 						{
 							SendCompletionEmail(ctx, zipPath);
 						}

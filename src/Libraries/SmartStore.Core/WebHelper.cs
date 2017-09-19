@@ -144,9 +144,13 @@ namespace SmartStore.Core
                 string rawUrl;
                 if (appPathPossiblyAppended)
                 {
-                    string temp = _httpContext.Request.AppRelativeCurrentExecutionFilePath.TrimStart('~');
-                    rawUrl = temp;
-                }
+                    rawUrl = _httpContext.Request.AppRelativeCurrentExecutionFilePath.TrimStart('~');
+
+					if (_httpContext.Request.Url != null && _httpContext.Request.Url.Query != null)
+					{
+						rawUrl += _httpContext.Request.Url.Query;
+					}
+				}
                 else
                 {
                     rawUrl = _httpContext.Request.RawUrl;
@@ -170,7 +174,7 @@ namespace SmartStore.Core
             if (!_isCurrentConnectionSecured.HasValue)
             {
                 _isCurrentConnectionSecured = false;
-                if (_httpContext != null && _httpContext.Request != null)
+                if (_httpContext?.Request != null)
                 {
                     _isCurrentConnectionSecured = _httpContext.Request.IsSecureConnection();
                 }
@@ -336,7 +340,7 @@ namespace SmartStore.Core
                 result = result.Substring(0, result.Length - 1);
             }
 
-            if (_httpContext != null && _httpContext.Request != null)
+            if ( _httpContext?.Request != null)
             {
                 var appPath = _httpContext.Request.ApplicationPath;
                 if (!appPathPossiblyAppended && !result.EndsWith(appPath, StringComparison.OrdinalIgnoreCase))
@@ -454,7 +458,7 @@ namespace SmartStore.Core
 					// ASP.NET temp files, which boosts app startup performance dramatically.
 					// Unfortunately, MVC keeps a controller cache file in the temp files folder, which NEVER
 					// gets nuked, unless the 'compilation' element in web.config is changed.
-					// We MUST delete this file to ensure that it gets re-created with our new controller types in it.
+					// We MUST delete this file in order to ensure that it gets re-created with our new controller types in it.
 					DeleteMvcTypeCacheFiles();
 				}
 				else

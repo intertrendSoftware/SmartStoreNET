@@ -13,7 +13,7 @@ namespace SmartStore.Services.Catalog.Modelling
 		internal static readonly Regex IsVariantKey = new Regex(@"pvari[0-9]+-[0-9]+-[0-9]+-[0-9]+", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		internal static readonly Regex IsVariantAliasKey = new Regex(@"\w+-[0-9]+-[0-9]+-[0-9]+$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		internal static readonly Regex IsGiftCardKey = new Regex(@"giftcard[0-9]+-[0-9]+-\.\w+$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
-		internal static readonly Regex IsCheckoutAttributeKey = new Regex(@"cattr[0-9]+$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		internal static readonly Regex IsCheckoutAttributeKey = new Regex(@"cattr[0-9]+", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
 		protected readonly HttpContextBase _httpContext;
 		protected readonly ICommonServices _services;
@@ -45,12 +45,24 @@ namespace SmartStore.Services.Catalog.Modelling
 
 						if (form != null)
 						{
-							form.AllKeys.Each(key => _queryItems.AddRange(key, form[key].SplitSafe(",")));
+							foreach (var key in form.AllKeys)
+							{
+								if (key.HasValue())
+								{
+									_queryItems.AddRange(key, form[key].SplitSafe(","));
+								}
+							}
 						}
 
 						if (query != null)
 						{
-							query.AllKeys.Each(key => _queryItems.AddRange(key, query[key].SplitSafe(",")));
+							foreach (var key in query.AllKeys)
+							{
+								if (key.HasValue())
+								{
+									_queryItems.AddRange(key, query[key].SplitSafe(","));
+								}
+							}
 						}
 					}
 				}

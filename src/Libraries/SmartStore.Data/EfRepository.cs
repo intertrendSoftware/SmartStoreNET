@@ -159,6 +159,9 @@ namespace SmartStore.Data
 
 		private void SetEntityStateToModifiedIfApplicable(T entity)
 		{
+			if (entity.IsTransientRecord())
+				return;
+			
 			var entry = InternalContext.Entry(entity);
 			if (entry.State < System.Data.Entity.EntityState.Added || (this.AutoCommitEnabledInternal && !InternalContext.Configuration.AutoDetectChangesEnabled))
 			{

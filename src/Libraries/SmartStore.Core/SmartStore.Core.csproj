@@ -455,6 +455,8 @@
     <Compile Include="Search\SearchSort.cs" />
     <Compile Include="Security\SmartStorePrincipal.cs" />
     <Compile Include="Themes\DefaultThemeRegistry.cs" />
+    <Compile Include="Themes\InheritedThemeFileResult.cs" />
+    <Compile Include="Themes\IThemeFileResolver.cs" />
     <Compile Include="Themes\ThemeFolderData.cs" />
     <Compile Include="Themes\ThemeTouchedEvent.cs" />
     <Compile Include="Utilities\ColorHelper.cs" />
@@ -653,6 +655,7 @@
     <Compile Include="Utilities\Prettifier.cs" />
     <Compile Include="Utilities\Range.cs" />
     <Compile Include="ComponentModel\FastActivator.cs" />
+    <Compile Include="Utilities\Retry.cs" />
     <Compile Include="Utilities\SeoHelper.cs" />
     <Compile Include="Utilities\SmartSyndicationFeed.cs" />
     <Compile Include="Utilities\StringTokenizer.cs" />

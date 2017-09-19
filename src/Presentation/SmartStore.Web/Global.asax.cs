@@ -5,7 +5,6 @@ using System.Web.Hosting;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using System.Web.Security;
 using System.Web.WebPages;
 using AutoMapper;
 using FluentValidation.Mvc;
@@ -16,16 +15,14 @@ using SmartStore.Core;
 using SmartStore.Core.Data;
 using SmartStore.Core.Events;
 using SmartStore.Core.Infrastructure;
-using SmartStore.Services.Customers;
-using SmartStore.Services.Tasks; 
-using SmartStore.Utilities;
+using SmartStore.Services.Tasks;
 using SmartStore.Web.Framework.Bundling;
 using SmartStore.Web.Framework.Filters;
 using SmartStore.Web.Framework.Localization;
 using SmartStore.Web.Framework.Modelling;
-using SmartStore.Web.Framework.Plugins;
 using SmartStore.Web.Framework.Routing;
 using SmartStore.Web.Framework.Theming;
+using SmartStore.Web.Framework.Theming.Assets;
 using SmartStore.Web.Framework.Validators;
 
 namespace SmartStore.Web
@@ -148,19 +145,11 @@ namespace SmartStore.Web
 				// Bundles
 				RegisterBundles(BundleTable.Bundles, engine);
 
-				// register virtual path provider for theming (file inheritance & variables handling)
-				HostingEnvironment.RegisterVirtualPathProvider(new ThemingVirtualPathProvider(HostingEnvironment.VirtualPathProvider));
-				
-				// register plugin debug view virtual path provider
-				if (HttpContext.Current.IsDebuggingEnabled && CommonHelper.IsDevEnvironment)
-				{
-					HostingEnvironment.RegisterVirtualPathProvider(new PluginDebugViewVirtualPathProvider());
-				}
-
-				BundleTable.VirtualPathProvider = HostingEnvironment.VirtualPathProvider;
+				// VPPs
+				RegisterVirtualPathProviders();
 
 				// "throw-away" filter for task scheduler initialization (the filter removes itself when processed)
-				GlobalFilters.Filters.Add(new InitializeSchedulerFilter());
+				GlobalFilters.Filters.Add(new InitializeSchedulerFilter(), int.MinValue);
 
 				// register AutoMapper class maps
 				RegisterClassMaps(engine);
@@ -172,6 +161,18 @@ namespace SmartStore.Web
 				// Install filter
 				GlobalFilters.Filters.Add(new HandleInstallFilter());
 			}
+		}
+
+		private void RegisterVirtualPathProviders()
+		{
+			var vppSystem = HostingEnvironment.VirtualPathProvider;
+			var vppTheme = new ThemingVirtualPathProvider(vppSystem);
+
+			// register virtual path provider for theming (file inheritance handling etc.)
+			HostingEnvironment.RegisterVirtualPathProvider(vppTheme);
+
+			// register virtual path provider for bundling (Sass, Less & variables handling)
+			BundleTable.VirtualPathProvider = new BundlingVirtualPathProvider(vppSystem);
 		}
 
 		public override string GetVaryByCustomString(HttpContext context, string custom)
@@ -204,24 +205,6 @@ namespace SmartStore.Web
 			}
 
 			return base.GetVaryByCustomString(context, custom);
-		}
-
-		public void AnonymousIdentification_Creating(object sender, AnonymousIdentificationEventArgs args)
-		{
-			try
-			{
-				if (DataSettings.DatabaseIsInstalled())
-				{
-					var customerService = EngineContext.Current.Resolve<ICustomerService>();
-					var customer = customerService.FindGuestCustomerByClientIdent(maxAgeSeconds: 180);
-					if (customer != null)
-					{
-						// We found our anonymous visitor: don't let ASP.NET create a new id.
-						args.AnonymousID = customer.CustomerGuid.ToString();
-					}
-				}
-			}
-			catch { }
 		}
 	}
 }

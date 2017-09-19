@@ -188,7 +188,9 @@ namespace SmartStore.Admin.Infrastructure
 				.ForMember(dest => dest.AvailableStores, mo => mo.Ignore())
 				.ForMember(dest => dest.SelectedStoreIds, mo => mo.Ignore())
 				.ForMember(dest => dest.AvailableTitleTags, mo => mo.Ignore());
-			CreateMap<TopicModel, Topic>();
+
+            CreateMap<TopicModel, Topic>()
+                .ForMember(dest => dest.IsSystemTopic, mo => mo.Ignore());
 
 			//category
 			CreateMap<Category, CategoryModel>()
@@ -708,6 +710,7 @@ namespace SmartStore.Admin.Infrastructure
 
 			CreateMap<ThemeSettings, ThemeListModel>()
 				.ForMember(dest => dest.AvailableBundleOptimizationValues, mo => mo.Ignore())
+				.ForMember(dest => dest.AvailableAssetCachingValues, mo => mo.Ignore())
 				.ForMember(dest => dest.Themes, mo => mo.Ignore())
 				.ForMember(dest => dest.StoreId, mo => mo.Ignore())
 				.ForMember(dest => dest.AvailableStores, mo => mo.Ignore());

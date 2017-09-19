@@ -286,16 +286,11 @@ namespace SmartStore.Services.Customers
             var query = from c in _customerRepository.Table
                         where customerIds.Contains(c.Id)
                         select c;
+
             var customers = query.ToList();
-            //sort by passed identifiers
-            var sortedCustomers = new List<Customer>();
-            foreach (int id in customerIds)
-            {
-                var customer = customers.Find(x => x.Id == id);
-                if (customer != null)
-                    sortedCustomers.Add(customer);
-            }
-            return sortedCustomers;
+
+			// sort by passed identifier sequence
+			return customers.OrderBySequence(customerIds).ToList();
         }
 
 		public virtual IList<Customer> GetSystemAccountCustomers()
@@ -312,6 +307,7 @@ namespace SmartStore.Services.Customers
 						where c.CustomerGuid == customerGuid
                         orderby c.Id
                         select c;
+
             var customer = query.FirstOrDefault();
             return customer;
         }
@@ -371,16 +367,20 @@ namespace SmartStore.Services.Customers
             if (guestRole == null)
                 throw new SmartException("'Guests' role could not be loaded");
 
-            customer.CustomerRoles.Add(guestRole);
-            _customerRepository.Insert(customer);
-
-			var clientIdent = _services.WebHelper.GetClientIdent();
-			if (clientIdent.HasValue())
+			using (new DbContextScope(autoCommit: true))
 			{
-				_genericAttributeService.SaveAttribute(customer, "ClientIdent", clientIdent);
+				// Ensure that entities are saved to db in any case
+				customer.CustomerRoles.Add(guestRole);
+				_customerRepository.Insert(customer);
+
+				var clientIdent = _services.WebHelper.GetClientIdent();
+				if (clientIdent.HasValue())
+				{
+					_genericAttributeService.SaveAttribute(customer, "ClientIdent", clientIdent);
+				}
 			}
 
-			Logger.DebugFormat("Guest account created for anonymous visitor. Id: {0}, ClientIdent: {1}", customer.CustomerGuid, clientIdent ?? "n/a");
+			//Logger.DebugFormat("Guest account created for anonymous visitor. Id: {0}, ClientIdent: {1}", customer.CustomerGuid, clientIdent ?? "n/a");
 
 			return customer;
         }
@@ -402,7 +402,10 @@ namespace SmartStore.Services.Customers
 
 				var dateFrom = DateTime.UtcNow.AddSeconds(maxAgeSeconds * -1);
 
-				var query = from a in _gaRepository.TableUntracked
+				IQueryable<Customer> query;
+				if (DataSettings.Current.IsSqlServer)
+				{
+					query = from a in _gaRepository.TableUntracked
 							join c in _customerRepository.Table on a.EntityId equals c.Id into Customers
 							from c in Customers.DefaultIfEmpty()
 							where c.LastActivityDateUtc >= dateFrom
@@ -412,6 +415,20 @@ namespace SmartStore.Services.Customers
 								&& a.Key == "ClientIdent"
 								&& a.Value == clientIdent
 							select c;
+				}
+				else
+				{
+					query = from a in _gaRepository.TableUntracked
+							join c in _customerRepository.Table on a.EntityId equals c.Id into Customers
+							from c in Customers.DefaultIfEmpty()
+							where c.LastActivityDateUtc >= dateFrom
+								&& c.Username == null
+								&& c.Email == null
+								&& a.KeyGroup == "Customer"
+								&& a.Key == "ClientIdent"
+								&& a.Value.Contains(clientIdent) // SQLCE doesn't like ntext in WHERE clauses
+							select c;
+				}
 
 				return query.FirstOrDefault();
 			}
@@ -439,7 +456,7 @@ namespace SmartStore.Services.Customers
 
 		public virtual void ResetCheckoutData(Customer customer, int storeId,
             bool clearCouponCodes = false, bool clearCheckoutAttributes = false,
-            bool clearRewardPoints = true, bool clearShippingMethod = true,
+            bool clearRewardPoints = false, bool clearShippingMethod = true,
             bool clearPaymentMethod = true)
         {
             if (customer == null)

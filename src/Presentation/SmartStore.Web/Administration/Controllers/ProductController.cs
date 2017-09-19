@@ -797,7 +797,7 @@ namespace SmartStore.Admin.Controllers
 				});
 			}
 
-			//specification attributes
+			// specification attributes
 			var specificationAttributes = _specificationAttributeService.GetSpecificationAttributes().ToList();
 			for (int i = 0; i < specificationAttributes.Count; i++)
 			{
@@ -813,7 +813,7 @@ namespace SmartStore.Admin.Controllers
 				}
 			}
 
-			//discounts
+			// discounts
 			var discounts = _discountService.GetAllDiscounts(DiscountType.AssignedToSkus, null, true);
 			model.AvailableDiscounts = discounts.ToList();
 			if (product != null && !excludeProperties)
@@ -883,6 +883,94 @@ namespace SmartStore.Admin.Controllers
 				model.NoThumb = defaultPicture == null;
             }
         }
+
+		private IQueryable<Product> ApplySorting(IQueryable<Product> query, GridCommand command)
+		{
+			if (command.SortDescriptors != null && command.SortDescriptors.Count > 0)
+			{
+				var sort = command.SortDescriptors.First();
+				if (sort.Member == "Name")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.Name);
+					else
+						query = query.OrderByDescending(x => x.Name);
+				}
+				else if (sort.Member == "Sku")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.Sku);
+					else
+						query = query.OrderByDescending(x => x.Sku);
+				}
+				else if (sort.Member == "Price")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.Price);
+					else
+						query = query.OrderByDescending(x => x.Price);
+				}
+				else if (sort.Member == "OldPrice")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.OldPrice);
+					else
+						query = query.OrderByDescending(x => x.OldPrice);
+				}
+				else if (sort.Member == "StockQuantity")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.StockQuantity);
+					else
+						query = query.OrderByDescending(x => x.StockQuantity);
+				}
+				else if (sort.Member == "CreatedOn")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.CreatedOnUtc);
+					else
+						query = query.OrderByDescending(x => x.CreatedOnUtc);
+				}
+				else if (sort.Member == "UpdatedOn")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.UpdatedOnUtc);
+					else
+						query = query.OrderByDescending(x => x.UpdatedOnUtc);
+				}
+				else if (sort.Member == "Published")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.Published);
+					else
+						query = query.OrderByDescending(x => x.Published);
+				}
+				else if (sort.Member == "LimitedToStores")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.LimitedToStores);
+					else
+						query = query.OrderByDescending(x => x.LimitedToStores);
+				}
+				else if (sort.Member == "ManageInventoryMethod")
+				{
+					if (sort.SortDirection == ListSortDirection.Ascending)
+						query = query.OrderBy(x => x.ManageInventoryMethodId);
+					else
+						query = query.OrderByDescending(x => x.ManageInventoryMethodId);
+				}
+				else
+				{
+					query = query.OrderBy(x => x.Name);
+				}
+			}
+			else
+			{
+				query = query.OrderBy(x => x.Name);
+			}
+
+			return query;
+		}
 
 		#endregion Utitilies
 
@@ -965,7 +1053,7 @@ namespace SmartStore.Admin.Controllers
 				if (_searchSettings.SearchFields.Contains("shortdescription"))
 					fields.Add("shortdescription");
 
-				var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName)
+				var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName, SearchMode.Contains)
 					.HasStoreId(model.SearchStoreId)
 					.WithLanguage(_workContext.WorkingLanguage);
 
@@ -989,62 +1077,7 @@ namespace SmartStore.Admin.Controllers
 					searchQuery = searchQuery.WithCategoryIds(null, model.SearchCategoryId);
 
 				var query = _catalogSearchService.PrepareQuery(searchQuery);
-
-				// order
-				if (command.SortDescriptors != null && command.SortDescriptors.Count > 0)
-				{
-					var sort = command.SortDescriptors.First();
-					if (sort.Member == "Name")
-					{
-						if (sort.SortDirection == ListSortDirection.Ascending)
-							query = query.OrderBy(x => x.Name);
-						else
-							query = query.OrderByDescending(x => x.Name);
-					}
-					else if (sort.Member == "Sku")
-					{
-						if (sort.SortDirection == ListSortDirection.Ascending)
-							query = query.OrderBy(x => x.Sku);
-						else
-							query = query.OrderByDescending(x => x.Sku);
-					}
-					else if (sort.Member == "Price")
-					{
-						if (sort.SortDirection == ListSortDirection.Ascending)
-							query = query.OrderBy(x => x.Price);
-						else
-							query = query.OrderByDescending(x => x.Price);
-					}
-					else if (sort.Member == "StockQuantity")
-					{
-						if (sort.SortDirection == ListSortDirection.Ascending)
-							query = query.OrderBy(x => x.StockQuantity);
-						else
-							query = query.OrderByDescending(x => x.StockQuantity);
-					}
-					else if (sort.Member == "CreatedOn")
-					{
-						if (sort.SortDirection == ListSortDirection.Ascending)
-							query = query.OrderBy(x => x.CreatedOnUtc);
-						else
-							query = query.OrderByDescending(x => x.CreatedOnUtc);
-					}
-					else if (sort.Member == "UpdatedOn")
-					{
-						if (sort.SortDirection == ListSortDirection.Ascending)
-							query = query.OrderBy(x => x.UpdatedOnUtc);
-						else
-							query = query.OrderByDescending(x => x.UpdatedOnUtc);
-					}
-					else
-					{
-						query = query.OrderBy(x => x.Name);
-					}
-				}
-				else
-				{
-					query = query.OrderBy(x => x.Name);
-				}
+				query = ApplySorting(query, command);
 
 				var products = new PagedList<Product>(query, command.Page - 1, command.PageSize);
 				var pictureMap = _pictureService.GetPicturesByProductIds(products.Select(x => x.Id).ToArray(), 1, true);
@@ -2722,8 +2755,9 @@ namespace SmartStore.Admin.Controllers
 				if (_searchSettings.SearchFields.Contains("shortdescription"))
 					fields.Add("shortdescription");
 
-				var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName)
-					.HasStoreId(model.SearchStoreId);
+				var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName, SearchMode.Contains)
+					.HasStoreId(model.SearchStoreId)
+					.WithLanguage(_workContext.WorkingLanguage);
 
 				if (model.SearchProductTypeId > 0)
 					searchQuery = searchQuery.IsProductType((ProductType)model.SearchProductTypeId);
@@ -2734,9 +2768,10 @@ namespace SmartStore.Admin.Controllers
 				if (model.SearchCategoryId != 0)
 					searchQuery = searchQuery.WithCategoryIds(null, model.SearchCategoryId);
 
-
 				var query = _catalogSearchService.PrepareQuery(searchQuery);
-				var products = new PagedList<Product>(query.OrderBy(x => x.Name), command.Page - 1, command.PageSize);
+				query = ApplySorting(query, command);
+
+				var products = new PagedList<Product>(query, command.Page - 1, command.PageSize);
 
 				gridModel.Data = products.Select(x =>
 				{
@@ -2788,6 +2823,8 @@ namespace SmartStore.Admin.Controllers
 						var product = _productService.GetProductById(pModel.Id);
 						if (product != null)
 						{
+							var prevStockQuantity = product.StockQuantity;
+
 							product.Sku = pModel.Sku;
 							product.Price = pModel.Price;
 							product.OldPrice = pModel.OldPrice;
@@ -2795,6 +2832,23 @@ namespace SmartStore.Admin.Controllers
 							product.Published = pModel.Published;
 
 							_productService.UpdateProduct(product);
+
+							// back in stock notifications
+							if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock &&
+								product.BackorderMode == BackorderMode.NoBackorders &&
+								product.AllowBackInStockSubscriptions &&
+								product.StockQuantity > 0 &&
+								prevStockQuantity <= 0 &&
+								product.Published &&
+								!product.Deleted)
+							{
+								_backInStockSubscriptionService.SendNotificationsToSubscribers(product);
+							}
+
+							if (product.StockQuantity != prevStockQuantity && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
+							{
+								_productService.AdjustInventory(product, true, 0, string.Empty);
+							}
 						}
 					}
 				}
@@ -2840,15 +2894,32 @@ namespace SmartStore.Admin.Controllers
 					.ThenBy(x => x.CustomerRoleId)
 					.Select(x =>
 					{
-						var tierPriceModel = new ProductModel.TierPriceModel
+					    var tierPriceModel =  new ProductModel.TierPriceModel
+					    {
+						    Id = x.Id,
+						    StoreId = x.StoreId,
+                            CustomerRoleId = x.CustomerRoleId ?? 0,
+						    ProductId = x.ProductId,
+						    Quantity = x.Quantity,
+                            CalculationMethodId = (int)x.CalculationMethod,
+                            Price1 = x.Price
+					    };
+
+						switch (x.CalculationMethod)
 						{
-							Id = x.Id,
-							StoreId = x.StoreId,
-							ProductId = x.ProductId,
-							CustomerRoleId = x.CustomerRoleId ?? 0,
-							Quantity = x.Quantity,
-							Price1 = x.Price
-						};
+							case TierPriceCalculationMethod.Fixed:
+								tierPriceModel.CalculationMethod = T("Admin.Product.Price.Tierprices.Fixed");
+								break;
+							case TierPriceCalculationMethod.Adjustment:
+								tierPriceModel.CalculationMethod = T("Admin.Product.Price.Tierprices.Adjustment");
+								break;
+							case TierPriceCalculationMethod.Percental:
+								tierPriceModel.CalculationMethod = T("Admin.Product.Price.Tierprices.Percental");
+								break;
+							default:
+								tierPriceModel.CalculationMethod = x.CalculationMethod.ToString();
+								break;
+						}
 
 						if (x.CustomerRoleId.HasValue)
 						{
@@ -2869,13 +2940,13 @@ namespace SmartStore.Admin.Controllers
 						{
 							tierPriceModel.Store = allStoresString;
 						}
-
-						return tierPriceModel;
+                        
+                        return tierPriceModel;
 					})
 					.ToList();
 
 				model.Data = tierPricesModel;
-				model.Total = tierPricesModel.Count;
+				model.Total = tierPricesModel.Count();
 			}
 			else
 			{
@@ -2905,8 +2976,9 @@ namespace SmartStore.Admin.Controllers
 					// use CustomerRole property (not CustomerRoleId) because appropriate property is stored in it
 					CustomerRoleId = model.CustomerRole.IsNumeric() && Int32.Parse(model.CustomerRole) != 0 ? Int32.Parse(model.CustomerRole) : (int?)null,
 					Quantity = model.Quantity,
-					Price = model.Price1
-				};
+					Price = model.Price1,
+                    CalculationMethod = model.CalculationMethod == null ? TierPriceCalculationMethod.Fixed : (TierPriceCalculationMethod)(Int32.Parse(model.CalculationMethod))
+                };
 
 				_productService.InsertTierPrice(tierPrice);
 
@@ -2930,7 +3002,7 @@ namespace SmartStore.Admin.Controllers
 				tierPrice.CustomerRoleId = model.CustomerRole.IsNumeric() && Int32.Parse(model.CustomerRole) != 0 ? Int32.Parse(model.CustomerRole) : (int?)null;
 				tierPrice.Quantity = model.Quantity;
 				tierPrice.Price = model.Price1;
-
+                tierPrice.CalculationMethod = model.CalculationMethod == null ? TierPriceCalculationMethod.Fixed : (TierPriceCalculationMethod)(Int32.Parse(model.CalculationMethod));
 				_productService.UpdateTierPrice(tierPrice);
 			}
 
@@ -2956,11 +3028,42 @@ namespace SmartStore.Admin.Controllers
 			return TierPriceList(command, productId);
 		}
 
-		#endregion
+        public ActionResult AllCalculationMethods(string label, int selectedId)
+        {
+            var list = new List<object>
+            {
+                new
+				{
+					id = ((int)TierPriceCalculationMethod.Fixed).ToString(),
+					text = T("Admin.Product.Price.Tierprices.Fixed").Text,
+					selected = selectedId == (int)TierPriceCalculationMethod.Fixed
+				},
+                new
+				{
+					id = ((int)TierPriceCalculationMethod.Adjustment).ToString(),
+					text = T("Admin.Product.Price.Tierprices.Adjustment").Text,
+					selected = selectedId == (int)TierPriceCalculationMethod.Adjustment
+				},
+                new
+				{
+					id = ((int)TierPriceCalculationMethod.Percental).ToString(),
+					text = T("Admin.Product.Price.Tierprices.Percental").Text,
+					selected = selectedId == (int)TierPriceCalculationMethod.Percental
+				}
+            };
 
-		#region Product variant attributes
+            return new JsonResult
+			{
+				Data = list,
+				JsonRequestBehavior = JsonRequestBehavior.AllowGet
+			};
+        }
 
-		[HttpPost, GridAction(EnableCustomBinding = true)]
+        #endregion
+
+        #region Product variant attributes
+
+        [HttpPost, GridAction(EnableCustomBinding = true)]
 		public ActionResult ProductVariantAttributeList(GridCommand command, int productId)
 		{
 			var model = new GridModel<ProductModel.ProductVariantAttributeModel>();
@@ -3198,7 +3301,7 @@ namespace SmartStore.Admin.Controllers
 						Id = x.Id,
 						ProductVariantAttributeId = x.ProductVariantAttributeId,
 						Name = x.Name,
-						NameString = x.Color.IsEmpty() ? x.Name : string.Format("{0} - {1}", x.Name, x.Color),
+						NameString = Server.HtmlEncode(x.Color.IsEmpty() ? x.Name : string.Format("{0} - {1}", x.Name, x.Color)),
 						Alias = x.Alias,
 						Color = x.Color,
                         PictureId = x.PictureId,
