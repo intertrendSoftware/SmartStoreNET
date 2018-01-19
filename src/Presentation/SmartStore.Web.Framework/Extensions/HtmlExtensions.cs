@@ -54,9 +54,7 @@ namespace SmartStore.Web.Framework
             return MvcHtmlString.Create(a.ToString());
         }
 
-        public static HelperResult LocalizedEditor<T, TLocalizedModelLocal>(this HtmlHelper<T> helper, string name,
-             Func<int, HelperResult> localizedTemplate,
-             Func<T, HelperResult> standardTemplate)
+        public static HelperResult LocalizedEditor<T, TLocalizedModelLocal>(this HtmlHelper<T> helper, string name, Func<int, HelperResult> localizedTemplate, Func<T, HelperResult> standardTemplate)
             where T : ILocalizedModel<TLocalizedModelLocal>
             where TLocalizedModelLocal : ILocalizedModelLocal
         {
@@ -64,8 +62,8 @@ namespace SmartStore.Web.Framework
             {
                 if (helper.ViewData.Model.Locales.Count > 1)
                 {
-                    writer.Write("<div class='well well-small'>");
-                    var tabStrip = helper.SmartStore().TabStrip().Name(name).SmartTabSelection(false).Style(TabsStyle.Pills).Items(x =>
+                    writer.Write("<div class='locale-editor'>");
+                    var tabStrip = helper.SmartStore().TabStrip().Name(name).SmartTabSelection(false).Style(TabsStyle.Tabs).AddCssClass("nav-locales").Items(x =>
                     {
 						if (standardTemplate != null)
 						{
@@ -78,7 +76,7 @@ namespace SmartStore.Web.Framework
                             var language = EngineContext.Current.Resolve<ILanguageService>().GetLanguageById(locale.LanguageId);
 
  							x.Add().Text(language.Name)
-								.Content(localizedTemplate(i).ToHtmlString())
+								.Content(localizedTemplate(i))
 								.ImageUrl("~/Content/images/flags/" + language.FlagImageFileName)
 								.Selected(i == 0 && standardTemplate == null);
                         }
@@ -98,8 +96,15 @@ namespace SmartStore.Web.Framework
             return DeleteConfirmation<T>(helper, "", buttonsSelector);
         }
 
-        // Adds an action name parameter for using other delete action names
-        public static MvcHtmlString DeleteConfirmation<T>(this HtmlHelper<T> helper, string actionName, string buttonsSelector = null) where T : EntityModelBase
+		/// <summary>
+		/// Adds an action name parameter for using other delete action names		
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="helper"></param>
+		/// <param name="actionName"></param>
+		/// <param name="buttonsSelector"></param>
+		/// <returns></returns>
+		public static MvcHtmlString DeleteConfirmation<T>(this HtmlHelper<T> helper, string actionName, string buttonsSelector = null) where T : EntityModelBase
         {
             if (String.IsNullOrEmpty(actionName))
                 actionName = "Delete";
@@ -124,8 +129,6 @@ namespace SmartStore.Web.Framework
 
             var window = helper.SmartStore().Window().Name(modalId)
                 .Title(EngineContext.Current.Resolve<ILocalizationService>().GetResource("Admin.Common.AreYouSure"))
-                .Modal(true)
-                .Visible(false)
                 .Content(helper.Partial("Delete", deleteConfirmationModel).ToHtmlString())
                 .ToHtmlString();
 
@@ -158,8 +161,7 @@ namespace SmartStore.Web.Framework
 			object htmlAttributes = null)
         {
 			var metadata = ModelMetadata.FromLambdaExpression(expression, helper.ViewData);
-			object resourceDisplayName = null;
-			metadata.AdditionalValues.TryGetValue("SmartResourceDisplayName", out resourceDisplayName);
+			metadata.AdditionalValues.TryGetValue("SmartResourceDisplayName", out object resourceDisplayName);
 
 			return SmartLabelFor(helper, expression, resourceDisplayName as SmartResourceDisplayName, metadata, displayHint, htmlAttributes);
         }
@@ -569,17 +571,18 @@ namespace SmartStore.Web.Framework
 			defaultColor = defaultColor.EmptyNull();
 			var isDefault = color.IsCaseInsensitiveEqual(defaultColor);
 
-            sb.Append("<div class='input-append input-group colorpicker-component sm-colorbox'>");
+            sb.Append("<div class='input-group colorpicker-component sm-colorbox'>");
 
             sb.AppendFormat(html.TextBox(name, isDefault ? "" : color, new { @class = "form-control", placeholder = defaultColor }).ToHtmlString());
-            sb.AppendFormat("<span class='input-group-addon add-on'><i class='thecolor' style='{0}'></i></span>", defaultColor.HasValue() ? "background-color: " + defaultColor : "");
+            sb.AppendFormat("<div class='input-group-append input-group-addon'><i class='thecolor input-group-text' style='{0}'></i></div>", defaultColor.HasValue() ? "background-color: " + defaultColor : "");
 
             sb.Append("</div>");
 
-            var bootstrapJsRoot = "~/Content/bootstrap/js/";
+			// TODO: (mc) Change location of scripts (make it common)
+			var scriptRoot = "~/Administration/Content/vendors/bootstrap-colorpicker/js/";
             html.AppendScriptParts(false,
-                bootstrapJsRoot + "custom/bootstrap-colorpicker.js",
-                bootstrapJsRoot + "custom/bootstrap-colorpicker-globalinit.js");
+                scriptRoot + "bootstrap-colorpicker.js",
+                scriptRoot + "bootstrap-colorpicker-globalinit.js");
 
             return MvcHtmlString.Create(sb.ToString());
         }

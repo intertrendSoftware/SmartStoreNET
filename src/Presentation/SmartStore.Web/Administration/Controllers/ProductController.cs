@@ -24,6 +24,7 @@ using SmartStore.Core.Domain.Seo;
 using SmartStore.Core.Events;
 using SmartStore.Core.Logging;
 using SmartStore.Core.Search;
+using SmartStore.Data.Utilities;
 using SmartStore.Services;
 using SmartStore.Services.Catalog;
 using SmartStore.Services.Catalog.Extensions;
@@ -270,25 +271,27 @@ namespace SmartStore.Admin.Controllers
 			p.CountryOfOriginId = m.CountryOfOriginId == 0 ? (int?)null : m.CountryOfOriginId;
 
 			p.AvailableEndDateTimeUtc = p.AvailableEndDateTimeUtc.ToEndOfTheDay();
-			p.SpecialPriceEndDateTimeUtc = p.SpecialPriceEndDateTimeUtc.ToEndOfTheDay();			
+			p.SpecialPriceEndDateTimeUtc = p.SpecialPriceEndDateTimeUtc.ToEndOfTheDay();		
 		}
 
 		[NonAction]
-		protected void UpdateProductTags(Product product, string rawProductTags)
+		protected void UpdateProductTags(Product product, params string[] rawProductTags)
 		{
-			if (product == null)
-				throw new ArgumentNullException("product");
+			Guard.NotNull(product, nameof(product));
 
-			var productTags = new List<string>();
+			if (rawProductTags == null || rawProductTags.Length == 0)
+				return;
 
-			foreach (string str in rawProductTags.SplitSafe(","))
+			var productTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+			foreach (string str in rawProductTags)
 			{
 				string tag = str.TrimSafe();
 				if (tag.HasValue())
 					productTags.Add(tag);
 			}
 
-			var existingProductTags = product.ProductTags.ToList();
+			var existingProductTags = product.ProductTags;
 			var productTagsToRemove = new List<ProductTag>();
 
 			foreach (var existingProductTag in existingProductTags)
@@ -321,11 +324,8 @@ namespace SmartStore.Admin.Controllers
 
 				if (productTag2 == null)
 				{
-					//add new product tag
-					productTag = new ProductTag()
-					{
-						Name = productTagName
-					};
+					// Add new product tag
+					productTag = new ProductTag { Name = productTagName };
 					_productTagService.InsertProductTag(productTag);
 				}
 				else
@@ -560,11 +560,9 @@ namespace SmartStore.Admin.Controllers
 			var p = product;
 			var m = model;
 
-			var modifiedProperties = editMode ? _dbContext.GetModifiedProperties(p): new Dictionary<string, object>();
-
-			var nameChanged = modifiedProperties.ContainsKey("Name");
+			var nameChanged = editMode ? _dbContext.IsPropertyModified(p, x => x.Name) : false;
 			var seoTabLoaded = m.LoadedTabs.Contains("SEO", StringComparer.OrdinalIgnoreCase);
-
+			
 			// Handle Download transiency
 			MediaHelper.UpdateDownloadTransientStateFor(p, x => x.DownloadId);
 			MediaHelper.UpdateDownloadTransientStateFor(p, x => x.SampleDownloadId);
@@ -607,13 +605,8 @@ namespace SmartStore.Admin.Controllers
         [NonAction]
         private void PrepareAclModel(ProductModel model, Product product, bool excludeProperties)
         {
-            if (model == null)
-                throw new ArgumentNullException("model");
+			Guard.NotNull(model, nameof(model));
 
-            model.AvailableCustomerRoles = _customerService
-                .GetAllCustomerRoles(true)
-                .Select(cr => cr.ToModel())
-                .ToList();
             if (!excludeProperties)
             {
                 if (product != null)
@@ -625,18 +618,15 @@ namespace SmartStore.Admin.Controllers
                     model.SelectedCustomerRoleIds = new int[0];
                 }
             }
-        }
+
+			model.AvailableCustomerRoles = _customerService.GetAllCustomerRoles(true).ToSelectListItems(model.SelectedCustomerRoleIds);
+		}
 
 		[NonAction]
 		private void PrepareStoresMappingModel(ProductModel model, Product product, bool excludeProperties)
 		{
-			if (model == null)
-				throw new ArgumentNullException("model");
+			Guard.NotNull(model, nameof(model));
 
-			model.AvailableStores = _storeService
-				.GetAllStores()
-				.Select(s => s.ToModel())
-				.ToList();
 			if (!excludeProperties)
 			{
 				if (product != null)
@@ -648,13 +638,14 @@ namespace SmartStore.Admin.Controllers
 					model.SelectedStoreIds = new int[0];
 				}
 			}
+
+			model.AvailableStores = _storeService.GetAllStores().ToSelectListItems(model.SelectedStoreIds);
 		}
 
 		[NonAction]
 		protected void PrepareProductModel(ProductModel model, Product product, bool setPredefinedValues, bool excludeProperties)
 		{
-			if (model == null)
-				throw new ArgumentNullException("model");
+			Guard.NotNull(model, nameof(model));
 
 			if (product != null)
 			{
@@ -697,7 +688,7 @@ namespace SmartStore.Admin.Controllers
 			model.NumberOfAvailableManufacturers = _manufacturerService.GetAllManufacturers("",	pageIndex: 0, pageSize: 1, showHidden: true).TotalCount;
 			model.NumberOfAvailableCategories = _categoryService.GetAllCategories(pageIndex: 0, pageSize: 1, showHidden: true).TotalCount;
 
-			//copy product
+			// copy product
 			if (product != null)
 			{
 				model.CopyProductModel.Id = product.Id;
@@ -706,7 +697,7 @@ namespace SmartStore.Admin.Controllers
 				model.CopyProductModel.CopyImages = true;
 			}
 
-			//templates
+			// templates
 			var templates = _productTemplateService.GetAllProductTemplates();
 			foreach (var template in templates)
 			{
@@ -717,20 +708,16 @@ namespace SmartStore.Admin.Controllers
 				});
 			}
 
-			//product tags
-			var allTags = _productTagService.GetAllProductTagNames();
-			foreach (var tag in allTags)
-			{
-				model.AvailableProductTags.Add(new SelectListItem { Text = tag, Value = tag });
-			}
-
+			// Product tags
 			if (product != null)
 			{
-				//var tags = product.ProductTags;
-				model.ProductTags = string.Join(", ", product.ProductTags.Select(x => x.Name));
+				model.ProductTags = product.ProductTags.Select(x => x.Name).ToArray();
 			}
 
-			//tax categories
+			var allTags = _productTagService.GetAllProductTagNames();
+			model.AvailableProductTags = new MultiSelectList(allTags, model.ProductTags);
+
+			// tax categories
 			var taxCategories = _taxCategoryService.GetAllTaxCategories();
 			foreach (var tc in taxCategories)
 			{
@@ -865,24 +852,13 @@ namespace SmartStore.Admin.Controllers
 		}
 
         [NonAction]
-        private void PrepareProductPictureThumbnailModel(ProductModel model, Product product, Picture defaultPicture)
+        private void PrepareProductPictureThumbnailModel(ProductModel model, Product product, PictureInfo defaultPicture)
         {
 			Guard.NotNull(model, nameof(model));
 
-			if (product != null && _adminAreaSettings.DisplayProductPictures)
-            {
-				if (defaultPicture != null)
-				{
-					model.PictureThumbnailUrl = Url.Action("Picture", "Media", new { id = defaultPicture.Id, size = _mediaSettings.CartThumbPictureSize });
-				}
-				else
-				{
-					model.PictureThumbnailUrl = _pictureService.GetDefaultPictureUrl(_mediaSettings.ProductThumbPictureSize, PictureType.Entity);
-				}
-
-				model.NoThumb = defaultPicture == null;
-            }
-        }
+			model.PictureThumbnailUrl = _pictureService.GetUrl(defaultPicture, _mediaSettings.CartThumbPictureSize, true);
+			model.NoThumb = defaultPicture == null;
+		}
 
 		private IQueryable<Product> ApplySorting(IQueryable<Product> query, GridCommand command)
 		{
@@ -974,8 +950,6 @@ namespace SmartStore.Admin.Controllers
 
 		#endregion Utitilies
 
-		#region Methods
-
 		#region Misc
 
 		[HttpPost]
@@ -1018,11 +992,9 @@ namespace SmartStore.Admin.Controllers
             model.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
 			model.GridPageSize = _adminAreaSettings.GridPageSize;
 
-            var allCategories = _categoryService.GetAllCategories(showHidden: true);
-            var mappedCategories = allCategories.ToDictionary(x => x.Id);
-            foreach (var c in allCategories)
+            foreach (var c in _categoryService.GetCategoryTree(includeHidden: true).FlattenNodes(false))
             {
-                model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameWithPrefix(_categoryService, mappedCategories), Value = c.Id.ToString() });
+                model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
             }
 
             foreach (var m in _manufacturerService.GetAllManufacturers(true))
@@ -1053,7 +1025,7 @@ namespace SmartStore.Admin.Controllers
 				if (_searchSettings.SearchFields.Contains("shortdescription"))
 					fields.Add("shortdescription");
 
-				var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName, SearchMode.Contains)
+				var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName)
 					.HasStoreId(model.SearchStoreId)
 					.WithLanguage(_workContext.WorkingLanguage);
 
@@ -1080,8 +1052,8 @@ namespace SmartStore.Admin.Controllers
 				query = ApplySorting(query, command);
 
 				var products = new PagedList<Product>(query, command.Page - 1, command.PageSize);
-				var pictureMap = _pictureService.GetPicturesByProductIds(products.Select(x => x.Id).ToArray(), 1, true);
-
+				var pictureInfos = _pictureService.GetPictureInfos(products);
+				//_mediaSettings.CartThumbPictureSize
 				gridModel.Data = products.Select(x =>
 				{
                     var productModel = new ProductModel
@@ -1096,7 +1068,9 @@ namespace SmartStore.Admin.Controllers
                         LimitedToStores = x.LimitedToStores
                     };
 
-					PrepareProductPictureThumbnailModel(productModel, x, pictureMap[x.Id]?.FirstOrDefault());
+					var defaultPicture = pictureInfos.Get(x.MainPictureId.GetValueOrDefault());
+					productModel.PictureThumbnailUrl = _pictureService.GetUrl(defaultPicture, _mediaSettings.CartThumbPictureSize, true);
+					productModel.NoThumb = defaultPicture == null;
 
 					productModel.ProductTypeName = x.GetProductTypeLabel(_localizationService);
 					productModel.UpdatedOn = _dateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
@@ -1224,7 +1198,7 @@ namespace SmartStore.Admin.Controllers
                 return continueEditing ? RedirectToAction("Edit", new { id = product.Id }) : RedirectToAction("List");
             }
 
-            //If we got this far, something failed, redisplay form
+            // If we got this far, something failed, redisplay form
 			PrepareProductModel(model, null, false, true);
             PrepareAclModel(model, null, true);
 			PrepareStoresMappingModel(model, null, true);
@@ -1266,7 +1240,7 @@ namespace SmartStore.Admin.Controllers
 				locale.BundleTitleText = product.GetLocalized(x => x.BundleTitleText, languageId, false, false);
             });
 
-            PrepareProductPictureThumbnailModel(model, product, _pictureService.GetPicturesByProductId(product.Id, 1)?.FirstOrDefault());
+			PrepareProductPictureThumbnailModel(model, product, _pictureService.GetPictureInfo(product.MainPictureId));
             PrepareAclModel(model, product, false);
 			PrepareStoresMappingModel(model, product, false);
 
@@ -1307,10 +1281,13 @@ namespace SmartStore.Admin.Controllers
                 return continueEditing ? RedirectToAction("Edit", new { id = product.Id }) : RedirectToAction("List");
             }
 
-            //If we got this far, something failed, redisplay form
+            // If we got this far, something failed, redisplay form
 			PrepareProductModel(model, product, false, true);
-            PrepareProductPictureThumbnailModel(model, product, _pictureService.GetPicturesByProductId(product.Id, 1)?.FirstOrDefault());
+
+			PrepareProductPictureThumbnailModel(model, product, _pictureService.GetPictureInfo(product.MainPictureId));
+
             PrepareAclModel(model, product, true);
+
 			PrepareStoresMappingModel(model, product, true);
 
             return View(model);
@@ -1394,8 +1371,10 @@ namespace SmartStore.Admin.Controllers
 					locale.BundleTitleText = product.GetLocalized(x => x.BundleTitleText, languageId, false, false);
 				});
 
-				PrepareProductPictureThumbnailModel(model, product, _pictureService.GetPicturesByProductId(product.Id, 1)?.FirstOrDefault());
+				PrepareProductPictureThumbnailModel(model, product, _pictureService.GetPictureInfo(product.MainPictureId));
+
 				PrepareAclModel(model, product, false);
+
 				PrepareStoresMappingModel(model, product, false);
 
 				return PartialView(viewPath.NullEmpty() ?? "_CreateOrUpdate." + tabName, model);
@@ -1456,18 +1435,29 @@ namespace SmartStore.Admin.Controllers
             var copyModel = model.CopyProductModel;
             try
             {
-				var product = _productService.GetProductById(copyModel.Id);
-                var newProduct = _copyProductService.CopyProduct(product, copyModel.Name, copyModel.Published, copyModel.CopyImages);
+                Product newProduct = null;
+                var product = _productService.GetProductById(copyModel.Id);
 
-                NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+                for (var i = 1; i <= copyModel.NumberOfCopies; ++i)
+                {
+                    var newName = copyModel.NumberOfCopies > 1 ? $"{copyModel.Name} {i}" : copyModel.Name;
+                    newProduct = _copyProductService.CopyProduct(product, newName, copyModel.Published, copyModel.CopyImages);
+                }
 
-                return RedirectToAction("Edit", new { id = newProduct.Id });
+                if (newProduct != null)
+                {
+                    NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+
+                    return RedirectToAction("Edit", new { id = newProduct.Id });
+                }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-				NotifyError(exc.ToAllMessages());
-                return RedirectToAction("Edit", new { id = copyModel.Id });
+				Logger.Error(ex);
+				NotifyError(ex.ToAllMessages());
             }
+
+            return RedirectToAction("Edit", new { id = copyModel.Id });
         }
 
         #endregion
@@ -1485,10 +1475,11 @@ namespace SmartStore.Admin.Controllers
 				var productCategoriesModel = productCategories
 					.Select(x =>
 					{
-						return new ProductModel.ProductCategoryModel()
+						var node = _categoryService.GetCategoryTree(x.CategoryId);
+						return new ProductModel.ProductCategoryModel
 						{
 							Id = x.Id,
-							Category = _categoryService.GetCategoryById(x.CategoryId).GetCategoryBreadCrumb(_categoryService),
+							Category = node != null ? _categoryService.GetCategoryPath(node) : string.Empty,
 							ProductId = x.ProductId,
 							CategoryId = x.CategoryId,
 							IsFeaturedProduct = x.IsFeaturedProduct,
@@ -1763,12 +1754,11 @@ namespace SmartStore.Admin.Controllers
         }
         
 		[HttpPost]
-		public ActionResult RelatedProductAdd(int productId, string selectedProductIds)
+		public ActionResult RelatedProductAdd(int productId, int[] selectedProductIds)
 		{
 			if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 			{
-				var productIds = selectedProductIds.SplitSafe(",").Select(x => x.ToInt()).ToArray();
-				var products = _productService.GetProductsByIds(productIds);
+				var products = _productService.GetProductsByIds(selectedProductIds);
 				RelatedProduct relation = null;
 				var maxDisplayOrder = -1;
 
@@ -1886,12 +1876,11 @@ namespace SmartStore.Admin.Controllers
         }
 
 		[HttpPost]
-		public ActionResult CrossSellProductAdd(int productId, string selectedProductIds)
+		public ActionResult CrossSellProductAdd(int productId, int[] selectedProductIds)
 		{
 			if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 			{
-				var productIds = selectedProductIds.SplitSafe(",").Select(x => x.ToInt()).ToArray();
-				var products = _productService.GetProductsByIds(productIds);
+				var products = _productService.GetProductsByIds(selectedProductIds);
 
 				foreach (var product in products)
 				{
@@ -2018,7 +2007,7 @@ namespace SmartStore.Admin.Controllers
 		}
 
 		[HttpPost]
-		public ActionResult AssociatedProductAdd(int productId, string selectedProductIds)
+		public ActionResult AssociatedProductAdd(int productId, int[] selectedProductIds)
 		{
 			if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 			{
@@ -2031,8 +2020,7 @@ namespace SmartStore.Admin.Controllers
 					.OrderByDescending(x => x)
 					.FirstOrDefault();
 
-				var productIds = selectedProductIds.SplitSafe(",").Select(x => x.ToInt()).ToArray();
-				var products = _productService.GetProductsByIds(productIds);
+				var products = _productService.GetProductsByIds(selectedProductIds);
 
 				foreach (var product in products)
 				{
@@ -2209,13 +2197,12 @@ namespace SmartStore.Admin.Controllers
 		}
 
 		[HttpPost]
-		public ActionResult BundleItemAdd(int productId, string selectedProductIds)
+		public ActionResult BundleItemAdd(int productId, int[] selectedProductIds)
 		{
 			if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 			{
 				var utcNow = DateTime.UtcNow;
-				var productIds = selectedProductIds.SplitSafe(",").Select(x => x.ToInt()).ToArray();
-				var products = _productService.GetProductsByIds(productIds);
+				var products = _productService.GetProductsByIds(selectedProductIds);
 
 				var maxDisplayOrder = _productService.GetBundleItems(productId, true)
 					.OrderByDescending(x => x.Item.DisplayOrder)
@@ -2360,7 +2347,7 @@ namespace SmartStore.Admin.Controllers
 							Id = x.Id,
 							ProductId = x.ProductId,
 							PictureId = x.PictureId,
-							PictureUrl = _pictureService.GetPictureUrl(x.PictureId),
+							PictureUrl = _pictureService.GetUrl(x.PictureId),
 							DisplayOrder = x.DisplayOrder
 						};
 					})
@@ -2463,46 +2450,49 @@ namespace SmartStore.Admin.Controllers
 
 			if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 			{
-				var productrSpecs = _specificationAttributeService.GetProductSpecificationAttributesByProductId(productId);
+                var productSpecAttributes = _specificationAttributeService.GetProductSpecificationAttributesByProductId(productId);
+                var specAttributeIds = productSpecAttributes.Select(x => x.SpecificationAttributeOption.SpecificationAttributeId).ToArray();
+                var specOptions = _specificationAttributeService.GetSpecificationAttributeOptionsBySpecificationAttributeIds(specAttributeIds);
 
-				var productrSpecsModel = productrSpecs
-					.Select(x =>
-					{
-						var psaModel = new ProductSpecificationAttributeModel
-						{
-							Id = x.Id,
-							SpecificationAttributeName = x.SpecificationAttributeOption.SpecificationAttribute.Name,
-							SpecificationAttributeOptionName = x.SpecificationAttributeOption.Name,
-							SpecificationAttributeOptionAttributeId = x.SpecificationAttributeOption.SpecificationAttributeId,
-							SpecificationAttributeOptionId = x.SpecificationAttributeOptionId,
-							AllowFiltering = x.AllowFiltering,
-							ShowOnProductPage = x.ShowOnProductPage,
-							DisplayOrder = x.DisplayOrder
-						};
-						return psaModel;
-					})
-					.ToList();
+                var productSpecModel = productSpecAttributes
+                    .Select(x =>
+                    {
+                        var attributeId = x.SpecificationAttributeOption.SpecificationAttributeId;
+                        var psaModel = new ProductSpecificationAttributeModel
+                        {
+                            Id = x.Id,
+                            SpecificationAttributeName = x.SpecificationAttributeOption.SpecificationAttribute.Name,
+                            SpecificationAttributeOptionName = x.SpecificationAttributeOption.Name,
+                            SpecificationAttributeId = attributeId,
+                            SpecificationAttributeOptionId = x.SpecificationAttributeOptionId,
+                            AllowFiltering = x.AllowFiltering,
+                            ShowOnProductPage = x.ShowOnProductPage,
+                            DisplayOrder = x.DisplayOrder
+                        };
 
-				foreach (var attr in productrSpecsModel)
-				{
-					var options = _specificationAttributeService.GetSpecificationAttributeOptionsBySpecificationAttribute(attr.SpecificationAttributeOptionAttributeId);
+                        if (specOptions.ContainsKey(attributeId))
+                        {
+                            psaModel.SpecificationAttributeOptions = specOptions[attributeId]
+                                .Select(y => new ProductSpecificationAttributeModel.SpecificationAttributeOption
+                                {
+                                    id = y.Id,
+                                    name = y.Name,
+                                    text = y.Name
+                                })
+                                .ToList();
 
-					foreach (var option in options)
-					{
-						attr.SpecificationAttributeOptions.Add(new ProductSpecificationAttributeModel.SpecificationAttributeOption
-						{
-							id = option.Id,
-							name = option.Name,
-							text = option.Name
-						});
-					}
+                            psaModel.SpecificationAttributeOptionsJsonString = HttpUtility.HtmlEncode(JsonConvert.SerializeObject(psaModel.SpecificationAttributeOptions));
+                        }
 
-					attr.SpecificationAttributeOptionsJsonString = HttpUtility.HtmlEncode(JsonConvert.SerializeObject(attr.SpecificationAttributeOptions));
-				}
+                        return psaModel;
+                    })
+                    .OrderBy(x => x.DisplayOrder)
+                    .ThenBy(x => x.SpecificationAttributeId)
+                    .ToList();
 
-				model.Data = productrSpecsModel;
-				model.Total = productrSpecsModel.Count;
-			}
+                model.Data = productSpecModel;
+                model.Total = productSpecModel.Count;
+            }
 			else
 			{
 				model.Data = Enumerable.Empty<ProductSpecificationAttributeModel>();
@@ -2720,11 +2710,9 @@ namespace SmartStore.Admin.Controllers
 			var model = new BulkEditListModel();
 			model.GridPageSize = _adminAreaSettings.GridPageSize;
 
-			var allCategories = _categoryService.GetAllCategories(showHidden: true);
-			var mappedCategories = allCategories.ToDictionary(x => x.Id);
-			foreach (var c in allCategories)
+			foreach (var c in _categoryService.GetCategoryTree(includeHidden: true).FlattenNodes(false))
 			{
-				model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameWithPrefix(_categoryService, mappedCategories), Value = c.Id.ToString() });
+				model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
 			}
 
 			foreach (var m in _manufacturerService.GetAllManufacturers(true))
@@ -2755,7 +2743,7 @@ namespace SmartStore.Admin.Controllers
 				if (_searchSettings.SearchFields.Contains("shortdescription"))
 					fields.Add("shortdescription");
 
-				var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName, SearchMode.Contains)
+				var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName)
 					.HasStoreId(model.SearchStoreId)
 					.WithLanguage(_workContext.WorkingLanguage);
 
@@ -2908,13 +2896,13 @@ namespace SmartStore.Admin.Controllers
 						switch (x.CalculationMethod)
 						{
 							case TierPriceCalculationMethod.Fixed:
-								tierPriceModel.CalculationMethod = T("Admin.Product.Price.Tierprices.Fixed");
+								tierPriceModel.CalculationMethod = T("Admin.Product.Price.Tierprices.Fixed").Text;
 								break;
 							case TierPriceCalculationMethod.Adjustment:
-								tierPriceModel.CalculationMethod = T("Admin.Product.Price.Tierprices.Adjustment");
+								tierPriceModel.CalculationMethod = T("Admin.Product.Price.Tierprices.Adjustment").Text;
 								break;
 							case TierPriceCalculationMethod.Percental:
-								tierPriceModel.CalculationMethod = T("Admin.Product.Price.Tierprices.Percental");
+								tierPriceModel.CalculationMethod = T("Admin.Product.Price.Tierprices.Percental").Text;
 								break;
 							default:
 								tierPriceModel.CalculationMethod = x.CalculationMethod.ToString();
@@ -3607,7 +3595,8 @@ namespace SmartStore.Admin.Controllers
 				model.ProductVariantAttributes.Add(pvaModel);
 			}
 		}
-		private async Task PrepareVariantCombinationPictures(ProductVariantAttributeCombinationModel model, Product product)
+
+		private void PrepareVariantCombinationPictures(ProductVariantAttributeCombinationModel model, Product product)
 		{
 			var pictures = _pictureService.GetPicturesByProductId(product.Id);
 			foreach (var picture in pictures)
@@ -3615,7 +3604,7 @@ namespace SmartStore.Admin.Controllers
 				var assignablePicture = new ProductVariantAttributeCombinationModel.PictureSelectItemModel();
 				assignablePicture.Id = picture.Id;
 				assignablePicture.IsAssigned = model.AssignedPictureIds.Contains(picture.Id);
-				assignablePicture.PictureUrl = await _pictureService.GetPictureUrlAsync(picture.Id, 125, false);
+				assignablePicture.PictureUrl = _pictureService.GetUrl(picture, 125, FallbackPictureType.NoFallback);
 				model.AssignablePictures.Add(assignablePicture);
 			}
 		}
@@ -3648,54 +3637,34 @@ namespace SmartStore.Admin.Controllers
 
 			if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 			{
-				// TODO: Replace ProductModel.ProductVariantAttributeCombinationModel by AddProductVariantAttributeCombinationModel
-				// when there's no grid-inline-editing anymore.
-
+				var customer = _workContext.CurrentCustomer;
 				var product = _productService.GetProductById(productId);
-
 				var allCombinations = _productAttributeService.GetAllProductVariantAttributeCombinations(product.Id, command.Page - 1, command.PageSize);
-
-				var productUrlTitle = _localizationService.GetResource("Common.OpenInShop");
+				var productUrlTitle = T("Common.OpenInShop");
 				var productSeName = product.GetSeName();
+
+				_productAttributeParser.PrefetchProductVariantAttributes(allCombinations.Select(x => x.AttributesXml));
 
 				var productVariantAttributesModel = allCombinations.Select(x =>
 				{
 					var pvacModel = x.ToModel();
-					PrepareProductAttributeCombinationModel(pvacModel, x, product, true);
-
-					pvacModel.ProductUrl = _productUrlHelper.GetProductUrl(product.Id, productSeName, x.AttributesXml);
+					pvacModel.ProductId = product.Id;
 					pvacModel.ProductUrlTitle = productUrlTitle;
+					pvacModel.ProductUrl = _productUrlHelper.GetProductUrl(product.Id, productSeName, x.AttributesXml);					
+					pvacModel.AttributesXml = _productAttributeFormatter.FormatAttributes(product, x.AttributesXml, customer, "<br />", true, true, true, false);
 
-					try
-					{
-						var firstAttribute = _productAttributeParser.DeserializeProductVariantAttributes(x.AttributesXml).FirstOrDefault();
+					// Not really necessary here:
+					//var warnings = _shoppingCartService.GetShoppingCartItemAttributeWarnings(
+					//		customer,
+					//		ShoppingCartType.ShoppingCart,
+					//		x.Product,
+					//		x.AttributesXml,
+					//		combination: x);
 
-						var attribute = x.Product.ProductVariantAttributes.FirstOrDefault(y => y.Id == firstAttribute.Key);
-						var attributeValue = attribute.ProductVariantAttributeValues.FirstOrDefault(y => y.Id == firstAttribute.Value.First().ToInt());
-
-						pvacModel.DisplayOrder = attributeValue.DisplayOrder;
-					}
-					catch (Exception exc)
-					{
-						exc.Dump();
-					}
-
-					//if (x.IsDefaultCombination)
-					//	pvacModel.AttributesXml = "<b>{0}</b>".FormatWith(pvacModel.AttributesXml);
-
-					//warnings
-					var warnings = _shoppingCartService.GetShoppingCartItemAttributeWarnings(
-							_workContext.CurrentCustomer,
-							ShoppingCartType.ShoppingCart,
-							x.Product,
-							x.AttributesXml,
-							combination: x);
-
-					pvacModel.Warnings.AddRange(warnings);
+					//pvacModel.Warnings.AddRange(warnings);
 
 					return pvacModel;
 				})
-				.OrderBy(x => x.DisplayOrder)
 				.ToList();
 
 				model.Data = productVariantAttributesModel;
@@ -3731,7 +3700,7 @@ namespace SmartStore.Admin.Controllers
 			return ProductVariantAttributeCombinationList(command, productId);
 		}
 
-		public async Task<ActionResult> AttributeCombinationCreatePopup(string btnId, string formId, int productId)
+		public ActionResult AttributeCombinationCreatePopup(string btnId, string formId, int productId)
 		{
 			if (!_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 				return AccessDeniedView();
@@ -3744,7 +3713,7 @@ namespace SmartStore.Admin.Controllers
 
 			PrepareProductAttributeCombinationModel(model, null, product);
 			PrepareVariantCombinationAttributes(model, product);
-			await PrepareVariantCombinationPictures(model, product);
+			PrepareVariantCombinationPictures(model, product);
 			PrepareDeliveryTimes(model);
 			PrepareViewBag(btnId, formId, false, false);
 
@@ -3752,7 +3721,7 @@ namespace SmartStore.Admin.Controllers
 		}
 
 		[HttpPost, ValidateInput(false)]
-		public async Task<ActionResult> AttributeCombinationCreatePopup(
+		public ActionResult AttributeCombinationCreatePopup(
 			string btnId,
 			string formId,
 			int productId,
@@ -3792,7 +3761,7 @@ namespace SmartStore.Admin.Controllers
 
 			PrepareProductAttributeCombinationModel(model, null, product);
 			PrepareVariantCombinationAttributes(model, product);
-			await PrepareVariantCombinationPictures(model, product);
+			PrepareVariantCombinationPictures(model, product);
 			PrepareDeliveryTimes(model);
 			PrepareViewBag(btnId, formId, warnings.Count == 0, false);
 
@@ -3802,7 +3771,7 @@ namespace SmartStore.Admin.Controllers
 			return View(model);
 		}
 
-		public async Task<ActionResult> AttributeCombinationEditPopup(int id, string btnId, string formId)
+		public ActionResult AttributeCombinationEditPopup(int id, string btnId, string formId)
 		{
 			if (!_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 				return AccessDeniedView();
@@ -3821,7 +3790,7 @@ namespace SmartStore.Admin.Controllers
 
 			PrepareProductAttributeCombinationModel(model, combination, product, true);
 			PrepareVariantCombinationAttributes(model, product);
-			await PrepareVariantCombinationPictures(model, product);
+			PrepareVariantCombinationPictures(model, product);
 			PrepareDeliveryTimes(model, model.DeliveryTimeId);
 			PrepareViewBag(btnId, formId);
 
@@ -3935,6 +3904,18 @@ namespace SmartStore.Admin.Controllers
 		}
 
 		#endregion
+
+		#region Hidden normalizers
+
+		public ActionResult FixProductMainPictureIds(DateTime? ifModifiedSinceUtc = null)
+		{
+			if (!_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
+				return AccessDeniedView();
+
+			var count = DataMigrator.FixProductMainPictureIds(_dbContext, ifModifiedSinceUtc);
+
+			return Content("Fixed {0} ids.".FormatInvariant(count));
+		}
 
 		#endregion
 	}

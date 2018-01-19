@@ -169,12 +169,11 @@ namespace SmartStore.Admin.Infrastructure
 				.ForMember(dest => dest.EmailAccount, mo => mo.Ignore())
 				.ForMember(dest => dest.EmailAccountId, mo => mo.Ignore())
 				.ForMember(dest => dest.ReplyTo, mo => mo.Ignore())
-				.ForMember(dest => dest.ReplyToName, mo => mo.Ignore())
 				.ForMember(dest => dest.Attachments, mo => mo.Ignore());
 			//campaign
 			CreateMap<Campaign, CampaignModel>()
 				.ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
-				.ForMember(dest => dest.TokensTree, mo => mo.Ignore())
+				.ForMember(dest => dest.LastModelTree, mo => mo.Ignore())
 				.ForMember(dest => dest.TestEmail, mo => mo.Ignore())
 				.ForMember(dest => dest.AvailableStores, mo => mo.Ignore())
 				.ForMember(dest => dest.SelectedStoreIds, mo => mo.Ignore());
@@ -303,6 +302,7 @@ namespace SmartStore.Admin.Infrastructure
 				.ForMember(dest => dest.HasTierPrices, mo => mo.Ignore())
 				.ForMember(dest => dest.LowestAttributeCombinationPrice, mo => mo.Ignore())
 				.ForMember(dest => dest.HasDiscountsApplied, mo => mo.Ignore())
+				.ForMember(dest => dest.MainPictureId, mo => mo.Ignore())
 				.ForMember(dest => dest.BackorderMode, mo => mo.Ignore())
 				.ForMember(dest => dest.DownloadActivationType, mo => mo.Ignore())
 				.ForMember(dest => dest.GiftCardType, mo => mo.Ignore())
@@ -342,18 +342,19 @@ namespace SmartStore.Admin.Infrastructure
 				.ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
 				.ForMember(dest => dest.IsSystemAccount, mo => mo.Ignore())
 				.ForMember(dest => dest.SystemAccountName, mo => mo.Ignore());
-			//currencies
-			CreateMap<Currency, CurrencyModel>()
-				.ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
-				.ForMember(dest => dest.IsPrimaryExchangeRateCurrency, mo => mo.Ignore())
-				.ForMember(dest => dest.IsPrimaryStoreCurrency, mo => mo.Ignore())
-				.ForMember(dest => dest.PrimaryStoreCurrencyStores, mo => mo.Ignore())
-				.ForMember(dest => dest.PrimaryExchangeRateCurrencyStores, mo => mo.Ignore())
-				.ForMember(dest => dest.Locales, mo => mo.Ignore())
-				.ForMember(dest => dest.AvailableStores, mo => mo.Ignore())
-				.ForMember(dest => dest.SelectedStoreIds, mo => mo.Ignore())
-				.ForMember(dest => dest.AvailableDomainEndings, mo => mo.Ignore());
-			CreateMap<CurrencyModel, Currency>()
+            //currencies
+            CreateMap<Currency, CurrencyModel>()
+                .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
+                .ForMember(dest => dest.IsPrimaryExchangeRateCurrency, mo => mo.Ignore())
+                .ForMember(dest => dest.IsPrimaryStoreCurrency, mo => mo.Ignore())
+                .ForMember(dest => dest.PrimaryStoreCurrencyStores, mo => mo.Ignore())
+                .ForMember(dest => dest.PrimaryExchangeRateCurrencyStores, mo => mo.Ignore())
+                .ForMember(dest => dest.Locales, mo => mo.Ignore())
+                .ForMember(dest => dest.AvailableStores, mo => mo.Ignore())
+                .ForMember(dest => dest.SelectedStoreIds, mo => mo.Ignore())
+                .ForMember(dest => dest.AvailableDomainEndings, mo => mo.Ignore())
+                .ForMember(dest => dest.RoundOrderTotalPaymentMethods, mo => mo.Ignore());
+            CreateMap<CurrencyModel, Currency>()
 				.ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
 				.ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
 
@@ -377,7 +378,6 @@ namespace SmartStore.Admin.Infrastructure
 				.ForMember(dest => dest.ProductUrl, mo => mo.Ignore())
 				.ForMember(dest => dest.ProductUrlTitle, mo => mo.Ignore())
 				.ForMember(dest => dest.Warnings, mo => mo.Ignore())
-				.ForMember(dest => dest.DisplayOrder, mo => mo.Ignore())
 				.AfterMap((src, dest) => dest.AssignedPictureIds = src.GetAssignedPictureIds());
 			CreateMap<ProductVariantAttributeCombinationModel, ProductVariantAttributeCombination>()
 				.ForMember(dest => dest.DeliveryTime, mo => mo.Ignore())

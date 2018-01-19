@@ -1,0 +1,41 @@
+/// <reference path="../theme.scss" />
+
+
+// Add nested dropdown support to BS4
+// ==============================================================
+
+.dropdown-group {
+	position: relative;
+
+	> .dropdown-item {
+		position: relative;
+		padding-right: 2rem;
+
+		&:before {
+			// make caret
+			position: absolute;
+			right: $dropdown-item-padding-x / 2;
+			top: 50%;
+			transform: translateY(-50%);
+			@include fontawesome("\f105", 16px); // angle-right
+		}
+	}
+
+	&.show > .dropdown-item {
+		color: $dropdown-link-hover-color !important;
+		background-color: $dropdown-link-hover-bg;
+
+		> .fa {
+			color: $dropdown-link-hover-color !important;
+		}
+	}
+
+	.dropdown-menu {
+		position: absolute;
+		margin-top: 0 !important;
+		top: $dropdown-padding-y * -1;
+		left: 100% !important;
+		bottom: auto;
+		transform: translateX(-2px);
+	}
+}

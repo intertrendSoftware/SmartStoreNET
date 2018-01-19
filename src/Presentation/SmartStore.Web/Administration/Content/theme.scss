@@ -1,0 +1,439 @@
+/// <reference path="bs4/scss/bootstrap.scss" />
+
+/* Theme: SmartStore.NET ADMIN 
+======================================== */
+
+
+//
+// Custom variables (TODO: unify later)
+// --------------------------------------------------
+
+$font-weight-light:         300 !default;
+$font-weight-medium:        600 !default;
+$headings-lg-font-weight:   400 !default;
+
+$mtab-text-transform:		none !default;
+$mtab-font-weight:			600 !default;
+$mtab-color:				inherit !default;
+
+//
+// BS4 Variables
+// --------------------------------------------------
+
+$enable-shadows:	true;
+$enable-gradients:	true;
+
+$gray-100:  #f8f9fa;
+$gray-200:  #e9ecef;
+$gray-300:  #dee2e6;
+$gray-400:  #ced4da;
+$gray-500:  #adb5bd;
+$gray-600:  #868e96;
+$gray-700:  #495057;
+$gray-800:  #343a40;
+$gray-900:  #212529;
+
+$blue:      #5677fc; // Blue 500
+$indigo:    #3f51b5; // Indigo 500
+$purple:    #9c27b0; // Purple 500
+$pink:      #e91e63; // Pink 500
+$red:       #e51c23; // Red 500
+$orange:    #f57c00; // Orange 700
+$yellow:    #fdd835; // Yellow 600
+$green:     #259b24; // Green 500
+$teal:      #009688; // Teal 500
+$cyan:      #00BCD4; // Cyan 500
+$bluegrey:  #78909c; // Bluegrey 500
+
+$primary:	$indigo;
+$secondary:	#f4f5f7; //$gray-200;
+$success:	$green;
+$info:		$cyan;
+$warning:	$orange;
+$danger:	$red;
+$light:		$gray-100;
+$dark:		$gray-800;
+
+$body-color:	$gray-800;
+$body-bg:		#fff;
+$link-color:	#0277bb;
+
+// Set a specific jump point for requesting color jumps
+$theme-color-interval:		8%;
+
+// The yiq lightness value that determines when the lightness of color changes from "dark" to "light". Acceptable values are between 0 and 255.
+$yiq-contrasted-threshold:	150;
+
+// Customize the light and dark text colors for use in our YIQ color contrast function.
+$yiq-text-dark:				$body-color;
+$yiq-text-light:			#fff;
+
+$spacer: 1rem;
+$spacers: (
+    0: 0,
+    1: ($spacer * .25),
+    2: ($spacer * .5),
+    3: $spacer,
+    4: ($spacer * 1.5),
+    5: ($spacer * 2.25),
+    6: ($spacer * 3)
+);
+
+$font-size-base: 0.875rem;
+$font-size-lg:   1rem;
+$font-size-sm:   0.8125rem;
+$font-size-xs:   0.75rem;
+
+$h1-font-size: 2.5rem;
+$h2-font-size: 2rem;
+$h3-font-size: 1.75rem;
+$h4-font-size: 1.5rem;
+$h5-font-size: 1.25rem;
+$h6-font-size: 1rem;
+
+$headings-font-weight:			400;
+
+$btn-font-weight:               $font-weight-medium;
+$input-btn-padding-x:           1rem;
+$input-btn-padding-y:           0.5625rem;
+$input-btn-padding-x-sm:        0.75rem;
+$input-btn-padding-y-sm:        0.375rem;
+$input-btn-padding-x-lg:        1.5rem;
+$input-btn-padding-y-lg:        0.75rem;
+$input-btn-line-height:         1.5;
+$input-box-shadow:              none;
+$input-focus-box-shadow:        none;
+$input-border-radius:           0;
+$input-border-radius-lg:        0;
+$input-border-radius-sm:        0;
+$input-transition:              none;
+
+$btn-box-shadow:				0 1px 1px rgba(#000, .075);
+/*$btn-focus-box-shadow:          0 0 0 2px rgba($indigo, .25); //0 0 0 2px rgba(theme-color("primary"), .25);*/
+$btn-active-box-shadow:         inset 0 2px 3px rgba(#000, .125);
+$btn-transition:                box-shadow .12s ease-in-out;
+$btn-border-radius:				.125rem;
+$btn-border-radius-lg:          .1875rem;
+$btn-border-radius-sm:          .125rem;
+
+$dropdown-box-shadow:			0 3px 12px rgba(27,31,35,0.15); //0 2px 6px rgba(#000, .15);
+$dropdown-border-color:			rgba(0, 0, 0, 0.08); 
+
+$dropdown-link-color:			$body-color; //$gray-800;
+$dropdown-link-hover-color:		#fff; //darken($gray-800, 5%);
+$dropdown-link-hover-bg:        $indigo;
+
+$dropdown-link-active-color:    $dropdown-link-hover-color;
+$dropdown-link-active-bg:       lighten($dropdown-link-hover-bg, 5%);
+
+$dropdown-item-padding-y:       0.625rem; // 0.5rem;
+$dropdown-item-padding-x:       1.5rem;
+
+$alert-padding-y:				1rem;
+
+$input-group-addon-bg:			$gray-100;
+
+$nav-tabs-border-color:			#e1e4e8;
+
+$alert-border-radius:			0;
+
+$table-accent-bg:				rgba(#000, .015);
+
+//
+// Variables shims (TODO: remove later)
+// --------------------------------------------------
+$gray-dark:		$gray-900;
+$gray:          $gray-700;
+$gray-light:    $gray-600;
+$gray-lighter:  $gray-200;
+$gray-lightest: $gray-100;
+
+
+//
+// Mixins (TODO: unify later)
+// --------------------------------------------------
+
+@mixin fontawesome($content, $size: inherit) {
+    display: inline-block;
+    font: normal normal normal 16px/1 'FontAwesome';
+    font-size: $size;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    content: $content;
+}
+
+
+//
+// Bootstrap 4
+// --------------------------------------------------
+
+@import "bs4/scss/bootstrap.scss"; 
+
+
+//
+// Vendors
+// --------------------------------------------------
+
+@import "vendors/select2/scss/core.scss";
+@import "vendors/colorpicker/scss/_colorpicker.scss";
+@import "vendors/datetimepicker/scss/_tempusdominus.scss";
+
+
+//
+// Global / Shared (unify later with Flex' resources)
+// --------------------------------------------------
+
+@import 'shared/_mixins.scss';
+@import 'shared/_typo.scss';
+@import 'shared/_alert.scss';
+@import 'shared/_buttons.scss';
+@import 'shared/_card.scss';
+@import 'shared/_forms.scss';
+@import 'shared/_pagination.scss';
+@import 'shared/_nav.scss';
+@import "shared/_modal.scss"; 
+@import 'shared/_dropdown.scss';
+@import "shared/_throbber.scss";
+@import "shared/_spinner.scss";
+@import "shared/_sortable-grip.scss";
+@import "shared/_entity-picker.scss";
+@import "shared/_utils.scss";
+
+
+//
+// Legacy (remove later)
+// --------------------------------------------------
+
+@import "_legacy.scss"; 
+
+
+//
+// Skinning
+// --------------------------------------------------
+
+@import "skinning/_select2.scss";
+@import "telerik/_telerik.scss"; 
+
+
+
+//
+// Legacy BS elements
+// --------------------------------------------------
+
+.well {
+    background-color: $gray-100;
+    padding: 1rem;
+}
+
+
+//
+// Locale Editor
+// --------------------------------------------------
+
+.locale-editor {
+	$border-color: $card-border-color;
+
+	background-color: #fff;
+	border: 1px solid $border-color;
+	margin-bottom: 1rem;
+	border-radius: $border-radius;
+
+	.nav-locales > .nav {
+		padding: 0.25rem 0.25rem 0 0.25rem;
+		border-bottom-color: $border-color;
+		background-color: $card-cap-bg;
+		border-top-left-radius: $border-radius;
+		border-top-right-radius: $border-radius;
+
+		.nav-link {
+			color: #777;
+			font-weight: 600;
+			padding-top: 0.75rem;
+			padding-bottom: 0.75rem;
+
+			> img {
+				opacity: 0.8;
+			}
+		}
+
+		.nav-link:hover,
+		.nav-link.active {
+			color: inherit;
+			border-color: transparent;
+
+			> img {
+				opacity: 1;
+			}
+		}
+
+		.nav-link.active {
+			background-color: #fff;
+			border-color: $border-color;
+			border-bottom-color: #fff;
+		}
+	}
+}
+
+
+//
+// Thumb Zoomer
+// --------------------------------------------------
+
+.zoomable-thumb-container {
+	width: 50px;
+	height: 32px;
+	line-height: 32px;
+	display: inline-block;
+	text-align: center;
+	vertical-align: middle;
+
+	> img {
+		max-height: 100%;
+		max-width: 100%;
+	}
+}
+
+.zoomable-thumb {
+	max-width: 50px;
+	max-height: 32px;
+}
+
+.zoomable-thumb-clone {
+	border: 1px solid #bbb;
+	background-color: #fff;
+}
+
+
+//
+// Apply grid layout to editor tables (.adminContent)
+// --------------------------------------------------
+
+.adminContent {
+	//max-width: 1400px;
+	@include make-container();
+	display: block;
+	border-collapse: initial;
+
+	> tbody {
+		display: flex;
+		flex-flow: column;
+		border-collapse: initial;
+	}
+
+	> tbody > tr,
+	> tr,
+	.adminRow {
+		@include make-row();
+		margin: 0.4rem 0;
+	}
+
+	.adminTitle,
+	.adminData {
+		@include make-col-ready();
+	}
+
+	.adminTitle {
+		margin-bottom: 0;
+		padding-top: $input-btn-padding-y;
+		padding-bottom: $input-btn-padding-y;
+	}
+
+	.adminData {
+		> .switch {
+			margin-bottom: 0;
+			padding-top: calc(#{$input-btn-padding-y} - 3px);
+			padding-bottom: calc(#{$input-btn-padding-y} + 2px);
+		}
+	}
+
+	> tbody > tr > td:only-child:not(.adminData):not(.adminTitle),
+	> tr > td:only-child:not(.adminData):not(.adminTitle) {
+		@include make-col(12);
+	}
+
+	@include media-breakpoint-up(md) {
+		.adminTitle {
+			@include make-col(4);
+			text-align: right;
+		}
+
+		.adminData {
+			@include make-col(8);
+		}
+	}
+
+	@include media-breakpoint-up(lg) {
+		.adminTitle {
+			@include make-col(3);
+		}
+
+		.adminData {
+			@include make-col(9);
+
+			&.wide {
+				@include make-col(9);
+			}
+		}
+	}
+
+	@include media-breakpoint-up(xl) {
+		.adminTitle {
+			@include make-col(3);
+		}
+
+		.adminData {
+			@include make-col(6);
+		}
+	}
+}
+
+.ctl-label {
+    label {
+        font-weight: 600;
+    }
+    .hint {
+        opacity: 0;
+    }
+}
+
+
+//
+// Collapsible .adminContent element (groups)
+// --------------------------------------------------
+
+/*.adminContent {
+    > tbody.collapsible,
+    > tr.collapsible,
+    > tbody > tr.collapsible {
+        display: none;
+
+        &.expanded {
+            display: flex !important;
+        }
+    }
+}*/
+
+
+//
+// Adapt class-less form elements to bs4
+// --------------------------------------------------
+
+.adminContent, 
+.t-grid {
+	input[type=text]:not(.form-control-plaintext), 
+	input[type=password],
+	input[type=email],
+	input[type=number],
+	input[type=tel],
+	.t-numerictextbox > .t-input,
+	select,
+	textarea {
+		@extend .form-control;
+	}
+}
+
+// Reset BS' check/radio positioning in adminData-columns
+.adminData > .form-check-input {
+	position: relative;
+	margin-left: 0;
+}

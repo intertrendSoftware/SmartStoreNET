@@ -7,11 +7,12 @@ using SmartStore.Admin.Validators.Messages;
 using SmartStore.Web.Framework;
 using SmartStore.Web.Framework.Modelling;
 using SmartStore.Collections;
+using SmartStore.Services.Messages;
 
 namespace SmartStore.Admin.Models.Messages
 {
     [Validator(typeof(CampaignValidator))]
-    public class CampaignModel : EntityModelBase
+    public class CampaignModel : EntityModelBase, IStoreSelector
     {       
         [SmartResourceDisplayName("Admin.Promotions.Campaigns.Fields.Name")]
         [AllowHtml]
@@ -29,17 +30,14 @@ namespace SmartStore.Admin.Models.Messages
         public DateTime CreatedOn { get; set; }
 
         [SmartResourceDisplayName("Admin.Promotions.Campaigns.Fields.AllowedTokens")]
-        public TreeNode<string> TokensTree { get; set; }
+        public TreeNode<ModelTreeMember> LastModelTree { get; set; }
 
         [SmartResourceDisplayName("Admin.Promotions.Campaigns.Fields.TestEmail")]
         [AllowHtml]
         public string TestEmail { get; set; }
 
-		[SmartResourceDisplayName("Admin.Common.Store.LimitedTo")]
 		public bool LimitedToStores { get; set; }
-
-		[SmartResourceDisplayName("Admin.Common.Store.AvailableFor")]
-		public List<StoreModel> AvailableStores { get; set; }
+		public IEnumerable<SelectListItem> AvailableStores { get; set; }
 		public int[] SelectedStoreIds { get; set; }
     }
 }

@@ -846,6 +846,12 @@ namespace SmartStore.Core.Domain.Catalog
 		public bool BundlePerItemShoppingCart { get; set; }
 
 		/// <summary>
+		/// Gets or sets the main picture id
+		/// </summary>
+		[DataMember]
+		public int? MainPictureId { get; set; }
+
+		/// <summary>
 		/// Gets or sets the product type
 		/// </summary>
 		[DataMember]
@@ -868,7 +874,7 @@ namespace SmartStore.Core.Domain.Catalog
 				switch (ProductType)
 				{
 					case ProductType.SimpleProduct:
-						return "smnet-hide";
+						return "secondary d-none";
 					case ProductType.GroupedProduct:
 						return "success";
 					case ProductType.BundledProduct:

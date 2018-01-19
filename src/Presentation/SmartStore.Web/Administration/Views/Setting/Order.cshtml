@@ -181,7 +181,10 @@
 					@Html.SmartLabelFor(model => model.Locales[item].ReturnRequestReasons)
 				</td>
 				<td class="adminData">
-					@Html.TextBoxFor(model => Model.Locales[item].ReturnRequestReasons, new { @class = "input-xlarge" })
+					@*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+					@Html.HiddenFor(model => model.Locales[item].LanguageId)
+
+					@Html.TextBoxFor(model => Model.Locales[item].ReturnRequestReasons)
 					@Html.ValidationMessageFor(model => model.Locales[item].ReturnRequestReasons)
 				</td>
 			</tr>
@@ -190,13 +193,8 @@
 					@Html.SmartLabelFor(model => model.Locales[item].ReturnRequestActions)
 				</td>
 				<td class="adminData">
-					@Html.TextBoxFor(model => model.Locales[item].ReturnRequestActions, new { @class = "input-xlarge" })
+					@Html.TextBoxFor(model => model.Locales[item].ReturnRequestActions)
 					@Html.ValidationMessageFor(model => model.Locales[item].ReturnRequestActions)
-				</td>
-			</tr>
-			<tr>
-				<td colspan="2">
-					@Html.HiddenFor(model => model.Locales[item].LanguageId)
 				</td>
 			</tr>
 		</table>
@@ -207,7 +205,7 @@
 					@Html.SmartLabelFor(model => model.ReturnRequestReasons)
 				</td>
 				<td class="adminData">
-					@Html.TextBoxFor(model => model.ReturnRequestReasons, new { @class = "input-xlarge" })
+					@Html.TextBoxFor(model => model.ReturnRequestReasons)
 					@Html.ValidationMessageFor(model => model.ReturnRequestReasons)
 				</td>
 			</tr>
@@ -216,7 +214,7 @@
 					@Html.SmartLabelFor(model => model.ReturnRequestActions)
 				</td>
 				<td class="adminData">
-					@Html.TextBoxFor(x => x.ReturnRequestActions, new { @class = "input-xlarge" })
+					@Html.TextBoxFor(x => x.ReturnRequestActions)
 					@Html.ValidationMessageFor(model => model.ReturnRequestActions)
 				</td>
 			</tr>

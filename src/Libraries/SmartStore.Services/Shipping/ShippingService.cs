@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using SmartStore.Core.Data;
 using SmartStore.Core.Domain.Catalog;
 using SmartStore.Core.Domain.Common;
@@ -16,6 +13,9 @@ using SmartStore.Services.Catalog;
 using SmartStore.Services.Common;
 using SmartStore.Services.Configuration;
 using SmartStore.Services.Orders;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SmartStore.Services.Shipping
 {
@@ -35,6 +35,7 @@ namespace SmartStore.Services.Shipping
 		private readonly ISettingService _settingService;
 		private readonly IProviderManager _providerManager;
 		private readonly ITypeFinder _typeFinder;
+		private readonly ICommonServices _services;
 
         public ShippingService(
             IRepository<ShippingMethod> shippingMethodRepository,
@@ -47,19 +48,21 @@ namespace SmartStore.Services.Shipping
             ShoppingCartSettings shoppingCartSettings,
 			ISettingService settingService,
 			IProviderManager providerManager,
-			ITypeFinder typeFinder)
+			ITypeFinder typeFinder,
+			ICommonServices services)
         {
-            this._shippingMethodRepository = shippingMethodRepository;
-            this._productAttributeParser = productAttributeParser;
-			this._productService = productService;
-            this._checkoutAttributeParser = checkoutAttributeParser;
-			this._genericAttributeService = genericAttributeService;
-            this._shippingSettings = shippingSettings;
-            this._eventPublisher = eventPublisher;
-            this._shoppingCartSettings = shoppingCartSettings;
-			this._settingService = settingService;
-			this._providerManager = providerManager;
-			this._typeFinder = typeFinder;
+            _shippingMethodRepository = shippingMethodRepository;
+            _productAttributeParser = productAttributeParser;
+			_productService = productService;
+            _checkoutAttributeParser = checkoutAttributeParser;
+			_genericAttributeService = genericAttributeService;
+            _shippingSettings = shippingSettings;
+            _eventPublisher = eventPublisher;
+            _shoppingCartSettings = shoppingCartSettings;
+			_settingService = settingService;
+			_providerManager = providerManager;
+			_typeFinder = typeFinder;
+			_services = services;
 
 			T = NullLocalizer.Instance;
 			Logger = NullLogger.Instance;
@@ -142,9 +145,6 @@ namespace SmartStore.Services.Shipping
                 throw new ArgumentNullException("shippingMethod");
 
             _shippingMethodRepository.Delete(shippingMethod);
-
-            //event notification
-            _eventPublisher.EntityDeleted(shippingMethod);
         }
 
         /// <summary>
@@ -202,9 +202,6 @@ namespace SmartStore.Services.Shipping
                 throw new ArgumentNullException("shippingMethod");
 
             _shippingMethodRepository.Insert(shippingMethod);
-
-            //event notification
-            _eventPublisher.EntityInserted(shippingMethod);
         }
 
         /// <summary>
@@ -217,9 +214,6 @@ namespace SmartStore.Services.Shipping
                 throw new ArgumentNullException("shippingMethod");
 
             _shippingMethodRepository.Update(shippingMethod);
-
-            //event notification
-            _eventPublisher.EntityUpdated(shippingMethod);
         }
 
         #endregion
@@ -362,10 +356,7 @@ namespace SmartStore.Services.Shipping
                 {
                     //system name
                     so2.ShippingRateComputationMethodSystemName = srcm.Metadata.SystemName;
-
-                    //round
-                    if (_shoppingCartSettings.RoundPricesDuringCalculation)
-                        so2.Rate = Math.Round(so2.Rate, 2);
+                    so2.Rate = so2.Rate.RoundIfEnabledFor(_services.WorkContext.WorkingCurrency);
 
                     result.ShippingOptions.Add(so2);
                 }

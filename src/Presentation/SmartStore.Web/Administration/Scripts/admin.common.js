@@ -7,9 +7,8 @@ function closeModalWindow() {
 }
 function openModalWindow(modalId) {
     currentModalId = modalId;
-    $('#' + modalId).data('modal').show();
+    $('#' + modalId).modal('show');
 }
-
 
 // global Admin namespace
 var Admin = {
@@ -72,6 +71,51 @@ var Admin = {
 				}
 			});
 		}
+	},
+
+	togglePanel: function(el /* the toggler */, animate) {
+		var ctl = $(el),
+			show = ctl.is(':checked'),
+			reverse = ctl.data('toggler-reverse');
+
+		if (reverse) show = !show;
+
+		var duration = animate ? 200 : 0;
+
+		function afterShow() { $(this).addClass('expanded'); }
+		function afterHide() { $(this).removeClass('expanded'); }
+
+		$(ctl.data('toggler-for')).each(function (i, cel) {
+			var pnl = $(cel),
+				isGroup = pnl.is('tbody, .collapsible-group');
+
+			pnl.addClass('collapsible');
+			if (isGroup) pnl.addClass('collapsible-group')
+
+			if (show) {
+				if (!isGroup) {
+					pnl.show(duration, afterShow);
+				}
+				else {
+					var targets = pnl.children()
+						.hide() // initially hide all children asap
+						.filter(':not(.collapsible), .collapsible.expanded'); // fetch only expandable items
+					pnl.show(0, afterShow); // first, show panel group asap (otherwise we won't see any animation)
+					targets.show(duration); // animate all items
+				}
+			}
+			else {
+				if (!isGroup) {
+					pnl.hide(duration, afterHide);
+				}
+				else {
+					// hide all children (animated)
+					pnl.children().hide(duration).promise().done(function () {
+						pnl.hide(0, afterHide); // last, hide panel group asap
+					});
+				}
+			}
+		});
 	},
 
 	TaskWatcher: (function () {
@@ -139,4 +183,10 @@ var Admin = {
 	})()
 };
 
-
+(function () {
+	// TODO: (mc) BS4 > move SmartStore namespace to SmartStore.Web and replace $.smartstore.
+	// Also move 'Admin' object above to SmartStore.Admin.
+	SmartStore.Admin = {
+		modelTrees: {}
+	};
+})();

@@ -116,8 +116,9 @@ namespace SmartStore.Web.Controllers
         [NonAction]
 		protected bool IsPaymentWorkflowRequired(IList<OrganizedShoppingCartItem> cart, bool ignoreRewardPoints = false)
         {
-            //check whether order total equals zero
+            // Check whether order total equals zero
             decimal? shoppingCartTotalBase = _orderTotalCalculationService.GetShoppingCartTotal(cart, ignoreRewardPoints);
+
             if (shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == decimal.Zero)
                 return false;
 
@@ -573,7 +574,6 @@ namespace SmartStore.Web.Controllers
             return View(model);
         }
         
-
         public ActionResult ShippingMethod()
         {
             //validation
@@ -594,6 +594,12 @@ namespace SmartStore.Web.Controllers
                         
             var shippingOptions = _shippingService.GetShippingOptions(cart, _workContext.CurrentCustomer.ShippingAddress, "", _storeContext.CurrentStore.Id).ShippingOptions;
 
+            var checkoutState = _httpContext.GetCheckoutState();
+            if (checkoutState.CustomProperties.ContainsKey("HasOnlyOneActiveShippingMethod"))
+                checkoutState.CustomProperties["HasOnlyOneActiveShippingMethod"] = shippingOptions.Count == 1;
+            else
+                checkoutState.CustomProperties.Add("HasOnlyOneActiveShippingMethod", shippingOptions.Count == 1);
+            
             if (shippingOptions.Count <= 1 && _shippingSettings.SkipShippingIfSingleOption)
             {
                 _genericAttributeService.SaveAttribute<ShippingOption>(
@@ -687,16 +693,22 @@ namespace SmartStore.Web.Controllers
                 return RedirectToRoute("ShoppingCart");
 
             if ((_workContext.CurrentCustomer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed))
-                return new HttpUnauthorizedResult();	
+                return new HttpUnauthorizedResult();
 
-			// Check whether payment workflow is required
-			// we ignore reward points during cart total calculation
-			bool isPaymentWorkflowRequired = IsPaymentWorkflowRequired(cart, true);
+			// Check whether payment workflow is required. We ignore reward points during cart total calculation.
+			decimal? shoppingCartTotalBase = _orderTotalCalculationService.GetShoppingCartTotal(cart, true);
+			var isPaymentWorkflowRequired = !(shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == decimal.Zero);
 
 			var model = PreparePaymentMethodModel(cart);
-			bool onlyOnePassiveMethod = model.PaymentMethods.Count == 1 && !model.PaymentMethods[0].RequiresInteraction;
+			var onlyOnePassiveMethod = model.PaymentMethods.Count == 1 && !model.PaymentMethods[0].RequiresInteraction;
 
-			if (!isPaymentWorkflowRequired || (_paymentSettings.BypassPaymentMethodSelectionIfOnlyOne && onlyOnePassiveMethod))
+            var checkoutState = _httpContext.GetCheckoutState();
+            if (checkoutState.CustomProperties.ContainsKey("HasOnlyOneActivePaymentMethod"))
+                checkoutState.CustomProperties["HasOnlyOneActivePaymentMethod"] = model.PaymentMethods.Count == 1;
+            else
+                checkoutState.CustomProperties.Add("HasOnlyOneActivePaymentMethod", model.PaymentMethods.Count == 1);
+            
+            if (!isPaymentWorkflowRequired || (_paymentSettings.BypassPaymentMethodSelectionIfOnlyOne && onlyOnePassiveMethod))
             {
                 // If there's nothing to pay for OR if we have only one passive payment method and reward points are disabled
 				// or the current customer doesn't have any reward points so customer doesn't have to choose a payment method.
@@ -707,7 +719,7 @@ namespace SmartStore.Web.Controllers
 					!model.PaymentMethods.Any() ? null : model.PaymentMethods[0].PaymentMethodSystemName,
 					_storeContext.CurrentStore.Id);
 
-				_httpContext.GetCheckoutState().IsPaymentSelectionSkipped = true;
+                checkoutState.IsPaymentSelectionSkipped = true;
 
 				var referrer = Services.WebHelper.GetUrlReferrer();
 				if (referrer.EndsWith("/Confirm"))
@@ -718,7 +730,7 @@ namespace SmartStore.Web.Controllers
 				return RedirectToAction("Confirm");
             }
 
-			_httpContext.GetCheckoutState().IsPaymentSelectionSkipped = false;
+            checkoutState.IsPaymentSelectionSkipped = false;
 
             return View(model);
         }

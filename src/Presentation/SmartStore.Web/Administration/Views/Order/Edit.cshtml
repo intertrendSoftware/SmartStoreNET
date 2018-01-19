@@ -411,6 +411,17 @@
                 </td>
             </tr>
         }
+        @if (Model.OrderTotalRounding.HasValue())
+        {
+            <tr>
+                <td class="adminTitle">
+                    @Html.SmartLabelFor(model => model.OrderTotalRounding)
+                </td>
+                <td class="adminData">
+                    @Model.OrderTotalRounding
+                </td>
+            </tr>
+        }
         <tr>
             <td class="adminTitle">
                 @Html.SmartLabelFor(model => model.OrderTotal)
@@ -501,6 +512,14 @@
 						</td>
 						<td class="adminData">
 							@Html.EditorFor(model => model.OrderTotalDiscountValue)
+						</td>
+					</tr>
+					<tr>
+						<td class="adminTitle">
+							@Html.SmartLabelFor(model => model.OrderTotalRoundingValue)
+						</td>
+						<td class="adminData">
+							@Html.EditorFor(model => model.OrderTotalRoundingValue)
 						</td>
 					</tr>
 					<tr>
@@ -1464,7 +1483,7 @@
                                             {
                                                 var returnRequest = item.ReturnRequests[i];
 
-                                                <span class="label label-@(returnRequest.StatusLabel)" style="margin-right: 4px">@returnRequest.StatusString</span>
+                                                <span class="badge badge-@(returnRequest.StatusLabel) mr-1">@returnRequest.StatusString</span>
 
                                                 <a href="@Url.Action("Edit", "ReturnRequest", new { id = returnRequest.Id })">
                                                     @T("Admin.Orders.Products.ReturnRequest") @returnRequest.Id
@@ -1785,7 +1804,7 @@
                 @Html.SmartLabelFor(model => model.AddOrderNoteMessage)
             </td>
             <td class="adminData">
-                @Html.TextAreaFor(model => model.AddOrderNoteMessage, new { @class = "control-xlarge", style = "height: 120px;" })
+                @Html.TextAreaFor(model => model.AddOrderNoteMessage, new { style = "height: 120px;" })
                 @Html.ValidationMessageFor(model => model.AddOrderNoteMessage)
             </td>
         </tr>

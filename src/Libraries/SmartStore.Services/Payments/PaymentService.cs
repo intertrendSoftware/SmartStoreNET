@@ -214,8 +214,6 @@ namespace SmartStore.Services.Payments
 				throw new ArgumentNullException("paymentMethod");
 
 			_paymentMethodRepository.Insert(paymentMethod);
-
-			_services.EventPublisher.EntityInserted(paymentMethod);
 		}
 
 		/// <summary>
@@ -228,8 +226,6 @@ namespace SmartStore.Services.Payments
 				throw new ArgumentNullException("paymentMethod");
 
 			_paymentMethodRepository.Update(paymentMethod);
-
-			_services.EventPublisher.EntityUpdated(paymentMethod);
 		}
 
 		/// <summary>
@@ -242,8 +238,6 @@ namespace SmartStore.Services.Payments
 				throw new ArgumentNullException("paymentMethod");
 
 			_paymentMethodRepository.Delete(paymentMethod);
-
-			_services.EventPublisher.EntityDeleted(paymentMethod);
 		}
 
 
@@ -364,10 +358,7 @@ namespace SmartStore.Services.Payments
             var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
 			var paymentMethodAdditionalFee = (paymentMethod != null ? paymentMethod.Value.GetAdditionalHandlingFee(cart) : decimal.Zero);
 
-			if (_shoppingCartSettings.RoundPricesDuringCalculation)
-			{
-				paymentMethodAdditionalFee = Math.Round(paymentMethodAdditionalFee, 2);
-			}
+            paymentMethodAdditionalFee = paymentMethodAdditionalFee.RoundIfEnabledFor(_services.WorkContext.WorkingCurrency);
 
 			return paymentMethodAdditionalFee;
         }
