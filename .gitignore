@@ -294,6 +294,7 @@ Kopie von*
 
 /build
 /src/Presentation/SmartStore.Web/Plugins
+/src/Presentation/SmartStore.Web/App_Data/Tenants/
 /src/Presentation/SmartStore.Web/App_Data/_temp/
 /src/Presentation/SmartStore.Web/App_Data/ExportProfiles/
 /src/Presentation/SmartStore.Web/App_Data/ImportProfiles/
@@ -303,7 +304,6 @@ Kopie von*
 /src/Presentation/SmartStore.Web/App_Data/InstalledPlugins.txt
 /src/Presentation/SmartStore.Web/App_Data/Licenses.lic
 /src/Presentation/SmartStore.Web/Media
-/src/**/App_Data/Tenants/
 
 # Import/Export
 /src/Presentation/SmartStore.Web/Content/files/[Ee]xport[Ii]mport/*.*
@@ -317,5 +317,22 @@ Kopie von*
 /src/Tools/SmartStore.WebApi.Client/packages
 /src/Tools/SmartStore.WebApi.Client/SmartStore.WebApi.Client.sln
 
-src/SmartStoreNET.Packager.sln
+/src/SmartStoreNET.Packager.sln
 Log.txt
+#######
+##  SVN
+#######
+.svn
+#########
+src/Doc
+src/Plugins/PluginUtilities/*
+src/Plugins/SmartFCT/*
+lib/Ghostscript
+builds
+src/Presentation/SmartStore.Web/Themes/InterTrendPage
+src/Presentation/SmartStore.Web/Themes/InterTrend
+src/Plugins/SmaerStore.SmartWebPage
+src/SmartStoreNETMB3.sln
+src/AssemblySharedInfo.cs
+src/Presentation/SmartStore.Web/Administration/App_Data/Tenants/Default/plugins.hash
+src/Presentation/SmartStore.Web/Administration/App_Data/Tenants/Default/plugins.assemblies
