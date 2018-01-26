@@ -100,8 +100,9 @@ namespace SmartStore.Services.Messages
 			dynamic email = new ExpandoObject();
 			email.Email = messageContext.EmailAccount.Email;
 			email.SenderName = messageContext.EmailAccount.DisplayName;
-
+			email.DisplayName = messageContext.EmailAccount.DisplayName; // Alias
 			model["Email"] = email;
+
 			model["Theme"] = CreateThemeModelPart(messageContext);
 			model["Customer"] = CreateModelPart(messageContext.Customer, messageContext);
 			model["Store"] = CreateModelPart(messageContext.Store, messageContext);

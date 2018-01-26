@@ -215,6 +215,22 @@ namespace SmartStore.Data.Migrations
 				"Admin.Catalog.Categories.Fields.AclCustomerRoles",
 				"Admin.Catalog.Products.Fields.SubjectToAcl",
 				"Admin.Catalog.Products.Fields.AclCustomerRoles");
+
+			builder.AddOrUpdate("Admin.Common.ApplyFilter", "Apply filter", "Filter anwenden");
+			builder.AddOrUpdate("Time.Milliseconds", "Milliseconds", "Millisekunden");
+			builder.AddOrUpdate("Common.Pixel", "Pixel", "Pixel");
+			builder.AddOrUpdate("Admin.DataExchange.Export.Deployment.ShowPlaceholder", "Show placeholder", "Zeige Platzhalter");
+			builder.AddOrUpdate("Admin.DataExchange.Export.Deployment.HidePlaceholder", "Hide placeholder", "Verberge Platzhalter");
+			builder.AddOrUpdate("Admin.DataExchange.Export.Deployment.UpdateExampleFileName", "Update example", "Aktualisiere Beispiel");
+
+			builder.AddOrUpdate("Admin.Configuration.Themes.AvailableDesktopThemes", "Installed themes", "Installierte Themes");
+			builder.AddOrUpdate("Admin.Catalog.Products.List.GoDirectlyToSku", "Find by SKU", "Nach SKU suchen");
+
+			builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.StoreLastIpAddress",
+				"Store IP address",
+				"IP-Adresse speichern",
+				"Specifies whether to store the IP address in the customer data set.",
+				"Legt fest, ob die IP-Adresse im Kundendatensatz gespeichert werden soll.");
 		}
 	}
 }

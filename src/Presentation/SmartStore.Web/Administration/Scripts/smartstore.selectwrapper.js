@@ -71,7 +71,6 @@
     	}
 
         return this.each(function () {
-
             var sel = $(this);
 
             if (sel.data("select2")) { 
@@ -116,7 +115,7 @@
                     firstOption = $('<option></option>').prependTo(sel);
                 }
 
-                if (!placeholder && hasOptionLabel && firstOption.text()) {
+				if (!placeholder && hasOptionLabel && firstOption.text() && !sel.data("tags")) {
                     // use first option text as placeholder
                     placeholder = firstOption.text();
                     firstOption.text("");
@@ -157,7 +156,9 @@
                 minimumInputLength: _.isNumber(minInputLength) ? minInputLength : 0,
                 templateResult: renderSelectItem,
                 templateSelection: renderSelectItem,
-				theme: 'bootstrap'
+				theme: 'bootstrap',
+				//adaptDropdownCssClass: true,
+				closeOnSelect: true
             };
 
             if (url) {

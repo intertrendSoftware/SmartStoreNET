@@ -11,7 +11,7 @@
 		},
 		// select2
 		function (ctx) {
-			ctx.find(".adminData select:not(.noskin)").selectWrapper();
+			ctx.find("select:not(.noskin)").selectWrapper();
 		},
 		// tooltips
 		function (ctx) {
@@ -60,6 +60,7 @@
 	to newly created html.
 	*/
 	window.applyCommonPlugins = function (/* jQuery */ context) {
+		console.log(context);
 		$.each(_commonPluginFactories, function (i, val) {
 			val.call(this, $(context));
 		});

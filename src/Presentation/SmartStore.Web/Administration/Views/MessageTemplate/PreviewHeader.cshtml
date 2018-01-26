@@ -22,12 +22,10 @@
 	@Html.HiddenFor(model => model.Email.SendManually)
 
 	<div class="clearfix">
-		<table class="adminContent span12">
+		<table class="adminContent">
 			<tr>
 				<td class="adminTitle">
-					<div class="ctl-label">
-						<label for="Email_To">@T("Admin.MessageTemplate.PreviewHeader.To")</label>
-					</div>
+					@Html.SmartLabel("Email_To", T("Admin.MessageTemplate.PreviewHeader.To"))
 				</td>
 				<td class="adminData">
 					<div class="input-append">
@@ -44,12 +42,10 @@
 
 	<div id="collapse" class="collapse clearfix">
 
-		<table class="adminContent span12">
+		<table class="adminContent">
 			<tr>
 				<td class="adminTitle">
-					<div class="ctl-label">
-						<label for="Email_ReplyTo">@T("Admin.MessageTemplate.PreviewHeader.ReplyTo")</label>
-					</div>
+					@Html.SmartLabel("Email_ReplyTo", T("Admin.MessageTemplate.PreviewHeader.ReplyTo"))
 				</td>
 				<td class="adminData">
 					@Html.TextBoxFor(model => model.Email.ReplyTo, new { disabled = "disabled", @class = "text-box single-line valid" })
@@ -59,9 +55,7 @@
 
 			<tr>
 				<td class="adminTitle">
-					<div class="ctl-label">
-						<label for="Email_Subject">@T("Admin.MessageTemplate.PreviewHeader.Subject")</label>
-					</div>
+					@Html.SmartLabel("Email_Subject", T("Admin.MessageTemplate.PreviewHeader.Subject"))
 				</td>
 				<td class="adminData">
 					@Html.TextBoxFor(model => model.Email.Subject, new { disabled = "disabled", @class = "text-box single-line valid" })
@@ -79,19 +73,15 @@
 			</tr>*@
 		</table>
 	</div>
-
-	<div class="clearfix">
-		<table class="adminContent span12">
-			<tr>
-				<td class="adminTitle"></td>
-				<td class="adminData">
-					<button type="button" class="btn btn-secondary collapsed toggle-mail-info" data-toggle="collapse" data-target="#collapse">
-						<i class="fa fa-angle-down"></i>
-						<span>@T("Admin.MessageTemplate.Preview.More")</span>
-					</button>
-				</td>
-			</tr>
-		</table>
+	
+	<div class="adminContent">
+		<div class="adminTitle"></div>
+		<div class="adminData">
+			<button type="button" class="btn btn-secondary collapsed toggle-mail-info" data-toggle="collapse" data-target="#collapse">
+				<i class="fa fa-angle-down"></i>
+				<span>@T("Admin.MessageTemplate.Preview.More")</span>
+			</button>
+		</div>
 	</div>
 }
 </div>

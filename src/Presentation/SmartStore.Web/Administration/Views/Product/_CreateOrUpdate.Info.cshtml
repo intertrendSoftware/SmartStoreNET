@@ -54,7 +54,9 @@
 					@Html.SmartLabelFor(model => model.ProductUrl)
 				</td>
 				<td class="adminData">
-					<a href="@Model.ProductUrl">@Model.ProductUrl</a>
+					<div class="form-control-plaintext">
+						<a href="@Model.ProductUrl">@Model.ProductUrl</a>
+					</div>
 				</td>
 			</tr>
 		}
@@ -163,7 +165,7 @@
 			</td>
 		</tr>
 	</table>
-					))
+	))
 
 	<table class="adminContent">
 		<tr>

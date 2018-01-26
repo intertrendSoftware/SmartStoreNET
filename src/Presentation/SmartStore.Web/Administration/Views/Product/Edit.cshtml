@@ -20,7 +20,7 @@
                 <i class="fa fa-eye"></i>
                 @T("Admin.Common.Preview")
             </button>
-			<button type="submit" value="save" class="btn btn-primary entity-commit-trigger" data-commit-type="product" data-commit-action="update" data-commit-id="@Model.Id">
+			<button type="submit" value="save" class="btn btn-warning entity-commit-trigger" data-commit-type="product" data-commit-action="update" data-commit-id="@Model.Id">
 				<i class="fa fa-check"></i>
 				@T("Admin.Common.Save")
 			</button>
@@ -51,43 +51,40 @@
     @using (Html.BeginForm("CopyProduct", "Product", FormMethod.Post, new { style = "margin:0;" }))
     {
         @Html.HiddenFor(model => Model.CopyProductModel.Id)
-
-		<div class="dialog-content-container">
-			<table class="adminContent">
-                <tr>
-                    <td class="adminTitle">
-                        @Html.SmartLabelFor(model => model.CopyProductModel.NumberOfCopies)
-                    </td>
-                    <td class="adminData">
-                        @Html.EditorFor(model => Model.CopyProductModel.NumberOfCopies, new { small = true })
-                    </td>
-                </tr>
-			    <tr>
-				    <td class="adminTitle">
-					    @Html.SmartLabelFor(model => model.CopyProductModel.Name)
-				    </td>
-				    <td class="adminData">
-					    @Html.EditorFor(model => Model.CopyProductModel.Name)
-				    </td>
-			    </tr>
-			    <tr>
-				    <td class="adminTitle">
-					    @Html.SmartLabelFor(model => model.CopyProductModel.Published)
-				    </td>
-				    <td class="adminData">
-					    @Html.EditorFor(model => Model.CopyProductModel.Published)
-				    </td>
-			    </tr>
-			    <tr>
-				    <td class="adminTitle">
-					    @Html.SmartLabelFor(model => model.CopyProductModel.CopyImages)
-				    </td>
-				    <td class="adminData">
-					    @Html.EditorFor(model => Model.CopyProductModel.CopyImages)
-				    </td>
-			    </tr>
-			</table>
-		</div>
+		<table class="adminContent">
+            <tr>
+                <td class="adminTitle">
+                    @Html.SmartLabelFor(model => model.CopyProductModel.NumberOfCopies)
+                </td>
+                <td class="adminData">
+                    @Html.EditorFor(model => Model.CopyProductModel.NumberOfCopies, new { small = true })
+                </td>
+            </tr>
+			<tr>
+				<td class="adminTitle">
+					@Html.SmartLabelFor(model => model.CopyProductModel.Name)
+				</td>
+				<td class="adminData">
+					@Html.EditorFor(model => Model.CopyProductModel.Name)
+				</td>
+			</tr>
+			<tr>
+				<td class="adminTitle">
+					@Html.SmartLabelFor(model => model.CopyProductModel.Published)
+				</td>
+				<td class="adminData">
+					@Html.EditorFor(model => Model.CopyProductModel.Published)
+				</td>
+			</tr>
+			<tr>
+				<td class="adminTitle">
+					@Html.SmartLabelFor(model => model.CopyProductModel.CopyImages)
+				</td>
+				<td class="adminData">
+					@Html.EditorFor(model => Model.CopyProductModel.CopyImages)
+				</td>
+			</tr>
+		</table>
     }
     </text>)
     .FooterContent(@<text>

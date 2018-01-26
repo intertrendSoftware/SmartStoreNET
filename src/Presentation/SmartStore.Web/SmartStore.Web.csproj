@@ -673,6 +673,7 @@
     <Content Include="Content\editors\ckeditor\styles.js" />
     <Content Include="Content\editors\CodeMirror\addon\display\fullscreen.css" />
     <Content Include="Content\editors\CodeMirror\addon\fold\xml-fold.min.js" />
+    <Content Include="Content\editors\CodeMirror\addon\mode\colorize.js" />
     <Content Include="Content\editors\CodeMirror\addon\selection\active-line.min.js" />
     <Content Include="Content\editors\CodeMirror\addon\edit\closebrackets.min.js" />
     <Content Include="Content\editors\CodeMirror\addon\edit\closetag.min.js" />
@@ -680,6 +681,7 @@
     <Content Include="Content\editors\CodeMirror\codemirror.min.js" />
     <Content Include="Content\editors\CodeMirror\addon\hint\css-hint.min.js" />
     <Content Include="Content\editors\CodeMirror\addon\display\fullscreen.min.js" />
+    <Content Include="Content\editors\CodeMirror\mode\clike\clike.js" />
     <Content Include="Content\editors\CodeMirror\mode\css\css.min.js" />
     <Content Include="Content\editors\CodeMirror\codemirror.min.css" />
     <Content Include="Content\editors\CodeMirror\theme\eclipse.min.css" />
@@ -1004,10 +1006,7 @@
     <Content Include="Content\samples\wayfarer_havana_black.png" />
     <Content Include="Content\samples\wayfarer_rayban-black.png" />
     <Content Include="Content\x-editable\bootstrap-editable.css" />
-    <Content Include="Content\x-editable\img\clear.png" />
-    <Content Include="Content\x-editable\img\loading.gif" />
     <Content Include="Content\x-editable\bootstrap-editable.js" />
-    <Content Include="Content\x-editable\bootstrap-editable.min.js" />
     <Content Include="favicon.ico" />
     <Content Include="Content\install\install.less" />
     <Content Include="Content\install\variables.custom.less" />
@@ -1203,6 +1202,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Scripts\underscore.min.map" />
+    <Content Include="Themes\Flex\Content\shared\_utils.scss" />
     <None Include="Themes\Flex\Content\vendors\photoswipe\LICENSE" />
     <None Include="Themes\Flex\Content\vendors\drift\LICENSE" />
     <Content Include="Themes\Flex\Content\vendors\photoswipe\photoswipe-ui-default.js" />
@@ -1967,7 +1967,6 @@
     <Content Include="Views\Shared\Partials\Comment.Item.cshtml" />
     <Content Include="Views\Shared\Partials\Comment.List.cshtml" />
     <Content Include="Views\ShoppingCart\Partials\WishlistItems.cshtml" />
-    <Content Include="Themes\Flex\Content\_core.scss" />
     <Content Include="Themes\Flex\Content\shared\_card.scss" />
     <Content Include="Themes\Flex\Content\_block.scss" />
     <Content Include="Themes\Flex\Content\_choice.scss" />

@@ -78,7 +78,6 @@
 		bootstrap4JsRoot + "bootstrap.bundle.js",
 		//bootstrapJsRoot + "bootstrap-typeahead.js",
 		// Vendors
-		vendorsRoot + "colorpicker/js/bootstrap-colorpicker.js",
 		vendorsRoot + "datetimepicker/js/tempusdominus-bootstrap-4.js",
 		vendorsRoot + "select2/js/select2.js",
 		// Shared UI
@@ -87,7 +86,6 @@
 		"~/Scripts/smartstore.throbber.js",
 		//"~/Scripts/smartstore.navbar.js",
 		"~/Scripts/smartstore.thumbzoomer.js",
-		"~/Scripts/smartstore.column-equalizer.js",
 		"~/Scripts/smartstore.shrinkmenu.js",
 		"~/Scripts/smartstore.scrollbutton.js",
 		"~/Scripts/jquery.pnotify.js",
@@ -102,8 +100,8 @@
 <head>
     <title>@adminPageTitle</title>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge; chrome=1" />
 
     @{ Html.RenderPartial("_ClientRes"); }
     @{ Html.RenderPartial("ConditionalComments"); }
@@ -117,9 +115,14 @@
 	@Html.CustomHead()
 
 	<script src="~/Scripts/smartstore.globalization.adapter.js"></script>
+
+	@{ Html.RenderZone("head"); }
 </head>
 <body class="@Html.BodyCssClass()"@(Html.BodyId())>   
+	@{ Html.RenderZone("start"); }
 	@RenderBody()
+	@{ Html.RenderZone("end"); }
+
 	@RenderSection("foot", required: false)
     @Html.SmartCssFiles(this.Url, ResourceLocation.Foot)
     @Html.SmartScripts(this.Url, ResourceLocation.Foot)

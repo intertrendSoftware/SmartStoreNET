@@ -123,7 +123,9 @@
 				}
 				else
 				{
-					<input class="form-control-plaintext" readonly="readonly" type="text" value="@T("Admin.Promotions.Discounts.NoObjectsAssigned")">
+					<div class="form-control-plaintext">
+						@T("Admin.Promotions.Discounts.NoObjectsAssigned")
+					</div>
                 }
             </td>
         </tr>
@@ -134,7 +136,9 @@
 			<td class="adminData">
 				@if (!Model.AppliedToManufacturerModels.Any())
 				{
-					<input class="form-control-plaintext" readonly="readonly" type="text" value="@T("Admin.Promotions.Discounts.NoObjectsAssigned")">
+					<div class="form-control-plaintext">
+						@T("Admin.Promotions.Discounts.NoObjectsAssigned")
+					</div>
 				}
 				@foreach (var manu in Model.AppliedToManufacturerModels)
 				{
@@ -164,7 +168,9 @@
 				}
 				else
 				{
-					<input class="form-control-plaintext" readonly="readonly" type="text" value="@T("Admin.Promotions.Discounts.NoObjectsAssigned")">
+					<div class="form-control-plaintext">
+						@T("Admin.Promotions.Discounts.NoObjectsAssigned")
+					</div>
 				}
             </td>
         </tr>
@@ -245,7 +251,7 @@
                 @Html.SmartLabelFor(model => model.LimitationTimes)
             </td>
             <td class="adminData">
-                @Html.EditorFor(model => model.LimitationTimes, new { postfix = @T("Admin.Promotions.Discounts.Fields.LimitationTimes.Times") })
+                @Html.EditorFor(model => model.LimitationTimes, new { postfix = T("Admin.Promotions.Discounts.Fields.LimitationTimes.Times").Text })
                 @Html.ValidationMessageFor(model => model.LimitationTimes) 
             </td>
         </tr>
@@ -353,7 +359,7 @@
                    var url = discountRequirements[i].url;
                    var discountRequirementId = discountRequirements[i].discountRequirementId;
                    var placeholderName = '#editrequirementplaceholder' + discountRequirementId;
-                   $(placeholderName).html('loading...');
+				   $(placeholderName).html('<i class="fa fa-circle-o-notch fa-spin"></i>');
                    loadRequirement(url, placeholderName);
                }
            }
@@ -394,8 +400,8 @@
     <script id="discountRequirementTemplate" type="text/html">
             <div id="editrequirement{{= discountRequirementId }}">
                 <div>@T("Admin.Promotions.Discounts.Requirements.DiscountRequirementType"): <b>{{= ruleName }}</b></div>
-                <div id="editrequirementplaceholder{{= discountRequirementId }}" style="float:left;"></div>
-                <div style="float:right;">
+                <div id="editrequirementplaceholder{{= discountRequirementId }}"></div>
+                <div>
                     <button type="button" name="deleterequirement{{= discountRequirementId }}" id="deleterequirement{{= discountRequirementId }}" onclick="deleteRequirement({{= discountRequirementId }})" class="btn btn-danger">
 						<i class="fa fa-trash-o"></i>
 						@T("Common.Remove")

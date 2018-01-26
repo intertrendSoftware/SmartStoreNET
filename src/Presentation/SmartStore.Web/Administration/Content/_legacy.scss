@@ -4,9 +4,7 @@
 /* Variabe shims
 -------------------------------------------------------------- */
 
-$dropdownLinkBackgroundHover:           #f5f5f5;
-$btnWarningBackground:                  #7986cb;   
-$navbarInverseBackground:               theme-color("primary");            
+$btnWarningBackground:                  #7986cb;             
 
 
 /* General
@@ -17,14 +15,6 @@ a:hover {
 	outline: 0;
 }
 
-.dropdown-menu .fa,
-.btn > .fa {
-	font-size: 14px;
-}
-
-.dropdown-item:not(:hover):not(:active):not(:visited) > .fa {
-	color: #6d6d6d;
-}
 
 /* Page
 -------------------------------------------------------------- */
@@ -34,11 +24,6 @@ a:hover {
 	margin: 0;
 	padding: 0;
 }
-
-body:not(.popup) #page {
-	min-width: 900px;
-}
-
 
 
 /* Warning panel message
@@ -72,7 +57,7 @@ body:not(.popup) #page {
 -------------------------------------------------------------- */
 
 header {
-	@include gradient-bg($primary);
+	@include gradient-bg($indigo);
 	padding-bottom: 50px;
 }
 
@@ -140,8 +125,7 @@ header {
 		    color: #fff;
 	    }
 
-	    .navbar-label { 
-		    display: block;
+	    .navbar-label {
             @include text-truncate();
 		    text-align: center;	
 		    font-size: 11px;
@@ -166,28 +150,6 @@ header {
 	    background-color: $red;
 	    color: #fff;
     }
-}
-
-
-/* Navbar overrides
--------------------------------------------------------------- */
-.navbar .nav {
-	font-family: Tahoma, $font-family-base;
-}
-
-.navbar.navbar-inverse .navbar-inner {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	background: $navbarInverseBackground;
-	//background-image: none;
-	box-shadow: none;
-	border-radius: 0;
-}
-
-.navbar.navbar-inverse .navbar-inner .brand {
-	margin: 0;
-	padding-left: 30px;
 }
 
 
@@ -276,19 +238,30 @@ header {
 }
 
 #content {
-    position: relative;
-    height: auto;
-    margin: 0 30px;
+	position: relative;
+	height: auto;
+	margin: 0 15px;
 	margin-top: -50px;
-    background-color: #fff;
-    padding: 15px 30px 60px 30px;
-    box-shadow: 0 0 6px rgba(0,0,0, 0.2);
+	background-color: #fff;
+	padding: 15px;
+	padding-bottom: 60px;
+	box-shadow: 0 0 6px rgba(0,0,0, 0.2);
+	border-top-left-radius: $border-radius;
+	border-top-right-radius: $border-radius;
+
+	@include media-breakpoint-up(lg) {
+		margin-left: 30px;
+		margin-right: 30px;
+		padding-left: 30px;
+		padding-right: 30px;
+	}
 }
 
 .popup #content {
     margin: 0;
     border: 0;
 	box-shadow: none;
+	border-radius: 0;
 }
 
 .adminData {
@@ -303,6 +276,9 @@ header {
 }
 
 .admin-config-group {
+	display: block;
+	width: 100%;
+
 	.title,
 	.small-title,
 	.head {
@@ -336,10 +312,6 @@ header {
 
 /* "select2" ui tweaks for admin
 -------------------------------------------------------------- */
-
-/*.select2-container:not(.autowidth) {
-    min-width: 314px; // ensures more clean look & feel
-}*/
 
 .select2-image-item {
 	img {
@@ -469,19 +441,20 @@ label.forcheckbox {
         flex-grow: 1;
         max-width: 100%;
 	    
-		.fa {
+		> .fa {
 			font-size: 28px;
 			vertical-align: text-top;
+			margin-right: 0.5rem;
 		}
 
-		img {
+		> img {
 		    max-height: $input-height;
 			max-width: 120px;
 			margin-right: 5px;
 		    vertical-align: top;
 		}
 		
-		a {
+		a:not(.btn) {
 			text-decoration: none;
 			font-family: $font-family-sans-serif;
 			font-size: 12px;
@@ -496,7 +469,7 @@ label.forcheckbox {
         max-width: none; // Reset earlier grid tiers
         padding-left: 5px;
         padding-right: 0;
-
+		> * { vertical-align: middle; }
 	    &.btn-toolbar { margin: 0; }
 	}
     
@@ -507,8 +480,9 @@ label.forcheckbox {
 		right: 30px;
         margin-left: 0;
         margin-right: 0;
-		background: #f7f7f7;
-		border-bottom: 1px solid rgba(0,0,0, 0.1);
+		background: $gray-100;
+		background: #fff;
+		border-bottom: 1px solid rgba(0,0,0, 0.08);
     }
 }
 
@@ -543,10 +517,6 @@ label.forcheckbox {
 *.multi-store-scope {
     label.checkbox {
         margin: 4px 0 1px 3px;
-
-        /*.hint {
-            .smaller();
-        }*/
     }
 }
 
@@ -580,36 +550,7 @@ table.adminContent {
     text-align: left;
 }
 
-.adminTitle > .ctl-label {
-	position: relative;
 
-	label {
-		display: inline-block;
-		padding-right: 20px;
-		margin-bottom: 0 !important;
-	}
-
-	a.hint {
-		$hintColor: #999; //#21759b
-		position: absolute;
-		width: 16px;
-		height: 16px;
-		right: 0;
-		top: 50%;
-		margin-top: -8px;
-		text-decoration: none;
-		outline: 0;
-		color: $hintColor;
-		transition: all .1s linear;
-		opacity: 0;
-		&:hover { 
-			color: darken($hintColor, 25%) 
-		}
-		.fa { 
-			font-size: 16px;
-		}
-	}
-}
 tr.adminGroup {
 	> td {
 		padding-top: 18px;
@@ -619,10 +560,6 @@ tr.adminGroup {
 		padding-bottom: 3px;
 		text-decoration: underline;
 	}
-}
-
-.adminTitle:hover a.hint {
-	opacity: 1;
 }
 
 
@@ -662,28 +599,7 @@ tr.adminGroup {
 	}
 }
 
-.admin-table {
-    thead th {
-        text-transform: uppercase;
-    }
-    th, td {
-        padding: 12px;
-    }
-	.disabled {
-		color: $text-muted;
-	}
-	.progress-info {
-		min-width: 260px;
-	}
-	select, input {
-		margin-bottom: 0;
-	}
-}
-
 /* SERVER CONTROLS */
-label {
-    padding-left: 3px;
-}
 
 /* MISC. CLASSES */
 .clear {
@@ -717,16 +633,6 @@ label {
     & a {
         text-decoration: none;
     }
-}
-
-a img {
-    border: 0;
-}
-
-legend {
-    font-family: $headings-font-family;
-    font-weight: $headings-font-weight;
-    font-size: 18px;
 }
 
 /* MASTER CONTENT */
@@ -886,7 +792,8 @@ table.order-edit td {
 .module-data-cols-4 .module-col { width: 25%; }
 
 .module-name {
-	font-weight: bold;
+	font-weight: $font-weight-medium;
+	font-size: $font-size-lg;
 	margin-right: 5px;
 }
 
@@ -967,70 +874,6 @@ table.payment-method-features td {
 		vertical-align: top;
 	}
 }
-
-/* Themes */
-#theme-list {
-	min-width: 820px; // 3 items in a row
-	max-width: 1360px; // 5 items
-
-	.theme-item {
-		position: relative; 
-		float: left; 
-		width: 250px; 
-		margin: 0 20px 20px 0; 
-		border: 1px solid #ccc;
-	}
-	.theme-thumbnail-wrapper,
-	.theme-data {
-		padding: 8px;
-	}
-	.theme-thumbnail {
-		height: 220px;
-		background-size: cover;
-	}
-	.theme-data h4 {
-		margin-top: 0;
-		color: #333;
-	}
-	.theme-data h4 > small {
-		/*.smaller();*/
-        font-size: $font-size-sm;
-		font-weight: normal;
-	}
-	.theme-info {
-		font-size: 12px;
-		line-height: 16px;
-	}
-	.theme-buttons {
-		margin-top: 15px;
-	}
-	.theme-broken-badge {
-		position: absolute;
-		background-color: $red;
-		color: #fff;
-		right: 0;
-		bottom: 0;
-		padding: 8px 12px;
-		font-size: 20px;
-	}
-}
-
-.theme-editor {
-	.form-control {
-		width: 400px;
-	}
-
-	.colorpicker-component .form-control {
-		width: 372px;
-	}
-}
-
-.themevar-chain-info {
-	color: #bbb;
-	margin-left: 10px;
-	vertical-align: middle;
-}
-
 
 .slides-title {
 	position: relative;
@@ -1115,6 +958,7 @@ table.payment-method-features td {
 		position: absolute;
 		z-index: 0;
 		opacity: 0;
+		margin: 0;
 	}
 
 	> input[type=checkbox]:checked ~ .switch-toggle {

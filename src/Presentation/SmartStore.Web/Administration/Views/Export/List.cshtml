@@ -9,8 +9,16 @@
 
 <div class="section-header">
     <div class="title">
-		<i class="fa fa-upload"></i>&nbsp;@T("Common.Export")
+		<i class="fa fa-upload"></i>
+		<span>@T("Common.Export")</span>
     </div>
+
+	<div class="options">
+		<a href="javascript:void(0)" data-url="@Url.Action("Create")" class="btn btn-primary export-profile-button">
+			<i class="fa fa-plus"></i>
+			<span>@T("Admin.DataExchange.AddNewProfile")</span>
+		</a>
+	</div>
 </div>
 
 <div id="ExportProfileListContainer">
@@ -20,26 +28,38 @@
     }
 </div>
 
-<div id="export-profile-dialog" class="modal modal-large hide fade" tabindex="-1" data-profile="@T("Common.Profile")">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal"><b>&#215;</b></button>
-		<h4 class="caption"></h4>
-	</div>
-	<div class="modal-body"></div>
-	<div class="modal-footer">
-		<button class="btn btn-primary">@T("Common.OK")</button>
-		<button class="btn" data-dismiss="modal">@T("Common.Cancel")</button>
+<div id="export-profile-dialog" class="modal fade" tabindex="-1" data-profile="@T("Common.Profile")">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body"></div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary btn-flat" data-dismiss="modal">@T("Common.Cancel")</button>
+				<button class="btn btn-primary">@T("Common.OK")</button>
+			</div>
+		</div>
 	</div>
 </div>
 
-<div id="export-profile-file-dialog" class="modal modal-xlarge hide fade" tabindex="-1">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal"><b>&#215;</b></button>
-		<h4 class="caption">@T("Admin.DataExchange.Export.ExportFiles")</h4>
-	</div>
-	<div class="modal-body"></div>
-	<div class="modal-footer">
-		<button class="btn" data-dismiss="modal">@T("Common.Cancel")</button>
+<div id="export-profile-file-dialog" class="modal fade" tabindex="-1">
+	<div class="modal-dialog modal-flex modal-flex-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">@T("Admin.DataExchange.Export.ExportFiles")</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body"></div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary btn-flat" data-dismiss="modal">@T("Common.Cancel")</button>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -53,7 +73,7 @@
 			e.preventDefault();
 
 			dialog.find('.modal-body').empty();
-			dialog.find('.caption').text(dialog.attr('data-profile') + ' - ' + $.trim($(this).text()));
+			dialog.find('.modal-title').text(dialog.attr('data-profile') + ' - ' + $.trim($(this).text()));
 			showPrimaryButton(false);
 
 			$(this).doAjax({
@@ -62,7 +82,7 @@
 				callbackSuccess: function (resp) {
 					dialog.find('.modal-body').html(resp);
 
-					$('select[name="ProviderSystemName"]').select2({
+					$('select[name="ProviderSystemName"]').selectWrapper({
 						minimumResultsForSearch: 16,
 						formatResult: providerSelectItemFormatting,
 						formatSelection: providerSelectItemFormatting
@@ -70,7 +90,7 @@
 
 					toggleProviderDescription();
 
-					$('select[name="CloneProfileId"]').select2({
+					$('select[name="CloneProfileId"]').selectWrapper({
 						allowClear: true,
 						minimumResultsForSearch: 16,
 						formatResult: profileSelectItemFormatting,
@@ -143,7 +163,7 @@
 					option = $('select[name="ProviderSystemName"]').find('option[value="' + item.id + '"]');
 				}
 
-				var html = '<div class="large-select2-item">',
+				var html = '<div class="large-select2-item mr-2">',
 					imageUrl = option.data('imageurl');
 
 				if (imageUrl)
