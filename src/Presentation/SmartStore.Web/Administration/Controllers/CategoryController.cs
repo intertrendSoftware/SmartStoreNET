@@ -185,13 +185,15 @@ namespace SmartStore.Admin.Controllers
             );
 
 			// add available badges
-			model.AvailableBadgeStyles.Add(new SelectListItem { Value = "0", Text = "Default", Selected = model.BadgeStyle == 0 });
+			model.AvailableBadgeStyles.Add(new SelectListItem { Value = "0", Text = "Secondary", Selected = model.BadgeStyle == 0 });
             model.AvailableBadgeStyles.Add(new SelectListItem { Value = "1", Text = "Primary", Selected = model.BadgeStyle == 1 });
             model.AvailableBadgeStyles.Add(new SelectListItem { Value = "2", Text = "Success", Selected = model.BadgeStyle == 2 });
             model.AvailableBadgeStyles.Add(new SelectListItem { Value = "3", Text = "Info", Selected = model.BadgeStyle == 3 });
             model.AvailableBadgeStyles.Add(new SelectListItem { Value = "4", Text = "Warning", Selected = model.BadgeStyle == 4 });
             model.AvailableBadgeStyles.Add(new SelectListItem { Value = "5", Text = "Danger", Selected = model.BadgeStyle == 5 });
-        }
+			model.AvailableBadgeStyles.Add(new SelectListItem { Value = "6", Text = "Light", Selected = model.BadgeStyle == 6 });
+			model.AvailableBadgeStyles.Add(new SelectListItem { Value = "7", Text = "Dark", Selected = model.BadgeStyle == 7});
+		}
 
         [NonAction]
         private void PrepareAclModel(CategoryModel model, Category category, bool excludeProperties)
@@ -243,14 +245,7 @@ namespace SmartStore.Admin.Controllers
 
 			if (!excludeProperties)
 			{
-				if (category != null)
-				{
-					model.SelectedStoreIds = _storeMappingService.GetStoresIdsWithAccess(category);
-				}
-				else
-				{
-					model.SelectedStoreIds = new int[0];
-				}
+				model.SelectedStoreIds = _storeMappingService.GetStoresIdsWithAccess(category);
 			}
 
 			model.AvailableStores = _storeService.GetAllStores().ToSelectListItems(model.SelectedStoreIds);
@@ -317,8 +312,8 @@ namespace SmartStore.Admin.Controllers
             };
         }
 
-        // Ajax
-        public ActionResult AllCategories(string label, int selectedId)
+		// Ajax
+		public ActionResult AllCategories(string label, int selectedId)
         {
 			var categoryTree = _categoryService.GetCategoryTree(includeHidden: true);
 			var categories = categoryTree.Flatten(false);
@@ -338,39 +333,41 @@ namespace SmartStore.Admin.Controllers
 					selected = c.Id == selectedId
 				};
 
-			var data = query.ToList();
+			var mainList = query.ToList();
 
-			var mru = new MostRecentlyUsedList<string>(_workContext.CurrentCustomer.GetAttribute<string>(SystemCustomerAttributeNames.MostRecentlyUsedCategories),
-				_catalogSettings.MostRecentlyUsedCategoriesMaxSize);
-
-			// TODO: insert disabled option separator (select2 v.3.4.2 or higher required)
-			//if (mru.Count > 0)
-			//{
-			//	data.Insert(0, new
-			//	{
-			//		id = "",
-			//		text = "----------------------",
-			//		selected = false,
-			//		disabled = true
-			//	});
-			//}
-
-			for (int i = mru.Count - 1; i >= 0; --i)
-			{
-				string id = mru[i];
-				var item = categoryTree.SelectNodeById(id);
-				if (item != null)
+			var mruList = new MostRecentlyUsedList<string>(
+				_workContext.CurrentCustomer.GetAttribute<string>(SystemCustomerAttributeNames.MostRecentlyUsedCategories),
+				_catalogSettings.MostRecentlyUsedCategoriesMaxSize)
+				.Reverse()
+				.Select(x =>
 				{
-					data.Insert(0, new
+					var item = categoryTree.SelectNodeById(x.ToInt());
+					if (item != null)
 					{
-						id = id,
-						text = _categoryService.GetCategoryPath(item),
-						selected = false
-					});
-				}
+						return new
+						{
+							id = x,
+							text = _categoryService.GetCategoryPath(item),
+							selected = false
+						};
+					}
+
+					return null;
+				})
+				.Where(x => x != null)
+				.ToList();
+
+			object data = mainList;
+			if (mruList.Count > 0)
+			{
+				data = new List<object>
+				{
+					new Dictionary<string, object> { ["text"] = T("Common.Mru").Text, ["children"] = mruList },
+					new Dictionary<string, object> { ["text"] = T("Admin.Catalog.Categories").Text, ["children"] = mainList, ["main"] = true }
+				};
 			}
 
-            return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+			return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
         public ActionResult Tree()

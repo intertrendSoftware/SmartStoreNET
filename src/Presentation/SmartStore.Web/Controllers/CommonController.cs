@@ -406,8 +406,9 @@ namespace SmartStore.Web.Controllers
 				DisplayAdminLink = _services.Permissions.Authorize(StandardPermissionProvider.AccessAdminPanel),
 				ShoppingCartEnabled = _services.Permissions.Authorize(StandardPermissionProvider.EnableShoppingCart) && _shoppingCartSettings.MiniShoppingCartEnabled,
 				WishlistEnabled = _services.Permissions.Authorize(StandardPermissionProvider.EnableWishlist),
-                CompareProductsEnabled = _catalogSettings.CompareProductsEnabled            
-            };
+                CompareProductsEnabled = _catalogSettings.CompareProductsEnabled,
+				PublicStoreNavigationAllowed = _services.Permissions.Authorize(StandardPermissionProvider.PublicStoreAllowNavigation)
+			};
 
 			return PartialView(model);
         }
@@ -480,8 +481,9 @@ namespace SmartStore.Web.Controllers
             model.TwitterLink = _socialSettings.Value.TwitterLink;
             model.PinterestLink = _socialSettings.Value.PinterestLink;
             model.YoutubeLink = _socialSettings.Value.YoutubeLink;
-
-			model.SmartStoreHint = "<a href='http://www.smartstore.com/' class='sm-hint' target='_blank'><strong>{0}</strong></a> by SmartStore AG &copy; {1}"
+			model.InstagramLink = _socialSettings.Value.InstagramLink;
+			
+			model.SmartStoreHint = "<a href='https://www.smartstore.com/' class='sm-hint' target='_blank'><strong>{0}</strong></a> by SmartStore AG &copy; {1}"
 				.FormatCurrent(hint, DateTime.Now.Year);
 
             return PartialView(model);
@@ -636,8 +638,6 @@ namespace SmartStore.Web.Controllers
             var disallowPaths = new List<string>()
             {
                 "/bin/",
-                "/Content/files/",
-                "/Content/files/ExportImport/",
 				"/Exchange/",
                 "/Country/GetStatesByCountryId",
                 "/Install",
@@ -694,7 +694,7 @@ namespace SmartStore.Web.Controllers
             var sb = new StringBuilder();
             sb.Append("User-agent: *");
             sb.Append(newLine);
-			sb.AppendFormat("Sitemap: {0}", Url.RouteUrl("SitemapSEO", (object)null, _securitySettings.Value.ForceSslForAllPages ? "https" : "http"));
+			sb.AppendFormat("Sitemap: {0}", Url.RouteUrl("SitemapSEO", (object)null, _services.StoreContext.CurrentStore.ForceSslForAllPages ? "https" : "http"));
 			sb.AppendLine();
 
 			var disallows = disallowPaths.Concat(localizableDisallowPaths);

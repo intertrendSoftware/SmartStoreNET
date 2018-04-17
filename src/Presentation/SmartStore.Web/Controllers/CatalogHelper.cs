@@ -294,11 +294,11 @@ namespace SmartStore.Web.Controllers
 						bundledProductModel.BundleItem.IsBundleItemPricing = item.BundleProduct.BundlePerItemPricing;
 
 						var bundleItemName = item.GetLocalized(x => x.Name);
-						if (bundleItemName.HasValue())
+						if (bundleItemName.Value.HasValue())
 							bundledProductModel.Name = bundleItemName;
 
 						var bundleItemShortDescription = item.GetLocalized(x => x.ShortDescription);
-						if (bundleItemShortDescription.HasValue())
+						if (bundleItemShortDescription.Value.HasValue())
 							bundledProductModel.ShortDescription = bundleItemShortDescription;
 
 						model.BundledItems.Add(bundledProductModel);
@@ -1169,14 +1169,17 @@ namespace SmartStore.Web.Controllers
                                 (product.Price - finalPriceWithDiscount) * (-1));
 						}
 
-						// Calculate saving
-						var regularPriceValue = Math.Max(finalPriceWithoutDiscount, oldPrice);
-						var currentPriceValue = finalPriceWithDiscount;
+						// Calculate saving.
+						// Discounted price has priority over the old price (avoids differing percentage discount in product lists and detail page).
+						//var regularPrice = Math.Max(finalPriceWithoutDiscount, oldPrice);
+						var regularPrice = finalPriceWithDiscount < finalPriceWithoutDiscount
+							? finalPriceWithoutDiscount
+							: oldPrice;
 
-						if (regularPriceValue > 0 && regularPriceValue > currentPriceValue)
+						if (regularPrice > 0 && regularPrice > finalPriceWithDiscount)
 						{
-							model.ProductPrice.SavingPercent = (float)((regularPriceValue - currentPriceValue) / regularPriceValue) * 100;
-							model.ProductPrice.SavingAmount = _priceFormatter.FormatPrice(regularPriceValue - currentPriceValue, true, false);
+							model.ProductPrice.SavingPercent = (float)((regularPrice - finalPriceWithDiscount) / regularPrice) * 100;
+							model.ProductPrice.SavingAmount = _priceFormatter.FormatPrice(regularPrice - finalPriceWithDiscount, true, false);
 						}
 					}
 				}
@@ -1309,11 +1312,23 @@ namespace SmartStore.Web.Controllers
 
 		public IList<ProductSpecificationModel> PrepareProductSpecificationModel(Product product)
 		{
-			if (product == null)
-				throw new ArgumentNullException("product");
+			Guard.NotNull(product, nameof(product));
+			
+			if (_services.Cache.IsDistributedCache)
+			{
+				// How bad we cannot cache LocalizedValue in distributed caches
+				return Execute();
+			}
+			else
+			{
+				string cacheKey = string.Format(ModelCacheEventConsumer.PRODUCT_SPECS_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id);
+				return _services.Cache.Get(cacheKey, () =>
+				{
+					return Execute();
+				});
+			}
 
-			string cacheKey = string.Format(ModelCacheEventConsumer.PRODUCT_SPECS_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id);
-			return _services.Cache.Get(cacheKey, () =>
+			List<ProductSpecificationModel> Execute()
 			{
 				var model = _specificationAttributeService.GetProductSpecificationAttributesByProductId(product.Id, null, true)
 				   .Select(psa =>
@@ -1325,8 +1340,9 @@ namespace SmartStore.Web.Controllers
 						   SpecificationAttributeOption = psa.SpecificationAttributeOption.GetLocalized(x => x.Name)
 					   };
 				   }).ToList();
+
 				return model;
-			});
+			}
 		}
 
 		public NavigationModel PrepareCategoryNavigationModel(int currentCategoryId, int currentProductId)
@@ -1377,8 +1393,8 @@ namespace SmartStore.Web.Controllers
 					item = new ManufacturerOverviewModel
 					{
 						Id = manufacturer.Id,
-						Name = manufacturer.Name,
-						Description = manufacturer.Description,
+						Name = manufacturer.GetLocalized(x => x.Name),
+						Description = manufacturer.GetLocalized(x => x.Description, true),
 						SeName = manufacturer.GetSeName()
 
 					};

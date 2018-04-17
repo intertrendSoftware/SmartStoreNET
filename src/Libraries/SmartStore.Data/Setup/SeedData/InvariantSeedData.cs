@@ -49,8 +49,8 @@ namespace SmartStore.Data.Setup
 		{
 			this._ctx = context;
 
-			this._sampleImagesPath = CommonHelper.MapPath("~/content/samples/");
-			this._sampleDownloadsPath = CommonHelper.MapPath("~/content/samples/");
+			this._sampleImagesPath = CommonHelper.MapPath("~/App_Data/Samples/");
+			this._sampleDownloadsPath = CommonHelper.MapPath("~/App_Data/Samples/");
 		}
 
 		#region Mandatory data creators
@@ -4017,9 +4017,6 @@ namespace SmartStore.Data.Setup
 				{
 					BaseDimensionId = _ctx.Set<MeasureDimension>().Where(m => m.SystemKeyword == "inch").Single().Id,
 					BaseWeightId = _ctx.Set<MeasureWeight>().Where(m => m.SystemKeyword == "lb").Single().Id,
-				},
-				new MessageTemplatesSettings()
-				{
 				},
 				new ShoppingCartSettings()
 				{

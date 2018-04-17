@@ -205,7 +205,7 @@ namespace SmartStore.Services.Orders
 			if (shippingOption != null)
 			{
 				// use last shipping option (get from cache)
-				var shippingMethods = _shippingService.GetAllShippingMethods();
+				var shippingMethods = _shippingService.GetAllShippingMethods(null, storeId);
 				shippingTotal = AdjustShippingRate(shippingOption.Rate, cart, shippingOption.Name, shippingMethods, out appliedDiscount);
 			}
 			else
@@ -1101,8 +1101,9 @@ namespace SmartStore.Services.Orders
 
         public virtual ShoppingCartTotal GetShoppingCartTotal(
             IList<OrganizedShoppingCartItem> cart,
-            bool ignoreRewardPonts = false,
-            bool usePaymentMethodAdditionalFee = true)
+            bool ignoreRewardPoints = false,
+            bool usePaymentMethodAdditionalFee = true,
+			bool ignoreCreditBalance = false)
         {
             var customer = cart.GetCustomer();
             var store = _storeContext.CurrentStore;
@@ -1214,7 +1215,7 @@ namespace SmartStore.Services.Orders
             var redeemedRewardPointsAmount = decimal.Zero;
 
             if (_rewardPointsSettings.Enabled &&
-                !ignoreRewardPonts && customer != null &&
+                !ignoreRewardPoints && customer != null &&
                 customer.GetAttribute<bool>(SystemCustomerAttributeNames.UseRewardPointsDuringCheckout, _genericAttributeService, store.Id))
             {
                 var rewardPointsBalance = customer.GetRewardPointsBalance();
@@ -1235,25 +1236,47 @@ namespace SmartStore.Services.Orders
                 }
             }
 
-            #endregion
+			#endregion
 
-            if (resultTemp < decimal.Zero)
+			if (resultTemp < decimal.Zero)
             {
                 resultTemp = decimal.Zero;
             }
 
             resultTemp = resultTemp.RoundIfEnabledFor(currency);
 
-            // Return null if we have errors
-            var roundingAmount = decimal.Zero;
+			// Return null if we have errors
+			var roundingAmount = decimal.Zero;
             var roundingAmountConverted = decimal.Zero;
             var orderTotal = shoppingCartShipping.HasValue ? resultTemp : (decimal?)null;
             var orderTotalConverted = orderTotal;
+			var appliedCreditBalance = decimal.Zero;
 
-            if (orderTotal.HasValue)
+			if (orderTotal.HasValue)
             {
                 orderTotal = orderTotal.Value - redeemedRewardPointsAmount;
-                orderTotal = orderTotal.Value.RoundIfEnabledFor(currency);
+
+				// Credit balance.
+				if (!ignoreCreditBalance && customer != null && orderTotal > decimal.Zero)
+				{
+					var creditBalance = customer.GetAttribute<decimal>(SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, _genericAttributeService, store.Id);
+					if (creditBalance > decimal.Zero)
+					{
+						if (creditBalance > orderTotal)
+						{
+							// Normalize used amount.
+							appliedCreditBalance = orderTotal.Value;
+							_genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, orderTotal.Value,	store.Id);
+						}
+						else
+						{
+							appliedCreditBalance = creditBalance;
+						}
+					}
+				}
+
+				orderTotal = orderTotal.Value - appliedCreditBalance;
+				orderTotal = orderTotal.Value.RoundIfEnabledFor(currency);
 
                 orderTotalConverted = _currencyService.ConvertFromPrimaryStoreCurrency(orderTotal.Value, currency, store);
 
@@ -1276,6 +1299,7 @@ namespace SmartStore.Services.Orders
             result.AppliedGiftCards = appliedGiftCards;
             result.RedeemedRewardPoints = redeemedRewardPoints;
             result.RedeemedRewardPointsAmount = redeemedRewardPointsAmount;
+			result.CreditBalance = appliedCreditBalance;
 
             result.ConvertedFromPrimaryStoreCurrency.TotalAmount = orderTotalConverted;
             result.ConvertedFromPrimaryStoreCurrency.RoundingAmount = roundingAmountConverted;

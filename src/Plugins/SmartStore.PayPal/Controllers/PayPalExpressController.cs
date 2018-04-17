@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Text;
 using System.Web.Mvc;
 using SmartStore.Core.Domain.Customers;
 using SmartStore.Core.Domain.Discounts;
-using SmartStore.Core.Domain.Logging;
 using SmartStore.Core.Domain.Orders;
 using SmartStore.Core.Domain.Shipping;
 using SmartStore.Core.Logging;
 using SmartStore.PayPal.Models;
 using SmartStore.PayPal.PayPalSvc;
-using SmartStore.PayPal.Services;
 using SmartStore.PayPal.Settings;
 using SmartStore.PayPal.Validators;
 using SmartStore.Services.Common;
@@ -55,16 +51,6 @@ namespace SmartStore.PayPal.Controllers
 			_genericAttributeService = genericAttributeService;
 		}
 
-		private SelectList TransactModeValues(TransactMode selected)
-		{
-			return new SelectList(new List<object>
-			{
-				new { ID = (int)TransactMode.Authorize, Name = T("Plugins.Payments.PayPalExpress.ModeAuth") },
-				new { ID = (int)TransactMode.AuthorizeAndCapture, Name = T("Plugins.Payments.PayPalExpress.ModeAuthAndCapture") }
-			},
-			"ID", "Name", (int)selected);
-		}
-
 		private string GetCheckoutButtonUrl(PayPalExpressPaymentSettings settings)
 		{
 			var expressCheckoutButton = "~/Plugins/SmartStore.PayPal/Content/checkout-button-default.png";
@@ -83,38 +69,46 @@ namespace SmartStore.PayPal.Controllers
 
         }
 
-		[LoadSetting, AdminAuthorize, ChildActionOnly]
-		public ActionResult Configure(PayPalExpressPaymentSettings settings)
+		[AdminAuthorize, ChildActionOnly, LoadSetting]
+		public ActionResult Configure(PayPalExpressPaymentSettings settings, int storeScope)
 		{
             var model = new PayPalExpressConfigurationModel();
-
             model.Copy(settings, true);
 
-            model.TransactModeValues = TransactModeValues(settings.TransactMode);
-
-			model.AvailableSecurityProtocols = PayPalService.GetSecurityProtocols()
-				.Select(x => new SelectListItem { Value = ((int)x.Key).ToString(), Text = x.Value })
-				.ToList();
+			PrepareConfigurationModel(model, storeScope);
 
 			return View(model);
 		}
 
-		[SaveSetting, HttpPost, AdminAuthorize, ChildActionOnly]
-		public ActionResult Configure(PayPalExpressPaymentSettings settings, PayPalExpressConfigurationModel model)
+		[HttpPost, AdminAuthorize, ChildActionOnly]
+		public ActionResult Configure(PayPalExpressConfigurationModel model, FormCollection form)
 		{
+			var storeDependingSettingHelper = new StoreDependingSettingHelper(ViewData);
+			var storeScope = this.GetActiveStoreScopeConfiguration(Services.StoreService, Services.WorkContext);
+			var settings = Services.Settings.LoadSetting<PayPalExpressPaymentSettings>(storeScope);
+
 			if (!ModelState.IsValid)
-				return Configure(settings);
+			{
+				return Configure(settings, storeScope);
+			}
 
 			ModelState.Clear();
+			model.Copy(settings, false);
 
-            model.Copy(settings, false);
+			using (Services.Settings.BeginScope())
+			{
+				storeDependingSettingHelper.UpdateSettings(settings, form, storeScope, Services.Settings);
+			}
 
-			// multistore context not possible, see IPN handling
-			Services.Settings.SaveSetting(settings, x => x.UseSandbox, 0, false);
+			using (Services.Settings.BeginScope())
+			{
+				// Multistore context not possible, see IPN handling.
+				Services.Settings.SaveSetting(settings, x => x.UseSandbox, 0, false);
+			}
 
-            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
+			NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-			return Configure(settings);
+			return RedirectToConfiguration(PayPalExpressProvider.SystemName, false);
 		}
 
 		public ActionResult PaymentInfo()

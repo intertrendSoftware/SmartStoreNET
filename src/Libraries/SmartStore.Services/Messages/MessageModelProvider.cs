@@ -94,6 +94,7 @@ namespace SmartStore.Services.Messages
 				{ "TemplateName", messageContext.MessageTemplate.Name },
 				{ "LanguageId", messageContext.Language.Id },
 				{ "LanguageCulture", messageContext.Language.LanguageCulture },
+				{ "LanguageRtl", messageContext.Language.Rtl },
 				{ "BaseUrl", messageContext.BaseUri.ToString() }
 			};
 
@@ -188,7 +189,7 @@ namespace SmartStore.Services.Messages
 					var partType = part.GetType();
 					modelPart = part;
 
-					if (!messageContext.TestMode && partType.IsPlainObjectType() && !partType.IsAnonymous())
+					if (partType.IsPlainObjectType() && !partType.IsAnonymous())
 					{
 						var evt = new MessageModelPartMappingEvent(part);
 						_services.EventPublisher.Publish(evt);
@@ -389,9 +390,12 @@ namespace SmartStore.Services.Messages
 				{ "Copyright", T("Content.CopyrightNotice", messageContext.Language.Id, DateTime.Now.Year.ToString(), part.Name).Text }
 			};
 
-			PublishModelPartCreatedEvent<Store>(part, m);
+			var he = new HybridExpando(true);
+			he.Merge(m, true);
 
-			return m;
+			PublishModelPartCreatedEvent<Store>(part, he);
+
+			return he;
 		}
 
 		protected virtual object CreateModelPart(PictureInfo part, MessageContext messageContext, 
@@ -448,7 +452,7 @@ namespace SmartStore.Services.Messages
 			var additionalShippingChargeFormatted = _services.Resolve<IPriceFormatter>().FormatPrice(additionalShippingCharge, false, currency.CurrencyCode, false, messageContext.Language);
 			var url = productUrlHelper.GetProductUrl(part.Id, part.GetSeName(messageContext.Language.Id), attributesXml);
 			var pictureInfo = GetPictureFor(part, null);
-			var name = part.GetLocalized(x => x.Name, messageContext.Language.Id);
+			var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
 			var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).Text;
 			
 			var m = new Dictionary<string, object>
@@ -456,7 +460,7 @@ namespace SmartStore.Services.Messages
 				{ "Id", part.Id },
 				{ "Sku", catalogSettings.ShowProductSku ? part.Sku : null },
 				{ "Name", name },
-				{ "Description", part.GetLocalized(x => x.ShortDescription, messageContext.Language.Id).NullEmpty() },
+				{ "Description", part.GetLocalized(x => x.ShortDescription, messageContext.Language).Value.NullEmpty() },
 				{ "StockQuantity", part.StockQuantity },
 				{ "AdditionalShippingCharge", additionalShippingChargeFormatted.NullEmpty() },
 				{ "Url", url },
@@ -473,14 +477,14 @@ namespace SmartStore.Services.Messages
 					m["DeliveryTime"] = new Dictionary<string, object>
 					{
 						{ "Color", dt.ColorHexValue },
-						{ "Name", dt.GetLocalized(x => x.Name, messageContext.Language.Id) },
+						{ "Name", dt.GetLocalized(x => x.Name, messageContext.Language).Value },
 					};
 				}
 			}
 
 			if (quantityUnitService.GetQuantityUnitById(part.QuantityUnitId) is QuantityUnit qu)
 			{
-				m["QtyUnit"] = qu.GetLocalized(x => x.Name, messageContext.Language.Id);
+				m["QtyUnit"] = qu.GetLocalized(x => x.Name, messageContext.Language).Value;
 			}
 
 			PublishModelPartCreatedEvent<Product>(part, m);
@@ -616,7 +620,7 @@ namespace SmartStore.Services.Messages
 			Guard.NotNull(part, nameof(part));
 
 			var protocol = messageContext.BaseUri.Scheme;
-			var host = messageContext.BaseUri.Host;
+			var host = messageContext.BaseUri.Authority;
 			var body = HtmlUtils.RelativizeFontSizes(part.Body.EmptyNull());
 
 			// We must render the body separately
@@ -757,8 +761,8 @@ namespace SmartStore.Services.Messages
 
 			var m = new Dictionary<string, object>
 			{
-				{ "Name", part.GetLocalized(x => x.Name, messageContext.Language.Id).NullEmpty() },
-				{ "GroupName", part.ForumGroup?.GetLocalized(x => x.Name, messageContext.Language.Id).NullEmpty() },
+				{ "Name", part.GetLocalized(x => x.Name, messageContext.Language).Value.NullEmpty() },
+				{ "GroupName", part.ForumGroup?.GetLocalized(x => x.Name, messageContext.Language)?.Value.NullEmpty() },
 				{ "NumPosts", part.NumPosts },
 				{ "NumTopics", part.NumTopics },
 				{ "Url", BuildRouteUrl("ForumSlug", new {  id = part.Id, slug = part.GetSeName(messageContext.Language.Id) }, messageContext) },
@@ -786,8 +790,8 @@ namespace SmartStore.Services.Messages
 			var street2 = settings.StreetAddress2Enabled ? part.Address2 : null;
 			var zip = settings.ZipPostalCodeEnabled ? part.ZipPostalCode : null;
 			var city = settings.CityEnabled ? part.City : null;
-			var country = settings.CountryEnabled ? part.Country?.GetLocalized(x => x.Name, languageId ?? 0).NullEmpty() : null;
-			var state = settings.StateProvinceEnabled ? part.StateProvince?.GetLocalized(x => x.Name, languageId ?? 0).NullEmpty() : null;
+			var country = settings.CountryEnabled ? part.Country?.GetLocalized(x => x.Name, languageId ?? 0)?.Value.NullEmpty() : null;
+			var state = settings.StateProvinceEnabled ? part.StateProvince?.GetLocalized(x => x.Name, languageId ?? 0)?.Value.NullEmpty() : null;
 			
 			var m = new Dictionary<string, object>
 			{

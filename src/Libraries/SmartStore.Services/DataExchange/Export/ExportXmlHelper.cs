@@ -530,7 +530,9 @@ namespace SmartStore.Services.DataExchange.Export
 			_writer.Write("AllowBackInStockSubscriptions", entity.AllowBackInStockSubscriptions.ToString());
 			_writer.Write("OrderMinimumQuantity", entity.OrderMinimumQuantity.ToString());
 			_writer.Write("OrderMaximumQuantity", entity.OrderMaximumQuantity.ToString());
-            _writer.Write("HideQuantityControl", entity.HideQuantityControl.ToString());
+			_writer.Write("QuantityStep", entity.QuantityStep.ToString());
+			_writer.Write("QuantiyControlType", ((int)entity.QuantiyControlType).ToString());
+			_writer.Write("HideQuantityControl", entity.HideQuantityControl.ToString());
             _writer.Write("AllowedQuantities", entity.AllowedQuantities);
 			_writer.Write("DisableBuyButton", entity.DisableBuyButton.ToString());
 			_writer.Write("DisableWishlistButton", entity.DisableWishlistButton.ToString());
@@ -562,6 +564,7 @@ namespace SmartStore.Services.DataExchange.Export
 			_writer.Write("BasePriceInfo", (string)product._BasePriceInfo);
 			_writer.Write("VisibleIndividually", entity.VisibleIndividually.ToString());
 			_writer.Write("DisplayOrder", entity.DisplayOrder.ToString());
+			_writer.Write("IsSystemProduct", entity.IsSystemProduct.ToString());
 			_writer.Write("BundleTitleText", entity.BundleTitleText);
 			_writer.Write("BundlePerItemPricing", entity.BundlePerItemPricing.ToString());
 			_writer.Write("BundlePerItemShipping", entity.BundlePerItemShipping.ToString());

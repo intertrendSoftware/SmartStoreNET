@@ -228,9 +228,9 @@
 
 @helper TabPartition()
 {
-	<div class="alert alert-info">
-		<button type="button" class="close" data-dismiss="alert">&#215;</button>
+	<div class="alert alert-info alert-dismissible">
 		@Html.Raw(T("Admin.DataExchange.Export.Partition.Note"))
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
 	</div>
 
 	<table class="adminContent">
@@ -311,9 +311,9 @@
 		<fieldset>
 			@if (Model.Provider.ConfigPartialViewName.HasValue())
 			{
-				<div class="alert alert-info">
-					<button type="button" class="close" data-dismiss="alert">&#215;</button>
+				<div class="alert alert-info alert-dismissible">
 					@Html.Raw(T("Admin.DataExchange.Export.Configuration.Note"))
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
 				</div>
 				
 				var viewData = new ViewDataDictionary();
@@ -327,7 +327,7 @@
 				}
 				catch (Exception exception)
 				{
-					<div class="alert alert-error">
+					<div class="alert alert-danger">
 						@T("Admin.Configuration.Plugins.UnknownError")
 					</div>
 					<pre>@exception.ToString()</pre>
@@ -389,7 +389,7 @@
 		$('#ProfileExportButton').click(function (e) {
 			e.preventDefault();
 			$(this).doPostData({
-				ask: '@(T("Admin.Common.AskToProceed"))'
+				ask: @(T("Admin.Common.AskToProceed").JsText)
 			});
 			return false;
 		});

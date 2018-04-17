@@ -143,7 +143,7 @@ namespace SmartStore.Services.Orders
 			return result;
 		}
 
-		protected List<OrganizedShoppingCartItem> OrganizeCartItems(IEnumerable<ShoppingCartItem> cart)
+		protected virtual List<OrganizedShoppingCartItem> OrganizeCartItems(IEnumerable<ShoppingCartItem> cart)
 		{
 			var result = new List<OrganizedShoppingCartItem>();
 			
@@ -1008,9 +1008,10 @@ namespace SmartStore.Services.Orders
 						}
                     }
 
-                    // price is the same (for products which require customers to enter a price)
-                    var customerEnteredPricesEqual = true;
-					if (sci.Item.Product.CustomerEntersPrice)
+					// Products with CustomerEntersPrice are equal if the price is the same.
+					// But a system product may only be placed once in the shopping cart.
+					var customerEnteredPricesEqual = true;
+					if (sci.Item.Product.CustomerEntersPrice && !sci.Item.Product.IsSystemProduct)
 					{
 						customerEnteredPricesEqual = Math.Round(sci.Item.CustomerEnteredPrice, 2) == Math.Round(customerEnteredPrice, 2);
 					}
@@ -1165,8 +1166,7 @@ namespace SmartStore.Services.Orders
 		public virtual void AddToCart(AddToCartContext ctx)
 		{
 			var customer = ctx.Customer ?? _workContext.CurrentCustomer;
-			int storeId = ctx.StoreId ?? _storeContext.CurrentStore.Id;
-			var cart = GetCartItems(customer, ctx.CartType, storeId);
+			var storeId = ctx.StoreId ?? _storeContext.CurrentStore.Id;
 
 			_customerService.ResetCheckoutData(customer, storeId);
 
@@ -1196,7 +1196,7 @@ namespace SmartStore.Services.Orders
 			}
 
 			ctx.Warnings.AddRange(
-				AddToCart(_workContext.CurrentCustomer, ctx.Product, ctx.CartType, storeId,	ctx.AttributesXml, ctx.CustomerEnteredPrice, ctx.Quantity, ctx.AddRequiredProducts, ctx)
+				AddToCart(customer, ctx.Product, ctx.CartType, storeId,	ctx.AttributesXml, ctx.CustomerEnteredPrice, ctx.Quantity, ctx.AddRequiredProducts, ctx)
 			);
 
 			if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.Warnings.Count <= 0 && ctx.BundleItem == null)

@@ -6,6 +6,12 @@
 	$(function () {
 		$("#@Html.FieldIdFor(model => model.ProductTypeId)").change(toggleProductType);
 		toggleProductType();
+
+		// reset required-productids
+		$("#reset-required-productids").on("click", function (e) {
+			e.preventDefault();
+			$("#@Html.FieldIdFor(model => model.RequiredProductIds)").val("");
+		});
 	});
 
     function toggleProductType() {
@@ -33,7 +39,7 @@
         else if (selectedProductTypeId == '@((int)ProductType.BundledProduct)') {
         	//$('a[href="#tab-inventory"]').parent().addClass("hide"); // specified in _CreateOrUpdate.cshtml
         }
-    }
+	}
 </script>
 
 <div>
@@ -85,7 +91,9 @@
 					@Html.SmartLabelFor(model => model.AssociatedToProductId)
 				</td>
 				<td class="adminData">
-					@Html.ActionLink(Model.AssociatedToProductName, "Edit", "Product", new { id = Model.AssociatedToProductId }, new { })
+					<div class="form-control-plaintext">
+						@Html.ActionLink(Model.AssociatedToProductName, "Edit", "Product", new { id = Model.AssociatedToProductId }, new { })
+					</div>
 				</td>
 			</tr>
 		}
@@ -130,7 +138,7 @@
 				@Html.SmartLabelFor(model => model.Locales[item].FullDescription)
 			</td>
 			<td class="adminData wide">
-				@Html.EditorFor(model => model.Locales[item].FullDescription, Html.RichEditorFlavor())
+				@Html.EditorFor(model => model.Locales[item].FullDescription, "Html")
 				@Html.ValidationMessageFor(model => model.Locales[item].FullDescription)
 			</td>
 		</tr>
@@ -160,7 +168,7 @@
 				@Html.SmartLabelFor(model => model.FullDescription)
 			</td>
 			<td class="adminData wide">
-				@Html.EditorFor(x => x.FullDescription, Html.RichEditorFlavor())
+				@Html.EditorFor(x => x.FullDescription, "Html")
 				@Html.ValidationMessageFor(model => model.FullDescription)
 			</td>
 		</tr>
@@ -292,7 +300,9 @@
 					@Html.SmartLabelFor(model => model.CreatedOn)
 				</td>
 				<td class="adminData">
-					@Html.TextBoxFor(model => model.CreatedOn, new { @readonly = "readonly", @class = "form-control-plaintext" })
+					<div class="form-control-plaintext">
+						@Html.DisplayFor(model => model.CreatedOn)
+					</div>
 				</td>
 			</tr>
 		}
@@ -303,7 +313,9 @@
 					@Html.SmartLabelFor(model => model.UpdatedOn)
 				</td>
 				<td class="adminData">
-					@Html.TextBoxFor(model => model.UpdatedOn, new { @readonly = "readonly", @class = "form-control-plaintext" })
+					<div class="form-control-plaintext">
+						@Html.DisplayFor(model => model.UpdatedOn)
+					</div>
 				</td>
 			</tr>
 		}
@@ -331,12 +343,17 @@
 				</td>
 				<td class="adminData">
 					<div class="input-group">
-						@Html.EditorFor(model => model.RequiredProductIds)
-						<span class="input-group-btn">
+						@Html.TextBoxFor(model => model.RequiredProductIds, new { @readonly = "readonly" })
+						<span class="input-group-append">
+							<a class="btn btn-secondary" id="reset-required-productids" title="@T("Admin.Common.Reset")">
+								<i class="fa fa-times"></i>
+							</a>
+						</span>
+						<span class="input-group-append">
 							@(Html.SmartStore().EntityPicker()
 								.For(x => x.RequiredProductIds)
-								.DialogTitle(T("Admin.Catalog.Products.Fields.RequireOtherProducts"))
-								.Caption(T("Admin.Common.Search")))
+								.DialogTitle(T("Admin.Catalog.Products.Fields.RequireOtherProducts").Text.EncodeJsString('\'', false))
+								.Caption(T("Admin.Common.Search").Text.EncodeJsString('\'', false)))
 						</span>
 					</div>
 					@Html.ValidationMessageFor(model => model.RequiredProductIds)
@@ -455,7 +472,7 @@
 					@Html.SmartLabelFor(model => model.UserAgreementText)
 				</td>
 				<td class="adminData wide">
-					@Html.EditorFor(model => model.UserAgreementText, Html.RichEditorFlavor())
+					@Html.EditorFor(model => model.UserAgreementText, "Html")
 					@Html.ValidationMessageFor(model => model.UserAgreementText)
 				</td>
 			</tr>
@@ -628,7 +645,7 @@
 				@Html.SmartLabelFor(model => model.IsTaxExempt)
 			</td>
 			<td class="adminData">
-				@Html.CheckBoxFor(model => model.IsTaxExempt, new { data_toggler_for = "#pnlIsTaxExempt" })
+				@Html.CheckBoxFor(model => model.IsTaxExempt, new { data_toggler_for = "#pnlIsTaxExempt", data_toggler_reverse = "true" })
 				@Html.ValidationMessageFor(model => model.IsTaxExempt)
 			</td>
 		</tr>

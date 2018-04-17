@@ -41,6 +41,8 @@ using SmartStore.Core.Plugins;
 using SmartStore.Services.Shipping;
 using SmartStore.Services.Tax;
 using SmartStore.Core.Domain.Themes;
+using SmartStore.Services.Common;
+using SmartStore.Core.Domain.Payments;
 
 namespace SmartStore.Admin
 {
@@ -542,12 +544,21 @@ namespace SmartStore.Admin
 
         public static AddressModel ToModel(this Address entity)
         {
-            var addressModel = Mapper.Map<Address, AddressModel>(entity);
-            addressModel.EmailMatch = entity.Email;
-            return addressModel;
+            return ToModel(entity, null);
         }
 
-        public static Address ToEntity(this AddressModel model)
+		public static AddressModel ToModel(this Address entity, IAddressService addressService)
+		{
+			var addressModel = Mapper.Map<Address, AddressModel>(entity);
+			addressModel.EmailMatch = entity.Email;
+
+			if(addressService != null)
+				addressModel.FormattedAddress = addressService.FormatAddress(entity, true);
+
+			return addressModel;
+		}
+
+		public static Address ToEntity(this AddressModel model)
         {
             return Mapper.Map<AddressModel, Address>(model);
         }
@@ -904,7 +915,8 @@ namespace SmartStore.Admin
         }
 
 
-        public static MediaSettingsModel ToModel(this MediaSettings entity)
+
+		public static MediaSettingsModel ToModel(this MediaSettings entity)
         {
             return Mapper.Map<MediaSettings, MediaSettingsModel>(entity);
         }

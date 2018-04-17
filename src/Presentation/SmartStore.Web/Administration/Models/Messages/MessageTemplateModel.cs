@@ -72,15 +72,14 @@ namespace SmartStore.Admin.Models.Messages
 		[SmartResourceDisplayName("Admin.ContentManagement.MessageTemplates.Fields.Attachment3FileId")]
 		public int? Attachment3FileId { get; set; }
 
-		//Store mapping
+		// Store mapping
+		[SmartResourceDisplayName("Admin.Common.Store.LimitedTo")]
 		public bool LimitedToStores { get; set; }
 		public IEnumerable<SelectListItem> AvailableStores { get; set; }
 		public int[] SelectedStoreIds { get; set; }
 
 		public IList<MessageTemplateLocalizedModel> Locales { get; set; }
         public IList<EmailAccountModel> AvailableEmailAccounts { get; set; }
-
-		public CreateMessageResult PreviewResult { get; set; }
 	}
 
     public class MessageTemplateLocalizedModel : ILocalizedModelLocal

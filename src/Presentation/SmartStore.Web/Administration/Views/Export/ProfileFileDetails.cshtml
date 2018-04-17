@@ -39,7 +39,7 @@
 
 				@foreach (var file in grp)
 				{
-					<div class="py-1 d-flex">
+					<div class="py-1 d-flex copy-to-clipboard-container">
 						<div>
 							<span class="badge badge-success">
 								@Html.IconForFileExtension(file.FileExtension, false)
@@ -70,19 +70,18 @@ else
 		$('button.copy-to-clipboard').tooltip({
 			placement: 'bottom',
 			trigger: 'hover',
-			title: '@T("Common.CopyToClipboard")'
+			title: @T("Common.CopyToClipboard").JsText
 		}).click(function () {
 			var self = $(this),
-				url = self.parent().find('a').attr('href');
+				url = self.closest('.copy-to-clipboard-container').find('a').attr('href');
 
 			var succeeded = window.copyTextToClipboard(url);
 
-			self.attr('data-original-title', succeeded ? '@T("Common.CopyToClipboard.Succeeded")' : '@T("Common.CopyToClipboard.Failed")')
+			self.attr('data-original-title', succeeded ? @T("Common.CopyToClipboard.Succeeded").JsText : @T("Common.CopyToClipboard.Failed").JsText)
 				.tooltip('show');
 
 			setTimeout(function () {
-				self.attr('data-original-title', '@T("Common.CopyToClipboard")')
-					.tooltip('hide');
+				self.attr('data-original-title', '@T("Common.CopyToClipboard").JsText').tooltip('hide');
 			}, 2000);
 		});
 	});

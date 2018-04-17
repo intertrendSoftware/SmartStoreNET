@@ -20,10 +20,12 @@ using SmartStore.Services.Directory;
 using SmartStore.Services.Localization;
 using SmartStore.Services.Payments;
 using SmartStore.Services.Tax;
+using SmartStore.Web.Framework;
 using SmartStore.Web.Framework.Controllers;
 using SmartStore.Web.Framework.Plugins;
 using SmartStore.Web.Framework.Security;
 using SmartStore.Web.Framework.Settings;
+using SmartStore.Web.Framework.Theming;
 
 namespace SmartStore.PayPal.Controllers
 {
@@ -105,7 +107,7 @@ namespace SmartStore.PayPal.Controllers
 					var paymentMethod = _paymentService.GetPaymentMethodBySystemName(provider.Metadata.SystemName);
 					if (paymentMethod != null)
 					{
-						var description = paymentMethod.GetLocalized(x => x.FullDescription);
+						string description = paymentMethod.GetLocalized(x => x.FullDescription);
 						if (description.HasValue())
 						{
 							description = HtmlUtils.ConvertHtmlToPlainText(description);
@@ -153,7 +155,7 @@ namespace SmartStore.PayPal.Controllers
 			return paymentInfo;
 		}
 
-		[LoadSetting, AdminAuthorize, ChildActionOnly]
+		[LoadSetting, AdminAuthorize, ChildActionOnly, AdminThemed]
 		public ActionResult Configure(PayPalPlusPaymentSettings settings, int storeScope)
 		{
 			var model = new PayPalPlusConfigurationModel
@@ -161,31 +163,29 @@ namespace SmartStore.PayPal.Controllers
 				ConfigGroups = T("Plugins.SmartStore.PayPal.ConfigGroups").Text.SplitSafe(";")
 			};
 
-			model.AvailableSecurityProtocols = PayPal.Services.PayPalService.GetSecurityProtocols()
-				.Select(x => new SelectListItem { Value = ((int)x.Key).ToString(), Text = x.Value })
-				.ToList();
+			// It's better to also offer inactive methods here but filter them out in frontend.
+			var paymentMethods = _paymentService.LoadAllPaymentMethods(storeScope);
 
-			// it's better to also offer inactive methods here but filter them out in frontend
-			var methods = _paymentService.LoadAllPaymentMethods(storeScope);
+			model.Copy(settings, true);
+			PrepareConfigurationModel(model, storeScope);
 
-			model.AvailableThirdPartyPaymentMethods = methods
-				.Where(x => 
+			model.AvailableThirdPartyPaymentMethods = paymentMethods
+				.Where(x =>
 					x.Metadata.PluginDescriptor.SystemName != Plugin.SystemName &&
 					!x.Value.RequiresInteraction &&
 					(x.Metadata.PluginDescriptor.SystemName == "SmartStore.OfflinePayment" || x.Value.PaymentMethodType == PaymentMethodType.Redirection))
-				.Select(x => new SelectListItem { Value = x.Metadata.SystemName, Text = GetPaymentMethodName(x) })
-				.ToList();
-
-
-			model.Copy(settings, true);
+				.ToSelectListItems(_pluginMediator, model.ThirdPartyPaymentMethods.ToArray());
 
 			return View(model);
 		}
 
-		[SaveSetting, HttpPost, AdminAuthorize, ChildActionOnly]
-		public ActionResult Configure(PayPalPlusPaymentSettings settings, PayPalPlusConfigurationModel model, FormCollection form, int storeScope)
+		[HttpPost, AdminAuthorize, ChildActionOnly, AdminThemed]
+		public ActionResult Configure(PayPalPlusConfigurationModel model, FormCollection form)
 		{
 			var storeDependingSettingHelper = new StoreDependingSettingHelper(ViewData);
+			var storeScope = this.GetActiveStoreScopeConfiguration(Services.StoreService, Services.WorkContext);
+			var settings = Services.Settings.LoadSetting<PayPalPlusPaymentSettings>(storeScope);
+
 			var oldClientId = settings.ClientId;
 			var oldSecret = settings.Secret;
 			var oldProfileId = settings.ExperienceProfileId;
@@ -198,13 +198,14 @@ namespace SmartStore.PayPal.Controllers
 			validator.Validate(model, ModelState);
 
 			if (!ModelState.IsValid)
+			{
 				return Configure(settings, storeScope);
+			}
 
 			ModelState.Clear();
-
 			model.Copy(settings, false);
 
-			// credentials changed: reset profile and webhook id to avoid errors
+			// Credentials changed: reset profile and webhook id to avoid errors.
 			if (!oldClientId.IsCaseInsensitiveEqual(settings.ClientId) || !oldSecret.IsCaseInsensitiveEqual(settings.Secret))
 			{
 				if (oldProfileId.IsCaseInsensitiveEqual(settings.ExperienceProfileId))
@@ -213,11 +214,20 @@ namespace SmartStore.PayPal.Controllers
 				settings.WebhookId = null;
 			}
 
-			Services.Settings.SaveSetting(settings, x => x.UseSandbox, 0, false);
+			using (Services.Settings.BeginScope())
+			{
+				storeDependingSettingHelper.UpdateSettings(settings, form, storeScope, Services.Settings);
+			}
+
+			using (Services.Settings.BeginScope())
+			{
+				// Multistore context not possible, see IPN handling.
+				Services.Settings.SaveSetting(settings, x => x.UseSandbox, 0, false);
+			}
 
 			NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-			return Configure(settings, storeScope);
+			return RedirectToConfiguration(PayPalPlusProvider.SystemName, false);
 		}
 
 		public ActionResult PaymentInfo()
@@ -250,7 +260,7 @@ namespace SmartStore.PayPal.Controllers
 
 			if (pppMethod != null)
 			{
-				model.FullDescription = pppMethod.GetLocalized(x => x.FullDescription, language.Id);
+				model.FullDescription = pppMethod.GetLocalized(x => x.FullDescription, language);
 			}
 
 			if (customer.BillingAddress != null && customer.BillingAddress.Country != null)

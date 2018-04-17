@@ -148,22 +148,26 @@ namespace SmartStore.Shipping.Controllers
                 BaseCharge = model.AddBaseCharge,
                 MaxCharge = model.AddMaxCharge
             };
+
             _shippingByTotalService.InsertShippingByTotalRecord(shippingByTotalRecord);
 
-            return Json(new { Result = true });
+			NotifySuccess(T("Plugins.Shipping.ByTotal.AddNewRecord.Success"));
+
+			return Json(new { Result = true });
         }
 
         [HttpPost]
-        public ActionResult SaveGeneralSettings(ByTotalListModel model)
+        public ActionResult Configure(ByTotalListModel model)
         {
-            //save settings
             _shippingByTotalSettings.LimitMethodsToCreated = model.LimitMethodsToCreated;
             _shippingByTotalSettings.SmallQuantityThreshold = model.SmallQuantityThreshold;
             _shippingByTotalSettings.SmallQuantitySurcharge = model.SmallQuantitySurcharge;
 
             _services.Settings.SaveSetting(_shippingByTotalSettings);
 
-            return Json(new { Result = true });
-        }
+			NotifySuccess(T("Admin.Configuration.Updated"));
+
+			return Configure();
+		}
     }
 }

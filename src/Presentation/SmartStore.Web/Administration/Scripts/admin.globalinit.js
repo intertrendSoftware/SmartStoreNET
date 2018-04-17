@@ -1,12 +1,12 @@
 /// <reference path="admin.common.js" />
 
 (function ($, window, document, undefined) {
-    
+
 	var _commonPluginFactories = [
 		// panel toggling
 		function (ctx) {
 			ctx.find('input[type=checkbox][data-toggler-for]').each(function (i, el) {
-				Admin.togglePanel(el, false);
+				SmartStore.Admin.togglePanel(el, false);
 			});
 		},
 		// select2
@@ -17,14 +17,14 @@
 		function (ctx) {
 			ctx.find(".cph").tooltip({
 				selector: "a.hint",
-				placement: "left",
+				placement: SmartStore.globalization.culture.isRTL ? "right" : "left",
 				trigger: 'hover',
 				delay: { show: 400, hide: 0 }
 			});
 		},
 		// switch
 		function (ctx) {
-			ctx.find(".adminData > input[type=checkbox]").each(function (i, el) {
+			ctx.find(".adminData > input[type=checkbox], .multi-store-setting-control > input[type=checkbox]").each(function (i, el) {
 				var wrap = $(el)
 					.wrap('<label class="switch"></label>')
 					.after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>');
@@ -37,8 +37,8 @@
 				return !$(this).parent().hasClass("t-group-indicator");
 			}));
 
-			// skin telerik grids with bootstrap table
-			ctx.find(".t-grid > table").addClass("table");
+			//// skin telerik grids with bootstrap table (obsolete: styled per Sass @extend now)
+			//ctx.find(".t-grid > table").addClass("table");
 		},
 		// btn-trigger
 		function (ctx) {
@@ -51,7 +51,11 @@
 				button.click();
 				return false;
 			});
-		}
+		},
+		// ColorPicker
+		function (ctx) {
+			ctx.find(".sm-colorbox").colorpicker({ fallbackColor: false, color: false });
+		},
 	];
 
 
@@ -60,14 +64,12 @@
 	to newly created html.
 	*/
 	window.applyCommonPlugins = function (/* jQuery */ context) {
-		console.log(context);
 		$.each(_commonPluginFactories, function (i, val) {
 			val.call(this, $(context));
 		});
 	};
 
     $(document).ready(function () {
-
         var html = $("html");
 
         html.removeClass("not-ready").addClass("ready");
@@ -76,7 +78,7 @@
 
     	// Handle panel toggling
         $(document).on('change', 'input[type=checkbox][data-toggler-for]', function (e) {
-        	Admin.togglePanel(e.target, true);
+			SmartStore.Admin.togglePanel(e.target, true);
         });
 
         $("#page").tooltip({
@@ -84,7 +86,7 @@
         });
 
         // Temp only
-        $(".options button[value=save-continue]").click(function () {
+        $(".options button[value=save-continue]").on('click', function () {
             var btn = $(this);
             btn.closest("form").append('<input type="hidden" name="save-continue" value="true" />');
         });
@@ -99,9 +101,9 @@
         });
 
 		// check overridden store settings
-        $('input.multi-store-override-option').each(function (index, elem) {
-        	Admin.checkOverriddenStoreValue(elem);
-        });
+        $('.multi-store-override-option').each(function (i, el) {
+			SmartStore.Admin.checkOverriddenStoreValue(el);
+		});
 
         // publish entity commit messages
         $('.entity-commit-trigger').on('click', function (e) {
@@ -113,7 +115,11 @@
                     id: el.data('commit-id')
                 });
             }
-        });
+		});
+
+		// Because we restyled the grid, the filter dropdown does not position
+		// correctly anymore. We have to reposition it.
+		Hacks.Telerik.handleGridFilter();
 
         // sticky section-header
         var navbar = $("#navbar");
@@ -129,9 +135,7 @@
             	var y = $(this).scrollTop();
                 sectionHeader.toggleClass("sticky", y >= navbarHeight);
             }
-        });
-
-        $(window).trigger('resize');
+        }).trigger('resize');
 
         $(window).on('load', function () {
 
@@ -167,9 +171,12 @@
 
         		content.css("min-height", Math.max(initialHeight, winHeight - offset - top) + "px");
 
-        	};
-        	fitContentToWindow(true);
-        	$(window).on("resize", fitContentToWindow);
+			};
+
+			if (!$('body').is('.popup.bare')) {
+				fitContentToWindow(true);
+				$(window).on("resize", fitContentToWindow);
+			}
 
         });
 

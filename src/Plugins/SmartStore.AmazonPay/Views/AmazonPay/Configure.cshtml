@@ -1,13 +1,13 @@
-﻿@using SmartStore.Web.Framework;
+﻿@model ConfigurationModel
+@using SmartStore.Web.Framework;
 @using SmartStore.AmazonPay.Models;
 @using SmartStore.AmazonPay;
-@model ConfigurationModel
 @{
     Layout = "";
 }
 
 <div class="plugin-actions">
-	<button type="submit" name="save" class="btn btn-primary" value="save">
+	<button type="submit" name="save" class="btn btn-warning" value="save">
 		<i class="fa fa-check"></i>
 		<span>@T("Admin.Common.Save")</span>
 	</button>
@@ -15,8 +15,8 @@
 
 <div class="plugin-configuration">
 	<div>
-		<div class="alert alert-info">
-			<button class="close" data-dismiss="alert">&#215;</button>
+		<div class="alert alert-info alert-dismissible">
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
 			@Html.Raw(@T("Plugins.Payments.AmazonPay.AdminInstruction"))
 		</div>
 	</div>
@@ -57,6 +57,14 @@
 			</td>
 		</tr>
 		<tr>
+			<td class="adminTitle"></td>
+			<td class="adminData">
+				<div class="alert alert-info">
+					@Html.Raw(T("Plugins.Payments.AmazonPay.RegisterNote"))
+				</div>
+			</td>
+		</tr>
+		<tr>
 			<td class="adminTitle">
 				@Html.SmartLabelFor(model => model.UseSandbox)
 			</td>
@@ -79,8 +87,7 @@
 				@Html.SmartLabelFor(model => model.AccessKey)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.AccessKey)
-				@Html.TextBoxFor(model => model.AccessKey)
+				@Html.SettingEditorFor(model => model.AccessKey)
 				@Html.ValidationMessageFor(model => model.AccessKey)
 			</td>
 		</tr>
@@ -98,8 +105,7 @@
 				@Html.SmartLabelFor(model => model.ClientId)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.ClientId)
-				@Html.TextBoxFor(model => model.ClientId)
+				@Html.SettingEditorFor(model => model.ClientId)
 				@Html.ValidationMessageFor(model => model.ClientId)
 			</td>
 		</tr>
@@ -108,46 +114,44 @@
 				@Html.SmartLabelFor(model => model.Marketplace)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.Marketplace)
-				@Html.DropDownListFor(model => model.Marketplace, new List<SelectListItem>
+				@Html.SettingEditorFor(model => model.Marketplace, Html.DropDownListFor(model => model.Marketplace, new List<SelectListItem>
 				{
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.Marketplace.De"), Value = "de" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.Marketplace.Uk"), Value = "uk" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.Marketplace.Us"), Value = "us" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.Marketplace.Jp"), Value = "jp" }
-				})
+				}))
 				@Html.ValidationMessageFor(model => model.Marketplace)
 			</td>
 		</tr>
-		@if (Model.CurrentMerchantLoginDomains.Any())
-		{
-			<tr>
-				<td class="adminTitle">
-					@Html.SmartLabelFor(model => model.CurrentMerchantLoginDomains)
-				</td>
-				<td class="adminData">
-					@foreach (var item in Model.CurrentMerchantLoginDomains)
+		<tr>
+			<td class="adminTitle">
+				@Html.SmartLabelFor(model => model.CurrentMerchantLoginDomains)
+			</td>
+			<td class="adminData form-control-plaintext">
+				@if (Model.CurrentMerchantLoginDomains.Any())
+				{
+					foreach (var item in Model.CurrentMerchantLoginDomains)
 					{
 						<div>@Html.Raw(item)</div>
 					}
-				</td>
-			</tr>
-		}
-		@if (Model.CurrentMerchantLoginRedirectUrls.Any())
-		{
-			<tr>
-				<td class="adminTitle">
-					@Html.SmartLabelFor(model => model.CurrentMerchantLoginRedirectUrls)
-				</td>
-				<td class="adminData">
-					@foreach (var item in Model.CurrentMerchantLoginRedirectUrls)
+				}
+			</td>
+		</tr>
+		<tr>
+			<td class="adminTitle">
+				@Html.SmartLabelFor(model => model.CurrentMerchantLoginRedirectUrls)
+			</td>
+			<td class="adminData form-control-plaintext">
+				@if (Model.CurrentMerchantLoginRedirectUrls.Any())
+				{
+					foreach (var item in Model.CurrentMerchantLoginRedirectUrls)
 					{
 						<div>@Html.Raw(item)</div>
 					}
-				</td>
-			</tr>
-		}
-
+				}
+			</td>
+		</tr>
 		<tr class="adminSeparator">
 			<td colspan="2">
 				<div class="admin-config-group">
@@ -157,18 +161,27 @@
 		</tr>
 		<tr>
 			<td class="adminTitle">
+				@Html.SmartLabelFor(model => model.AuthorizeMethod)
+			</td>
+			<td class="adminData">
+				@Html.SettingEditorFor(model => model.AuthorizeMethod, Html.DropDownListFor(model => model.AuthorizeMethod, Model.AuthorizeMethods))
+				@Html.ValidationMessageFor(model => model.AuthorizeMethod)
+			</td>
+		</tr>
+		<tr>
+			<td class="adminTitle">
 				@Html.SmartLabelFor(model => model.TransactionType)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.TransactionType)
-				@Html.DropDownListFor(model => model.TransactionType, Model.TransactionTypes)
+				@Html.SettingEditorFor(model => model.TransactionType, Html.DropDownListFor(model => model.TransactionType, Model.TransactionTypes))
 				@Html.ValidationMessageFor(model => model.TransactionType)
 			</td>
 		</tr>
 		<tr id="TransactionTypeWarning" class="d-none">
-			<td colspan="2">
+			<td class="adminTitle"></td>
+			<td class="adminData">
 				<div class="alert alert-warning">
-					@T("Plugins.Payments.AmazonPay.TransactionType.Warning")
+					@Html.Raw(T("Plugins.Payments.AmazonPay.TransactionType.Warning"))
 				</div>
 			</td>
 		</tr>
@@ -177,8 +190,7 @@
 				@Html.SmartLabelFor(model => model.SaveEmailAndPhone)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.SaveEmailAndPhone)
-				@Html.DropDownListFor(model => model.SaveEmailAndPhone, Model.SaveEmailAndPhones)
+				@Html.SettingEditorFor(model => model.SaveEmailAndPhone, Html.DropDownListFor(model => model.SaveEmailAndPhone, Model.SaveEmailAndPhones))
 				@Html.ValidationMessageFor(model => model.SaveEmailAndPhone)
 			</td>
 		</tr>
@@ -196,8 +208,8 @@
 				@Html.SmartLabelFor(model => model.InformCustomerAboutErrors)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.InformCustomerAboutErrors)
-				@Html.CheckBoxFor(model => model.InformCustomerAboutErrors, new { data_toggler_for = "#InformCustomerAddErrorsContainer" })
+				@Html.SettingEditorFor(model => model.InformCustomerAboutErrors, 
+					Html.CheckBoxFor(model => model.InformCustomerAboutErrors, new { data_toggler_for = "#InformCustomerAddErrorsContainer" }))
 				@Html.ValidationMessageFor(model => model.InformCustomerAboutErrors)
 			</td>
 		</tr>
@@ -237,9 +249,10 @@
 			</td>
 		</tr>
 		<tr id="DataFetchingWarning" class="d-none">
-			<td colspan="2">
+			<td class="adminTitle"></td>
+			<td class="adminData">
 				<div class="alert alert-warning">
-					@T("Plugins.Payments.AmazonPay.DataFetching.Warning")
+					@Html.Raw(T("Plugins.Payments.AmazonPay.DataFetching.Warning"))
 				</div>
 			</td>
 		</tr>
@@ -256,13 +269,12 @@
 				@Html.SmartLabelFor(model => model.PayButtonColor)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.PayButtonColor)
-				@Html.DropDownListFor(model => model.PayButtonColor, new List<SelectListItem>
+				@Html.SettingEditorFor(model => model.PayButtonColor, Html.DropDownListFor(model => model.PayButtonColor, new List<SelectListItem>
 				{
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonColor.Gold"), Value = "Gold" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonColor.LightGray"), Value = "LightGray" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonColor.DarkGray"), Value = "DarkGray" }
-				})
+				}))
 				@Html.ValidationMessageFor(model => model.PayButtonColor)
 			</td>
 		</tr>
@@ -271,14 +283,13 @@
 				@Html.SmartLabelFor(model => model.PayButtonSize)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.PayButtonSize)
-				@Html.DropDownListFor(model => model.PayButtonSize, new List<SelectListItem>
+				@Html.SettingEditorFor(model => model.PayButtonSize, Html.DropDownListFor(model => model.PayButtonSize, new List<SelectListItem>
 				{
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonSize.Small"), Value = "small" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonSize.Medium"), Value = "medium" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonSize.Large"), Value = "large" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonSize.Xlarge"), Value = "x-large" }
-				})
+				}))
 				@Html.ValidationMessageFor(model => model.PayButtonSize)
 			</td>
 		</tr>
@@ -288,12 +299,11 @@
 				@Html.SmartLabelFor(model => model.AuthButtonType)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.AuthButtonType)
-				@Html.DropDownListFor(model => model.AuthButtonType, new List<SelectListItem>
+				@Html.SettingEditorFor(model => model.AuthButtonType, Html.DropDownListFor(model => model.AuthButtonType, new List<SelectListItem>
 				{
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.AuthButtonType.Login"), Value = "Login" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.AuthButtonType.LwA"), Value = "LwA" }
-				})
+				}))
 				@Html.ValidationMessageFor(model => model.AuthButtonType)
 			</td>
 		</tr>
@@ -302,13 +312,12 @@
 				@Html.SmartLabelFor(model => model.AuthButtonColor)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.AuthButtonColor)
-				@Html.DropDownListFor(model => model.AuthButtonColor, new List<SelectListItem>
+				@Html.SettingEditorFor(model => model.AuthButtonColor, Html.DropDownListFor(model => model.AuthButtonColor, new List<SelectListItem>
 				{
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonColor.Gold"), Value = "Gold" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonColor.LightGray"), Value = "LightGray" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonColor.DarkGray"), Value = "DarkGray" }
-				})
+				}))
 				@Html.ValidationMessageFor(model => model.AuthButtonColor)
 			</td>
 		</tr>
@@ -317,14 +326,13 @@
 				@Html.SmartLabelFor(model => model.AuthButtonSize)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.AuthButtonSize)
-				@Html.DropDownListFor(model => model.AuthButtonSize, new List<SelectListItem>
+				@Html.SettingEditorFor(model => model.AuthButtonSize, Html.DropDownListFor(model => model.AuthButtonSize, new List<SelectListItem>
 				{
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonSize.Small"), Value = "small" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonSize.Medium"), Value = "medium" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonSize.Large"), Value = "large" },
 					new SelectListItem { Text = @T("Plugins.Payments.AmazonPay.ButtonSize.Xlarge"), Value = "x-large" }
-				})
+				}))
 				@Html.ValidationMessageFor(model => model.AuthButtonSize)
 			</td>
 		</tr>
@@ -359,8 +367,7 @@
 				@Html.SmartLabelFor(model => model.AdditionalFee)
 			</td>
 			<td class="adminData">
-				@Html.SettingOverrideCheckbox(model => model.AdditionalFee)
-				@Html.EditorFor(model => model.AdditionalFee, new { postfix = Model.PrimaryStoreCurrencyCode })
+				@Html.SettingEditorFor(model => model.AdditionalFee, null, new { postfix = Model.PrimaryStoreCurrencyCode })
 				@Html.ValidationMessageFor(model => model.AdditionalFee)
 			</td>
 		</tr>
@@ -404,29 +411,26 @@
 	<input type="hidden" name="source" value="SPPL" />
 </form>
 
-<form id="access-data-form" method="POST" action="@Url.Action("SaveAccessData", "AmazonPay", new { area = AmazonPayPlugin.SystemName })">
-	<div id="register-now-dialog">
-		<div class="modal modal-large hide fade" tabindex="-1">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><b>&#215;</b></button>
-				<h4 class="caption">
-					@T("Plugins.Payments.AmazonPay.PasteAccessData")
-				</h4>
-			</div>
-			<div class="modal-body">
-				<div class="form-group">
-					<textarea id="amazon-access-data" name="accessData" rows="12" class="form-control" style="width: 98%;" placeholder="@T("Plugins.Payments.AmazonPay.PasteAccessData.Hint")"></textarea>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button id="amazon-save-access-data" type="submit" class="btn btn-primary" disabled="disabled">
-					@T("Plugins.Payments.AmazonPay.SaveAccessData")
-				</button>
-				<button class="btn" data-dismiss="modal">@T("Common.Cancel")</button>
-			</div>
-		</div>
-	</div>
-</form>
+@{Html.SmartStore().Window()
+	.Name("register-now-dialog")
+	.Title(T("Plugins.Payments.AmazonPay.PasteAccessData"))
+	.Content(
+	@<text>
+		<form id="access-data-form" method="POST" action="@Url.Action("SaveAccessData", "AmazonPay", new { area = AmazonPayPlugin.SystemName })">
+			<textarea id="amazon-access-data" name="accessData" rows="12" class="form-control" style="width: 98%;" placeholder="@T("Plugins.Payments.AmazonPay.PasteAccessData.Hint")"></textarea>
+		</form>
+	</text>)
+	.FooterContent(
+	@<text>
+		<button class="btn btn-secondary btn-flat" data-dismiss="modal">
+			<span>@T("Common.Cancel")</span>
+		</button>
+		<button id="amazon-save-access-data" type="submit" class="btn btn-primary" disabled="disabled">
+			<span>@T("Plugins.Payments.AmazonPay.SaveAccessData")</span>
+		</button>
+	</text>)
+	.Render();
+}
 
 <script type="text/javascript">
 	jQuery(document).ready(function () {
@@ -453,8 +457,8 @@
 		}).trigger('change');
 
 		// Register now
-		$('a.register-now').click(function () {
-			$('button.paste-access-data').trigger('click');
+		$('.register-now').click(function () {
+			$('.paste-access-data').trigger('click');
 			$('#register-now-form').submit();
 		});
 
@@ -464,10 +468,10 @@
 		});
 
 		// Paste access data
-		$('button.paste-access-data').click(function () {
+		$('.paste-access-data').click(function () {
 			//$('#amazon-access-data').trigger('change');
-			$('#register-now-dialog').find('.modal').modal('show');
-
+			$('#register-now-dialog').modal('show');
+			
 			setTimeout(function () {
 				$('#amazon-access-data').focus();
 			}, 800);

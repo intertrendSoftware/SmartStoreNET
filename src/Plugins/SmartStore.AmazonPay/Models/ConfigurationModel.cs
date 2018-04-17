@@ -45,6 +45,10 @@ namespace SmartStore.AmazonPay.Models
 		public AmazonPayTransactionType TransactionType { get; set; }
 		public List<SelectListItem> TransactionTypes { get; set; }
 
+		[SmartResourceDisplayName("Plugins.Payments.AmazonPay.AuthorizeMethod")]
+		public AmazonPayAuthorizeMethod AuthorizeMethod { get; set; }
+		public SelectList AuthorizeMethods { get; set; }
+
 		[SmartResourceDisplayName("Plugins.Payments.AmazonPay.SaveEmailAndPhone")]
 		public AmazonPaySaveDataType? SaveEmailAndPhone { get; set; }
 		public List<SelectListItem> SaveEmailAndPhones { get; set; }
@@ -55,10 +59,10 @@ namespace SmartStore.AmazonPay.Models
 		[SmartResourceDisplayName("Plugins.Payments.AmazonPay.ShowButtonInMiniShoppingCart")]
 		public bool ShowButtonInMiniShoppingCart { get; set; }
 
-		[SmartResourceDisplayName("Plugins.Payments.AmazonPay.AdditionalFee")]
+		[SmartResourceDisplayName("Admin.Configuration.Payment.Methods.AdditionalFee")]
 		public decimal AdditionalFee { get; set; }
 
-		[SmartResourceDisplayName("Plugins.Payments.AmazonPay.AdditionalFeePercentage")]
+		[SmartResourceDisplayName("Admin.Configuration.Payment.Methods.AdditionalFeePercentage")]
 		public bool AdditionalFeePercentage { get; set; }
 
 		[SmartResourceDisplayName("Plugins.Payments.AmazonPay.AddOrderNotes")]

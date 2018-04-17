@@ -80,14 +80,12 @@ namespace SmartStore.Admin.Controllers
 			if (model == null)
 				throw new ArgumentNullException("model");
 
-			var allStores = _services.StoreService.GetAllStores();
-
-			model.AvailableStores = _services.StoreService.GetAllStores().ToSelectListItems(model.SelectedStoreIds);
-
 			if (!excludeProperties)
 			{
 				model.SelectedStoreIds = _storeMappingService.GetStoresIdsWithAccess(country);
 			}
+
+			model.AvailableStores = _services.StoreService.GetAllStores().ToSelectListItems(model.SelectedStoreIds);
 		}
 
         #endregion
@@ -233,7 +231,7 @@ namespace SmartStore.Admin.Controllers
 
             AddLocales(_languageService, model.Locales, (locale, languageId) =>
             {
-                locale.Name = country.GetLocalized(x => x.Name, languageId, false, false);
+				locale.Name = country.GetLocalized(x => x.Name, languageId, false, false);
             });
 
 			PrepareCountryModel(model, country, false);

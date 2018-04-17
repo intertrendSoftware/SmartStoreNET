@@ -407,7 +407,19 @@ namespace SmartStore.Web.Framework
 			}
 			else
 			{
-				builder.Register<IDbContext>(c => new SmartObjectContext(DataSettings.Current.DataConnectionString))
+				builder.Register<IDbContext>(c =>
+					{
+						try
+						{
+							return new SmartObjectContext(DataSettings.Current.DataConnectionString);
+						}
+						catch
+						{
+							//return new SmartObjectContext();
+							return null;
+						}
+
+					})
 					.PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
 					.InstancePerRequest();
 			}
@@ -480,6 +492,7 @@ namespace SmartStore.Web.Framework
 			builder.Register<Localizer>(c => c.Resolve<IText>().Get).InstancePerRequest();
 			builder.Register<LocalizerEx>(c => c.Resolve<IText>().GetEx).InstancePerRequest();
 
+			builder.RegisterType<LocalizationFileResolver>().As<ILocalizationFileResolver>().InstancePerRequest();
 			builder.RegisterType<LocalizedEntityService>().As<ILocalizedEntityService>().InstancePerRequest();
 		}
 

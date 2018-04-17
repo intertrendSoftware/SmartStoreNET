@@ -427,6 +427,13 @@ namespace SmartStore.Web.Controllers
                     true, order.CustomerCurrencyCode, false, language);
             }
 
+			// Credit balance.
+			if (order.CreditBalance > decimal.Zero)
+			{
+				var convertedCreditBalance = _currencyService.ConvertCurrency(order.CreditBalance, order.CurrencyRate);
+				model.CreditBalance = _priceFormatter.FormatPrice(-convertedCreditBalance, true, order.CustomerCurrencyCode, false, language);
+			}
+
             // Total
             var roundingAmount = decimal.Zero;
             var orderTotal = order.GetOrderTotalInCustomerCurrency(_currencyService, _paymentService, out roundingAmount);

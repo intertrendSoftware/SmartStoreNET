@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Xml;
-using SmartStore.Core.Domain.Common;
 using SmartStore.Core.Domain.Customers;
 using SmartStore.Core.Domain.Orders;
 using SmartStore.Core.Infrastructure;
@@ -430,5 +429,5 @@ namespace SmartStore.Services.Customers
 		}
 
 		#endregion
-    }
+	}
 }

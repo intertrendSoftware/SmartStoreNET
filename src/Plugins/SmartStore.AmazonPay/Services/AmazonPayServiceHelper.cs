@@ -6,11 +6,14 @@ using System.Xml.Serialization;
 using AmazonPay;
 using AmazonPay.CommonRequests;
 using AmazonPay.Responses;
+using AmazonPay.StandardPaymentRequests;
 using SmartStore.AmazonPay.Services.Internal;
 using SmartStore.Core.Domain.Common;
 using SmartStore.Core.Domain.Orders;
+using SmartStore.Core.Domain.Stores;
 using SmartStore.Core.Logging;
 using SmartStore.Services.Common;
+using SmartStore.Services.Payments;
 using SmartStore.Utilities;
 
 namespace SmartStore.AmazonPay.Services
@@ -112,10 +115,10 @@ namespace SmartStore.AmazonPay.Services
 					return;
 
 				var sb = new StringBuilder();
-				var faviconUrl = "{0}Plugins/{1}/Content/images/favicon.png".FormatInvariant(_services.WebHelper.GetStoreLocation(false), AmazonPayPlugin.SystemName);
+				var faviconUrl = "{0}Plugins/{1}/Content/images/favicon.png".FormatInvariant(_services.WebHelper.GetStoreLocation(), AmazonPayPlugin.SystemName);
 
-				sb.AppendFormat("<img src=\"{0}\" style=\"float: left; width: 16px; height: 16px;\" />", faviconUrl);
-				sb.AppendFormat("<span style=\"padding-left: 4px;\">{0}</span>", T("Plugins.Payments.AmazonPay.AmazonDataProcessed"));
+				sb.AppendFormat("<img src='{0}' class='mr-1 align-text-top' />", faviconUrl);
+				sb.Append(T("Plugins.Payments.AmazonPay.AmazonDataProcessed"));
 				sb.Append(":<br />");
 				sb.Append(anyString);
 
@@ -422,6 +425,7 @@ namespace SmartStore.AmazonPay.Services
 			data.ReferenceId = response.GetRefundReferenceId();
 			data.Creation = response.GetCreationTimestamp();
 			data.Fee = new AmazonPayPrice(response.GetRefundFee(), response.GetRefundFeeCurrencyCode());
+			data.RefundId = response.GetAmazonRefundId();
 			data.RefundedAmount = new AmazonPayPrice(response.GetRefundAmount(), response.GetRefundAmountCurrencyCode());
 			data.ReasonCode = response.GetReasonCode();
 			data.ReasonDescription = response.GetReasonDescription();
@@ -551,6 +555,43 @@ namespace SmartStore.AmazonPay.Services
 
 			var client = new Client(config);
 			return client;
+		}
+
+		private AuthorizeResponse AuthorizePayment(
+			AmazonPaySettings settings,
+			AmazonPayCheckoutState state,
+			Store store,
+			ProcessPaymentRequest request,
+			Client client,
+			bool synchronously)
+		{
+			var authRequest = new AuthorizeRequest()
+				.WithMerchantId(settings.SellerId)
+				.WithAmazonOrderReferenceId(state.OrderReferenceId)
+				.WithAuthorizationReferenceId(GetRandomId("Authorize"))
+				.WithCaptureNow(settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture)
+				.WithCurrencyCode(ConvertCurrency(store.PrimaryStoreCurrency.CurrencyCode))
+				.WithAmount(request.OrderTotal);
+
+			if (synchronously)
+			{
+				authRequest = authRequest.WithTransactionTimeout(0);
+			}
+
+			// See https://pay.amazon.com/de/developer/documentation/lpwa/201956480
+			//{"SandboxSimulation": {"State":"Declined", "ReasonCode":"InvalidPaymentMethod", "PaymentMethodUpdateTimeInMins":5}}
+			//{"SandboxSimulation": {"State":"Declined", "ReasonCode":"AmazonRejected"}}
+			//if (settings.UseSandbox)
+			//{
+			//	var authNote = _services.Settings.GetSettingByKey<string>("SmartStore.AmazonPay.SellerAuthorizationNote");
+			//	if (authNote.HasValue())
+			//	{
+			//		authRequest = authRequest.WithSellerAuthorizationNote(authNote);
+			//	}
+			//}
+
+			var authResponse = client.Authorize(authRequest);
+			return authResponse;
 		}
 	}
 }

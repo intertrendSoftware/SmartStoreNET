@@ -92,10 +92,6 @@
       <HintPath>..\..\packages\BundleTransformer.Core.1.9.152\lib\net40\BundleTransformer.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="BundleTransformer.Less, Version=1.9.143.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\BundleTransformer.Less.1.9.143\lib\net40\BundleTransformer.Less.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="BundleTransformer.SassAndScss, Version=1.9.154.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
       <HintPath>..\..\packages\BundleTransformer.SassAndScss.1.9.154\lib\net40\BundleTransformer.SassAndScss.dll</HintPath>
       <Private>True</Private>
@@ -241,6 +237,7 @@
     <Compile Include="Controllers\AdminControllerBase.cs" />
     <Compile Include="Extensions\ActionResultExtensions.cs" />
     <Compile Include="Extensions\HtmlZoneExtensions.cs" />
+    <Compile Include="Extensions\LocalizedValueExtensions.cs" />
     <Compile Include="Filters\JsonNetAttribute.cs" />
     <Compile Include="FrameworkCacheConsumer.cs" />
     <Compile Include="Localization\SetWorkingCultureAttribute.cs" />
@@ -317,6 +314,8 @@
     <Compile Include="UI\Choices\ChoiceModel.cs" />
     <Compile Include="UI\Components\EntityPicker\EntityPicker.cs" />
     <Compile Include="UI\Components\EntityPicker\EntityPickerBuilder.cs" />
+    <Compile Include="UI\Components\FileUploader\FileUploaderBuilder.cs" />
+    <Compile Include="UI\Components\FileUploader\FileUploader.cs" />
     <Compile Include="UI\Components\Menu\CatalogMenuProvider.cs" />
     <Compile Include="UI\Components\ViewBasedComponentRenderer.cs" />
     <Compile Include="UI\Components\Menu\AdminMenuProvider.cs" />

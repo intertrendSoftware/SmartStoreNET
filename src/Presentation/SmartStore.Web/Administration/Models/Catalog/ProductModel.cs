@@ -343,6 +343,7 @@ namespace SmartStore.Admin.Models.Catalog
         public int[] SelectedCustomerRoleIds { get; set; }
 
 		// Store mapping
+		[SmartResourceDisplayName("Admin.Common.Store.LimitedTo")]
 		public bool LimitedToStores { get; set; }
 		public IEnumerable<SelectListItem> AvailableStores { get; set; }
 		public int[] SelectedStoreIds { get; set; }
@@ -395,10 +396,13 @@ namespace SmartStore.Admin.Models.Catalog
         public IList<SelectListItem> AvailableQuantityUnits { get; set; }
 
 		public string ProductSelectCheckboxClass { get; set; }
-        
-        #region Nested classes
-        
-        public class AddProductSpecificationAttributeModel : ModelBase
+
+		public bool IsSystemProduct { get; set; } 
+		public string SystemName { get; set; }
+
+		#region Nested classes
+
+		public class AddProductSpecificationAttributeModel : ModelBase
         {
             public AddProductSpecificationAttributeModel()
             {

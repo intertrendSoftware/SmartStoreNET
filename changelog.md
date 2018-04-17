@@ -1,4 +1,4 @@
-﻿# Release Notes
+# Release Notes
 
 ## SmartStore.NET 3.1.0
 ### Breaking changes
@@ -22,11 +22,13 @@
 
 ### New Features
 * 1203 MegaMenu shrinker and *Brands* virtual menu item
+* [Summernote](https://summernote.org/) is now the primary HTML editor
 * #431 Added option to randomize the display order for slides on each request
 * #1258 Add option to filter shipping and payment methods by a specific customer role
 * #1247 Allow to import non system customer roles in customer import
 * #1117 Added an option to display a dropdown menu for manufacturers 
 * #1203 Added an option to define a maximum number of elements in the main menu for the first hierarchy of the catalog navigation
+* GMC: column chooser for edit grid
 * #1100 Customer can register in frontend via "Login with Amazon" button
 * **Web API**:
 	* #1292 Added endpoint to get order in PDF format
@@ -37,12 +39,17 @@
 * #1295 Sales tracking (tracking pixel) for Billiger.de
 * XML and CSV export of shopping cart and wishlist items
 * #1363 Make storing of IP addresses optional
+* #729 Option for automatic order amount capturing when the shipping status changed to "shipped"
+* (Dev) ILocalizationFileResolver: responsible for finding localization files for client scripts
+* #998 GMC: Find a way to map attribute combination values to feed export values
 
 ### Improvements
 * Target .NET Framework changed: 4.5.2 > 4.6.1.
 * Lower memory consumption
 * #649 Media FileSystem provider: segmenting files in subfolders to increase IO perf with huge amount of files
 * #1141 Clearer backend order list. Added more infos like payment method.
+* OuputCache: Simple product changes that affect visibility now correctly invalidate all assigned category and manufacturer pages
+* * OuputCache: When MegaSearch is active, invalidation occurs only during indexing and not ad-hoc anymore. 
 * #1248 New payment integration guidelines for Sofort\Klarna
 * TwitterAuth: better error handling and enhanced admin instruction
 * #1181 Debitoor: Add option to display shipping address on invoices
@@ -51,6 +58,10 @@
 * #1285 Copy product: Add option to add more than one copy
 * (Perf) Many improvements in hooking framework
 * #1294 Swiss PostFinance: External payment page too small on mobile devices. Added setting for mobile device template URL, pre-configured with PostFinance template.
+* #1143 Make shipping methods suitable for multi-stores
+* #1320 Image import: Find out the content type of image URLs by response header rather than file extension (which is sometimes missing)
+* #1219 Recently viewed products list should respect setting to hide manufacturer names
+* Import and export product quantity step
 
 ### Bugfixes
 * #1268 Data importer always inserts new pictures and does not detect equal pictures while importing
@@ -66,6 +77,12 @@
 * #1330 MegaSearch: Missing variant facets if the variant value is not unique
 * Back-in-stock subscription form was already submitted when opening the popup dialog
 * Associated products of a grouped product were displayed in the wrong order
+* Payment-Filter: Fixed "The cast to value type 'System.Decimal' failed because the materialized value is null"
+* The tax value per tax rate was not updated when adding\removing a product to\from the order.
+* The option to send manually was ignored when sending e-mails
+* #528 LimitedToStores is required on payment provider rather than plugin level
+* #1318 Disabled preselected attribute combination permanently hides the shopping cart button, even if another combination is selected.
+* Copy product: Fixes "Cannot insert duplicate key row in object dbo.UrlRecord with unique index IX_UrlRecord_Slug"
 
 
 ## SmartStore.NET 3.0.3

@@ -216,7 +216,7 @@ namespace SmartStore.Services.Messages
 		private string RenderBodyTemplate(MessageContext ctx)
 		{
 			var key = BuildTemplateKey(ctx);
-			var source = ctx.MessageTemplate.GetLocalized((x) => x.Body, ctx.Language.Id);
+			var source = ctx.MessageTemplate.GetLocalized((x) => x.Body, ctx.Language);
 			var fromCache = true;
 			var template = _templateManager.GetOrAdd(key, GetBodyTemplate);	
 
@@ -434,7 +434,7 @@ namespace SmartStore.Services.Messages
 			var factories = new Dictionary<string, Func<object>>(StringComparer.OrdinalIgnoreCase)
 			{
 				{ "BlogComment", () => GetRandomEntity<BlogComment>(x => true) },
-				{ "Product", () => GetRandomEntity<Product>(x => !x.Deleted && x.VisibleIndividually && x.Published) },
+				{ "Product", () => GetRandomEntity<Product>(x => !x.Deleted && !x.IsSystemProduct && x.VisibleIndividually && x.Published) },
 				{ "Customer", () => GetRandomEntity<Customer>(x => !x.Deleted && !x.IsSystemAccount && !string.IsNullOrEmpty(x.Email)) },
 				{ "Order", () => GetRandomEntity<Order>(x => !x.Deleted) },
 				{ "Shipment", () => GetRandomEntity<Shipment>(x => !x.Order.Deleted) },
@@ -448,8 +448,9 @@ namespace SmartStore.Services.Messages
 				{ "ForumPost", () => GetRandomEntity<ForumPost>(x => true) },
 				{ "PrivateMessage", () => GetRandomEntity<PrivateMessage>(x => true) },
 				{ "GiftCard", () => GetRandomEntity<GiftCard>(x => true) },
-				{ "ProductReview", () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && x.Product.VisibleIndividually && x.Product.Published) },
-				{ "NewsComment", () => GetRandomEntity<NewsComment>(x => x.NewsItem.Published) }
+				{ "ProductReview", () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.VisibleIndividually && x.Product.Published) },
+				{ "NewsComment", () => GetRandomEntity<NewsComment>(x => x.NewsItem.Published) },
+				{ "WalletHistory", () => GetRandomEntity<WalletHistory>(x => true) }
 			};
 
 			var modelNames = messageContext.MessageTemplate.ModelTypes
@@ -626,7 +627,7 @@ namespace SmartStore.Services.Messages
 			if (count > 0)
 			{
 				// Fetch a random one
-				var skip = new Random().Next(count - 1);
+				var skip = new Random().Next(count);
 				result = query.OrderBy(x => x.Id).Skip(skip).FirstOrDefault();
 			}
 			else

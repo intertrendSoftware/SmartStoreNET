@@ -8,9 +8,13 @@
     {
         <script>
 			function onProductCategoryEdit(e) {
-				_.delay(function () {
-					$('#Category').val(e.dataItem['CategoryId']).trigger('change');
-				}, 0);
+				if (e.mode == "edit") {
+					$('#Category')
+						.data('select-selected-id', e.dataItem['CategoryId'])
+						.data('select-init-text', e.dataItem['Category'])
+						.val(e.dataItem['CategoryId'])
+						.trigger('change');
+				}
 			}
 
 			function onProductCategoryDataBound(e) {

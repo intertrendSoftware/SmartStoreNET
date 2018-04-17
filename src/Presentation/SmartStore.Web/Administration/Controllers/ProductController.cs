@@ -374,7 +374,8 @@ namespace SmartStore.Admin.Controllers
 				p.StockQuantity > 0 &&
 				prevStockQuantity <= 0 &&
 				p.Published &&
-				!p.Deleted)
+				!p.Deleted &&
+				!p.IsSystemProduct)
 			{
 				_backInStockSubscriptionService.SendNotificationsToSubscribers(p);
 			}
@@ -633,14 +634,7 @@ namespace SmartStore.Admin.Controllers
 
 			if (!excludeProperties)
 			{
-				if (product != null)
-				{
-					model.SelectedStoreIds = _storeMappingService.GetStoresIdsWithAccess(product);
-				}
-				else
-				{
-					model.SelectedStoreIds = new int[0];
-				}
+				model.SelectedStoreIds = _storeMappingService.GetStoresIdsWithAccess(product);
 			}
 
 			model.AvailableStores = _storeService.GetAllStores().ToSelectListItems(model.SelectedStoreIds);
@@ -2332,7 +2326,7 @@ namespace SmartStore.Admin.Controllers
 
             _pictureService.SetSeoFilename(pictureId, _pictureService.GetPictureSeName(product.Name));
 
-            return Json(new { Result = true }, JsonRequestBehavior.AllowGet);
+            return Json(new { Result = true, message = T("Admin.Product.Picture.Added").JsText.ToString() }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, GridAction(EnableCustomBinding = true)]
@@ -2376,29 +2370,36 @@ namespace SmartStore.Admin.Controllers
         [GridAction(EnableCustomBinding = true)]
         public ActionResult ProductPictureUpdate(ProductModel.ProductPictureModel model, GridCommand command)
         {
-			var productPicture = _productService.GetProductPictureById(model.Id);
-
 			if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 			{
-				productPicture.DisplayOrder = model.DisplayOrder;
-				_productService.UpdateProductPicture(productPicture);
+				var productPicture = _productService.GetProductPictureById(model.Id);
+				if (productPicture != null)
+				{
+					productPicture.DisplayOrder = model.DisplayOrder;
+
+					_productService.UpdateProductPicture(productPicture);
+				}
 			}
 
-            return ProductPictureList(command, productPicture.ProductId);
+            return ProductPictureList(command, model.ProductId);
         }
 
         [GridAction(EnableCustomBinding = true)]
-        public ActionResult ProductPictureDelete(int id, GridCommand command)
+        public ActionResult ProductPictureDelete(int id, int productId, GridCommand command)
         {
-			var productPicture = _productService.GetProductPictureById(id);
-			var productId = productPicture.ProductId;
-
 			if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
 			{
-				_productService.DeleteProductPicture(productPicture);
+				var productPicture = _productService.GetProductPictureById(id);
+				if (productPicture != null)
+				{
+					_productService.DeleteProductPicture(productPicture);
+				}
 
 				var picture = _pictureService.GetPictureById(productPicture.PictureId);
-				_pictureService.DeletePicture(picture);
+				if (picture != null)
+				{
+					_pictureService.DeletePicture(picture);
+				}
 			}
             
             return ProductPictureList(command, productId);
@@ -2485,7 +2486,7 @@ namespace SmartStore.Admin.Controllers
                                 })
                                 .ToList();
 
-                            psaModel.SpecificationAttributeOptionsJsonString = HttpUtility.HtmlEncode(JsonConvert.SerializeObject(psaModel.SpecificationAttributeOptions));
+							psaModel.SpecificationAttributeOptionsUrl = Url.Action("GetOptionsByAttributeId", "SpecificationAttribute", new { attributeId = attributeId });
                         }
 
                         return psaModel;
@@ -2832,7 +2833,8 @@ namespace SmartStore.Admin.Controllers
 								product.StockQuantity > 0 &&
 								prevStockQuantity <= 0 &&
 								product.Published &&
-								!product.Deleted)
+								!product.Deleted && 
+								!product.IsSystemProduct)
 							{
 								_backInStockSubscriptionService.SendNotificationsToSubscribers(product);
 							}
@@ -3019,37 +3021,6 @@ namespace SmartStore.Admin.Controllers
 
 			return TierPriceList(command, productId);
 		}
-
-        public ActionResult AllCalculationMethods(string label, int selectedId)
-        {
-            var list = new List<object>
-            {
-                new
-				{
-					id = ((int)TierPriceCalculationMethod.Fixed).ToString(),
-					text = T("Admin.Product.Price.Tierprices.Fixed").Text,
-					selected = selectedId == (int)TierPriceCalculationMethod.Fixed
-				},
-                new
-				{
-					id = ((int)TierPriceCalculationMethod.Adjustment).ToString(),
-					text = T("Admin.Product.Price.Tierprices.Adjustment").Text,
-					selected = selectedId == (int)TierPriceCalculationMethod.Adjustment
-				},
-                new
-				{
-					id = ((int)TierPriceCalculationMethod.Percental).ToString(),
-					text = T("Admin.Product.Price.Tierprices.Percental").Text,
-					selected = selectedId == (int)TierPriceCalculationMethod.Percental
-				}
-            };
-
-            return new JsonResult
-			{
-				Data = list,
-				JsonRequestBehavior = JsonRequestBehavior.AllowGet
-			};
-        }
 
         #endregion
 
@@ -3305,7 +3276,7 @@ namespace SmartStore.Admin.Controllers
 						DisplayOrder = x.DisplayOrder,
 						ValueTypeId = x.ValueTypeId,
 						TypeName = x.ValueType.GetLocalizedEnum(_localizationService, _workContext),
-						TypeNameClass = (x.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-1 mr8" : "d-none hide hidden-xs-up"),
+						TypeNameClass = (x.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up"),
 						LinkedProductId = x.LinkedProductId,
 						Quantity = x.Quantity
 					};
@@ -3446,7 +3417,7 @@ namespace SmartStore.Admin.Controllers
 				DisplayOrder = pvav.DisplayOrder,
 				ValueTypeId = pvav.ValueTypeId,
 				TypeName = pvav.ValueType.GetLocalizedEnum(_localizationService, _workContext),
-				TypeNameClass = (pvav.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-1 mr8" : "d-none hide hidden-xs-up"),
+				TypeNameClass = (pvav.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up"),
 				LinkedProductId = pvav.LinkedProductId,
 				Quantity = pvav.Quantity
 			};
@@ -3551,10 +3522,12 @@ namespace SmartStore.Admin.Controllers
 				throw new ArgumentNullException("variant");
 
 			model.ProductId = product.Id;
+			model.PrimaryStoreCurrencyCode = _services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+			model.BaseDimensionIn = _measureService.GetMeasureDimensionById(_measureSettings.BaseDimensionId)?.Name;
 
 			if (entity == null)
 			{
-				// is a new entity, so initialize it properly
+				// It's a new entity, so initialize it properly.
 				model.StockQuantity = 10000;
 				model.IsActive = true;
 				model.AllowOutOfStockOrders = true;

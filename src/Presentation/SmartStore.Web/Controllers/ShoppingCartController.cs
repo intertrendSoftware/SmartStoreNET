@@ -272,7 +272,8 @@ namespace SmartStore.Web.Controllers
 				IsDownload = product.IsDownload,
 				HasUserAgreement = product.HasUserAgreement,
 				IsEsd = product.IsEsd,
-				CreatedOnUtc = item.UpdatedOnUtc
+				CreatedOnUtc = item.UpdatedOnUtc,
+				DisableWishlistButton = product.DisableWishlistButton
 			};
 
 			model.BasePrice = product.GetBasePriceInfo(_localizationService, _priceFormatter, _currencyService, _taxService, _priceCalculationService, customer, currency);
@@ -476,7 +477,8 @@ namespace SmartStore.Web.Controllers
                 ShortDesc = product.GetLocalized(x => x.ShortDescription),
 				ProductType = product.ProductType,
 				VisibleIndividually = product.VisibleIndividually,
-				CreatedOnUtc = item.UpdatedOnUtc
+				CreatedOnUtc = item.UpdatedOnUtc,
+				DisableBuyButton = product.DisableBuyButton
 			};
 
 			model.ProductUrl = _productUrlHelper.GetProductUrl(model.ProductSeName, sci);
@@ -715,7 +717,7 @@ namespace SmartStore.Web.Controllers
 
 			if (_shoppingCartSettings.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None)
 			{
-				model.ThirdPartyEmailHandOverLabel = _shoppingCartSettings.GetLocalized(x => x.ThirdPartyEmailHandOverLabel, _workContext.WorkingLanguage.Id, true, false);
+				model.ThirdPartyEmailHandOverLabel = _shoppingCartSettings.GetLocalized(x => x.ThirdPartyEmailHandOverLabel, _workContext.WorkingLanguage, true, false);
 
 				if (model.ThirdPartyEmailHandOverLabel.IsEmpty())
 					model.ThirdPartyEmailHandOverLabel = T("Admin.Configuration.Settings.ShoppingCart.ThirdPartyEmailHandOverLabel.Default");
@@ -1505,7 +1507,7 @@ namespace SmartStore.Web.Controllers
         public ActionResult UploadFileProductAttribute(int productId, int productAttributeId)
         {
             var product = _productService.GetProductById(productId);
-            if (product == null || !product.Published || product.Deleted)
+            if (product == null || !product.Published || product.Deleted || product.IsSystemProduct)
             {
                 return Json(new
                 {
@@ -1877,7 +1879,7 @@ namespace SmartStore.Web.Controllers
                 {
                     if (getShippingOptionResponse.ShippingOptions.Count > 0)
                     {
-						var shippingMethods = _shippingService.GetAllShippingMethods();
+						var shippingMethods = _shippingService.GetAllShippingMethods(null, store.Id);
 
                         foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
                         {
@@ -2096,6 +2098,13 @@ namespace SmartStore.Web.Controllers
                     model.RedeemedRewardPoints = cartTotal.RedeemedRewardPoints;
                     model.RedeemedRewardPointsAmount = _priceFormatter.FormatPrice(-redeemedRewardPointsAmountInCustomerCurrency, true, false);
                 }
+
+				// Credit balance.
+				if (cartTotal.CreditBalance > decimal.Zero)
+				{
+					var convertedCreditBalance = _currencyService.ConvertFromPrimaryStoreCurrency(cartTotal.CreditBalance, currency);
+					model.CreditBalance = _priceFormatter.FormatPrice(-convertedCreditBalance, true, false);
+				}
             }
             
             return PartialView(model);

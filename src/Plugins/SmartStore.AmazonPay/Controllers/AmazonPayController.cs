@@ -59,17 +59,33 @@ namespace SmartStore.AmazonPay.Controllers
 			return View(model);
 		}
 
-		[HttpPost, AdminAuthorize, SaveSetting]
-		public ActionResult Configure(AmazonPaySettings settings, ConfigurationModel model, FormCollection form)
+		[HttpPost, AdminAuthorize]
+		public ActionResult Configure(ConfigurationModel model, FormCollection form)
 		{
+			var storeDependingSettingHelper = new StoreDependingSettingHelper(ViewData);
+			var storeScope = this.GetActiveStoreScopeConfiguration(Services.StoreService, Services.WorkContext);
+			var settings = Services.Settings.LoadSetting<AmazonPaySettings>(storeScope);
+
 			if (!ModelState.IsValid)
 				return Configure(settings);
 
 			ModelState.Clear();
 			MiniMapper.Map(model, settings);
 
-			Services.Settings.SaveSetting(settings, x => x.DataFetching, 0, false);
-			Services.Settings.SaveSetting(settings, x => x.PollingMaxOrderCreationDays, 0, false);
+			using (Services.Settings.BeginScope())
+			{
+				storeDependingSettingHelper.UpdateSettings(settings, form, storeScope, Services.Settings);
+			}
+
+			using (Services.Settings.BeginScope())
+			{
+				Services.Settings.SaveSetting(settings, x => x.DataFetching, 0, false);
+				Services.Settings.SaveSetting(settings, x => x.PollingMaxOrderCreationDays, 0, false);
+				Services.Settings.SaveSetting(settings, x => x.AccessKey.TrimSafe(), 0, false);
+				Services.Settings.SaveSetting(settings, x => x.ClientId.TrimSafe(), 0, false);
+				Services.Settings.SaveSetting(settings, x => x.SecretKey.TrimSafe(), 0, false);
+				Services.Settings.SaveSetting(settings, x => x.SellerId.TrimSafe(), 0, false);
+			}
 
 			var task = _scheduleTaskService.Value.GetTaskByType<DataPollingTask>();
 			if (task != null)
@@ -81,7 +97,7 @@ namespace SmartStore.AmazonPay.Controllers
 
 			NotifySuccess(T("Plugins.Payments.AmazonPay.ConfigSaveNote"));
 
-			return Configure(settings);
+			return RedirectToConfiguration(AmazonPayPlugin.SystemName);
 		}
 
 		[HttpPost, AdminAuthorize]
@@ -99,7 +115,7 @@ namespace SmartStore.AmazonPay.Controllers
 				NotifyError(exception.Message);
 			}
 
-			return RedirectToAction("ConfigurePlugin", "Plugin", new { area = "admin", systemName = AmazonPayPlugin.SystemName });
+			return RedirectToConfiguration(AmazonPayPlugin.SystemName);
 		}
 
 		[ValidateInput(false)]

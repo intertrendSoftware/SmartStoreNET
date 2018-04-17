@@ -14,6 +14,7 @@ using SmartStore.Services.Media;
 using SmartStore.Services.Search;
 using SmartStore.Services.Seo;
 using SmartStore.Services.Stores;
+using SmartStore.Core.Domain.Seo;
 
 namespace SmartStore.Services.Catalog
 {
@@ -33,6 +34,7 @@ namespace SmartStore.Services.Catalog
         private readonly IUrlRecordService _urlRecordService;
 		private readonly IStoreMappingService _storeMappingService;
 		private readonly ICatalogSearchService _catalogSearchService;
+		private readonly SeoSettings _seoSettings;
 
 		public CopyProductService(
 			IRepository<Product> productRepository,
@@ -48,7 +50,8 @@ namespace SmartStore.Services.Catalog
             IProductAttributeParser productAttributeParser,
 			IUrlRecordService urlRecordService,
 			IStoreMappingService storeMappingService,
-			ICatalogSearchService catalogSearchService)
+			ICatalogSearchService catalogSearchService,
+			SeoSettings seoSettings)
         {
 			_productRepository = productRepository;
 			_relatedProductRepository = relatedProductRepository;
@@ -64,6 +67,7 @@ namespace SmartStore.Services.Catalog
 			_urlRecordService = urlRecordService;
 			_storeMappingService = storeMappingService;
 			_catalogSearchService = catalogSearchService;
+			_seoSettings = seoSettings;
 
 			T = NullLocalizer.Instance;
         }
@@ -171,6 +175,8 @@ namespace SmartStore.Services.Catalog
 						AllowBackInStockSubscriptions = product.AllowBackInStockSubscriptions,
 						OrderMinimumQuantity = product.OrderMinimumQuantity,
 						OrderMaximumQuantity = product.OrderMaximumQuantity,
+						QuantityStep = product.QuantityStep,
+						QuantiyControlType = product.QuantiyControlType,
 						HideQuantityControl = product.HideQuantityControl,
 						AllowedQuantities = product.AllowedQuantities,
 						DisableBuyButton = product.DisableBuyButton,
@@ -196,6 +202,7 @@ namespace SmartStore.Services.Catalog
 						DisplayOrder = product.DisplayOrder,
 						Published = isPublished,
 						Deleted = product.Deleted,
+						IsSystemProduct = product.IsSystemProduct,
 						DeliveryTimeId = product.DeliveryTimeId,
 						QuantityUnitId = product.QuantityUnitId,
 						BasePriceEnabled = product.BasePriceEnabled,
@@ -423,7 +430,8 @@ namespace SmartStore.Services.Catalog
 		{
 			using (var scope = new DbContextScope(ctx: _productRepository.Context, autoCommit: true))
 			{
-				_urlRecordService.SaveSlug(clone, clone.ValidateSeName("", clone.Name, true), 0);
+				var slug = clone.ValidateSeName("", clone.Name, true, _urlRecordService, _seoSettings);
+				_urlRecordService.SaveSlug(clone, slug, 0);
 			}
 		}
 
@@ -433,36 +441,37 @@ namespace SmartStore.Services.Catalog
 			{
 				foreach (var lang in languages)
 				{
-					var name = product.GetLocalized(x => x.Name, lang.Id, false, false);
+					var name = product.GetLocalized(x => x.Name, lang, false, false);
 					if (!String.IsNullOrEmpty(name))
 						_localizedEntityService.SaveLocalizedValue(clone, x => x.Name, name, lang.Id);
 
-					var shortDescription = product.GetLocalized(x => x.ShortDescription, lang.Id, false, false);
+					var shortDescription = product.GetLocalized(x => x.ShortDescription, lang, false, false);
 					if (!String.IsNullOrEmpty(shortDescription))
 						_localizedEntityService.SaveLocalizedValue(clone, x => x.ShortDescription, shortDescription, lang.Id);
 
-					var fullDescription = product.GetLocalized(x => x.FullDescription, lang.Id, false, false);
+					var fullDescription = product.GetLocalized(x => x.FullDescription, lang, false, false);
 					if (!String.IsNullOrEmpty(fullDescription))
 						_localizedEntityService.SaveLocalizedValue(clone, x => x.FullDescription, fullDescription, lang.Id);
 
-					var metaKeywords = product.GetLocalized(x => x.MetaKeywords, lang.Id, false, false);
+					var metaKeywords = product.GetLocalized(x => x.MetaKeywords, lang, false, false);
 					if (!String.IsNullOrEmpty(metaKeywords))
 						_localizedEntityService.SaveLocalizedValue(clone, x => x.MetaKeywords, metaKeywords, lang.Id);
 
-					var metaDescription = product.GetLocalized(x => x.MetaDescription, lang.Id, false, false);
+					var metaDescription = product.GetLocalized(x => x.MetaDescription, lang, false, false);
 					if (!String.IsNullOrEmpty(metaDescription))
 						_localizedEntityService.SaveLocalizedValue(clone, x => x.MetaDescription, metaDescription, lang.Id);
 
-					var metaTitle = product.GetLocalized(x => x.MetaTitle, lang.Id, false, false);
+					var metaTitle = product.GetLocalized(x => x.MetaTitle, lang, false, false);
 					if (!String.IsNullOrEmpty(metaTitle))
 						_localizedEntityService.SaveLocalizedValue(clone, x => x.MetaTitle, metaTitle, lang.Id);
 
-					var bundleTitleText = product.GetLocalized(x => x.BundleTitleText, lang.Id, false, false);
+					var bundleTitleText = product.GetLocalized(x => x.BundleTitleText, lang, false, false);
 					if (!String.IsNullOrEmpty(bundleTitleText))
 						_localizedEntityService.SaveLocalizedValue(clone, x => x.BundleTitleText, bundleTitleText, lang.Id);
 
-					// search engine name
-					_urlRecordService.SaveSlug(clone, clone.ValidateSeName("", name, false), lang.Id);
+					// Search engine name.
+					var slug = clone.ValidateSeName("", name, false, _urlRecordService, _seoSettings, lang.Id);
+					_urlRecordService.SaveSlug(clone, slug, lang.Id);
 				}
 			}
 		}
@@ -567,7 +576,7 @@ namespace SmartStore.Services.Catalog
 			{
 				foreach (var lang in languages)
 				{
-					var name = pvav.GetLocalized(x => x.Name, lang.Id, false, false);
+					var name = pvav.GetLocalized(x => x.Name, lang, false, false);
 					if (!String.IsNullOrEmpty(name))
 					{
 						var pvavClone = pvavMap.Get(pvav.Id);

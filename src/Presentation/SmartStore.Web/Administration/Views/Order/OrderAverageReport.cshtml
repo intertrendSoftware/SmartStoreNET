@@ -10,13 +10,13 @@
 		var x = Model[i];
 		<div class='col-auto stats-today-item@(i == 0 ? " ml-auto" : "")'>
 			<div class="stats-today-item-label">@x.OrderStatus</div>
-			<div class="stats-today-item-value">@x.SumTodayOrders</div>
+			<div class="stats-today-item-value@(x.SumTodayOrdersRaw > 0 ? " active" : "")">@x.SumTodayOrders</div>
 		</div>
 	}
 </div>
 
 <div class="card card-shadow mb-4"> 
-    <h6 class="card-header font-weight-medium">
+    <h6 class="card-header font-weight-medium border-bottom-0">
 		<i class="fa fa-signal pr-2"></i>
 		@T("Admin.SalesReport.Average")
     </h6>
