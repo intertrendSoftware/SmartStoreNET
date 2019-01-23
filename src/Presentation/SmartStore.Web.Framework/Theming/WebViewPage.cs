@@ -65,7 +65,12 @@ namespace SmartStore.Web.Framework.Theming
             }
         }
 
-        protected bool HasMessages
+		public bool EnableHoneypotProtection
+		{
+			get { return _helper.EnableHoneypotProtection; }
+		}
+
+		protected bool HasMessages
 		{
 			get
 			{
@@ -161,29 +166,6 @@ namespace SmartStore.Web.Framework.Theming
                 base.Layout = value;
             }
         }
-
-        /// <summary>
-        /// Return a value indicating whether the working language and theme support RTL (right-to-left)
-        /// </summary>
-        /// <returns></returns>
-        public bool ShouldUseRtlTheme()
-        {
-			var lang = _helper.Services?.WorkContext?.WorkingLanguage;
-			if (lang == null)
-			{
-				return false;
-			}
-
-			var supportRtl = lang.Rtl;
-			if (supportRtl)
-			{
-				// Ensure that the active theme also supports it
-				var manifest = this.ThemeManifest;
-				supportRtl = manifest == null ? supportRtl : manifest.SupportRtl;
-			}
-
-			return supportRtl;
-		}
 
 		/// <summary>
 		/// Gets the manifest of the current active theme
@@ -322,7 +304,48 @@ namespace SmartStore.Web.Framework.Theming
 		{
 			return _helper.LocalizationFileResolver.Resolve(culture, virtualPath, pattern, true, fallbackCulture);
 		}
-    }
+
+		public bool HasMetadata(string name)
+		{
+			return TryGetMetadata<object>(name, out _);
+		}
+
+		/// <summary>
+		/// Looks up an entry in ViewData dictionary first, then in ViewData.ModelMetadata.AdditionalValues dictionary
+		/// </summary>
+		/// <typeparam name="T">Actual type of value</typeparam>
+		/// <param name="name">Name of entry</param>
+		/// <returns>Result</returns>
+		public T GetMetadata<T>(string name)
+		{
+			TryGetMetadata<T>(name, out var value);
+			return value;
+		}
+
+		/// <summary>
+		/// Looks up an entry in ViewData dictionary first, then in ViewData.ModelMetadata.AdditionalValues dictionary
+		/// </summary>
+		/// <typeparam name="T">Actual type of value</typeparam>
+		/// <param name="name">Name of entry</param>
+		/// <returns><c>true</c> if the entry exists in any of the dictionaries, <c>false</c> otherwise</returns>
+		public bool TryGetMetadata<T>(string name, out T value)
+		{
+			value = default(T);
+
+			var exists = ViewData.TryGetValue(name, out var raw);
+			if (!exists)
+			{
+				exists = ViewData.ModelMetadata?.AdditionalValues?.TryGetValue(name, out raw) == true;
+			}
+
+			if (raw != null)
+			{
+				value = raw.Convert<T>();
+			}
+
+			return exists;
+		}
+	}
 
     public abstract class WebViewPage : WebViewPage<dynamic>
     {

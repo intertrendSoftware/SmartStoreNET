@@ -82,6 +82,7 @@ namespace SmartStore.Web.Framework
                             var language = languageService.GetLanguageById(locale.LanguageId);
 
  							x.Add().Text(language.Name)
+								.LinkHtmlAttributes(new { title = language.Name })
 								.ContentHtmlAttributes(new { @class = "locale-editor-content", data_lang = language.LanguageCulture, data_rtl = language.Rtl.ToString().ToLower() })
 								.Content(localizedTemplate(i))
 								.ImageUrl("~/Content/images/flags/" + language.FlagImageFileName)
@@ -504,9 +505,7 @@ namespace SmartStore.Web.Framework
 
 		public static IHtmlString LanguageAttributes<T>(this HtmlHelper html, LocalizedValue<T> localizedValue)
 		{
-			Guard.NotNull(localizedValue, nameof(localizedValue));
-
-			if (!localizedValue.BidiOverride)
+			if (localizedValue == null || !localizedValue.BidiOverride)
 			{
 				return MvcHtmlString.Empty;
 			}
@@ -530,17 +529,16 @@ namespace SmartStore.Web.Framework
 			return new MvcHtmlString(result);
 		}
 
-		public static IHtmlString LanguageAttributes(this HtmlHelper html, NavigationItem navItem, Language currentLanguage)
+		public static IHtmlString LanguageAttributes(this HtmlHelper html, bool currentRtl, Language pageLanguage)
 		{
-			Guard.NotNull(navItem, nameof(navItem));
-			Guard.NotNull(currentLanguage, nameof(currentLanguage));
+			Guard.NotNull(pageLanguage, nameof(pageLanguage));
 
-			if (navItem.Rtl != currentLanguage.Rtl)
+			if (currentRtl == pageLanguage.Rtl)
 			{
 				return MvcHtmlString.Empty;
 			}
 
-			var result = "dir=\"" + (navItem.Rtl ? "rtl" : "ltr") + "\"";
+			var result = "dir=\"" + (currentRtl ? "rtl" : "ltr") + "\"";
 			return new MvcHtmlString(result);
 		}
 
@@ -819,7 +817,7 @@ namespace SmartStore.Web.Framework
 			Guard.NotNull(helper, nameof(helper));
 			Guard.NotEmpty(fileExtension, nameof(fileExtension));
 
-			var icon = "file-o";
+			var icon = "far fa-file";
 			var ext = fileExtension;
 
 			if (ext != null && ext.StartsWith("."))
@@ -832,7 +830,7 @@ namespace SmartStore.Web.Framework
 				switch (ext.ToLowerInvariant())
 				{
 					case "pdf":
-						icon = "file-pdf-o";
+						icon = "far fa-file-pdf";
 						break;
 					case "doc":
 					case "docx":
@@ -841,18 +839,18 @@ namespace SmartStore.Web.Framework
 					case "dot":
 					case "dotx":
 					case "dotm":
-						icon = "file-word-o";
+						icon = "far fa-file-word";
 						break;
 					case "xls":
 					case "xlsx":
 					case "xlsm":
 					case "xlsb":
 					case "ods":
-						icon = "file-excel-o";
+						icon = "far fa-file-excel";
 						break;
 					case "csv":
 					case "tab":
-						icon = "table";
+						icon = "fa fa-file-csv";
 						break;
 					case "ppt":
 					case "pptx":
@@ -864,25 +862,25 @@ namespace SmartStore.Web.Framework
 					case "potm":
 					case "pps":
 					case "ppsm":
-						icon = "file-powerpoint-o";
+						icon = "far fa-file-powerpoint";
 						break;
 					case "zip":
 					case "rar":
 					case "7z":
-						icon = "file-archive-o";
+						icon = "far fa-file-archive";
 						break;
 					case "png":
 					case "jpg":
 					case "jpeg":
 					case "bmp":
 					case "psd":
-						icon = "file-image-o";
+						icon = "far fa-file-image";
 						break;
 					case "mp3":
 					case "wav":
 					case "ogg":
 					case "wma":
-						icon = "file-audio-o";
+						icon = "far fa-file-audio";
 						break;
 					case "mp4":
 					case "mkv":
@@ -891,25 +889,25 @@ namespace SmartStore.Web.Framework
 					case "asf":
 					case "mpg":
 					case "mpeg":
-						icon = "file-video-o";
+						icon = "far fa-file-video";
 						break;
 					case "txt":
-						icon = "file-text-o";
+						icon = "far fa-file-alt";
 						break;
 					case "exe":
-						icon = "gear";
+						icon = "fa fa-cog";
 						break;
 					case "xml":
 					case "html":
 					case "htm":
-						icon = "file-code-o";
+						icon = "far fa-file-code";
 						break;
 				}
 			}
 
 			var label = ext.NaIfEmpty().ToUpper();
 
-			var result = "<i class='fa fa-fw fa-{0}{1}' title='{2}'></i>".FormatInvariant(
+			var result = "<i class='fa-fw {0}{1}' title='{2}'></i>".FormatInvariant(
 				icon, 
 				extraCssClasses.HasValue() ? " " + extraCssClasses : "",
 				label);
@@ -922,7 +920,7 @@ namespace SmartStore.Web.Framework
 				}
 				else
 				{
-					result = result + "<span class='ml-4'>{0}</span>".FormatInvariant(label);
+					result = result + "<span class='ml-1'>{0}</span>".FormatInvariant(label);
 				}	
 			}
 

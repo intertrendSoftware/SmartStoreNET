@@ -2,7 +2,7 @@
 *  Project: SmartStore select wrapper 
 *  Author: Murat Cakir, SmartStore AG
 */
-;
+
 (function ($, window, document, undefined) {
 
 	// Customize select2 defaults
@@ -26,7 +26,7 @@
 				callback(data);
 			}
 		});
-	};
+	}
 
 	$.fn.select2.amd.define('select2/data/lazyAdapter', [
 			'select2/data/array',
@@ -54,7 +54,8 @@
 					if (initId) {
 						// Add the option tag to the select element,
 						// otherwise the current val() will not be resolved.
-						var $option = select.find('option').filter(function (i, elm) {
+                        var $option = select.find('option').filter(function (i, elm) {
+                            // Do not === otherwise infinite loop ;-)
 							return elm.value == initId;
 						});
 
@@ -91,23 +92,23 @@
 
 					list = lists[url];
 
-					var doQuery = function (data) {
-						list = data;
-						if (term) {
-							var isGrouped = data.length && data[0].children;
-							if (isGrouped) {
-								// In a grouped list, find the optgroup marked with "main"
-								var mainGroup = _.find(data, function (x) { return x.children && x.main });
-								data = mainGroup ? mainGroup.children : data[0].children;
-							}
-							list = _.filter(data, function (val) {
-								var rg = new RegExp(term, "i");
-								return rg.test(val.text);
-							});
-						}
-						select.data("loaded", true);
-						callback({ results: list });
-					}
+                    var doQuery = function (data) {
+                        list = data;
+                        if (term) {
+                            var isGrouped = data.length && data[0].children;
+                            if (isGrouped) {
+                                // In a grouped list, find the optgroup marked with "main"
+                                var mainGroup = _.find(data, function (x) { return x.children && x.main; });
+                                data = mainGroup ? mainGroup.children : data[0].children;
+                            }
+                            list = _.filter(data, function (val) {
+                                var rg = new RegExp(term, "i");
+                                return rg.test(val.text);
+                            });
+                        }
+                        select.data("loaded", true);
+                        callback({ results: list });
+                    };
 
 					if (!list) {
 						load(url, initId, doQuery);
@@ -124,35 +125,35 @@
 		}
 	);
 
-	$.fn.selectWrapper = function (options) {
-    	if (options && !_.str.isBlank(options.resetDataUrl) && lists[options.resetDataUrl]) {
-    		lists[options.resetDataUrl] = null;
-    		return this.each(function () { });
-		}
+    $.fn.selectWrapper = function (options) {
+        if (options && !_.str.isBlank(options.resetDataUrl) && lists[options.resetDataUrl]) {
+            lists[options.resetDataUrl] = null;
+            return this.each(function () { });
+        }
 
-		options = options || {};
+        options = options || {};
 
         return this.each(function () {
-			var sel = $(this);
+            var sel = $(this);
 
-            if (sel.data("select2")) { 
+            if (sel.data("select2")) {
                 // skip process if select is skinned already
                 return;
             }
-            
+
             if (Modernizr.touchevents && !sel.hasClass("skin")) {
-            	if (sel.find('option[data-color], option[data-imageurl]').length == 0) {
-					// skip skinning if device is mobile and no rich content exists (color & image)
-            		return;
-            	}
+                if (sel.find('option[data-color], option[data-imageurl]').length === 0) {
+                    // skip skinning if device is mobile and no rich content exists (color & image)
+                    return;
+                }
             }
 
-			var placeholder = getPlaceholder();
+            var placeholder = getPlaceholder();
 
             // following code only applicable to select boxes (not input:hidden)
             var firstOption = sel.children("option").first();
             var hasOptionLabel = firstOption.length &&
-                                    (firstOption[0].attributes['value'] === undefined || _.str.isBlank(firstOption.val()));
+                (firstOption[0].attributes['value'] === undefined || _.str.isBlank(firstOption.val()));
 
             if (placeholder && hasOptionLabel) {
                 // clear first option text in nullable dropdowns.
@@ -166,105 +167,150 @@
                 firstOption = $('<option></option>').prependTo(sel);
             }
 
-			if (!placeholder && hasOptionLabel && firstOption.text() && !sel.data("tags")) {
+            if (!placeholder && hasOptionLabel && firstOption.text() && !sel.data("tags")) {
                 // use first option text as placeholder
                 placeholder = firstOption.text();
                 firstOption.text("");
             }
 
             function renderSelectItem(item, isResult) {
-            	try {
-					var option = $(item.element),
-						imageUrl = option.data('imageurl'),
-						color = option.data('color'),
-						hint = option.data('hint');
+                try {
+                    var option = $(item.element),
+                        imageUrl = option.data('imageurl'),
+                        color = option.data('color'),
+                        hint = option.data('hint')
+                        icon = option.data('icon');
+                    
+                    if (imageUrl) {
+                        return $('<span class="choice-item"><img class="choice-item-img" src="' + imageUrl + '" />' + item.text + '</span>');
+                    }
+                    else if (color) {
+                        return $('<span class="choice-item"><span class="choice-item-color" style="background-color: ' + color + '"></span>' + item.text + '</span>');
+                    }
+                    else if (hint && isResult) {
+                        return $('<span class="select2-option"><span>' + item.text + '</span><span class="option-hint muted float-right">' + hint + '</span></span>');
+                    }
+                    else if (icon) {
+                        var html = ['<span class="choice-item">'];
+                        var icons = _.isArray(icon) ? icon : [icon];
+                        var len = (isResult ? 2 : 0) || icons.length;
 
-					if (imageUrl) {
-            			return $('<span><img class="choice-item-img" src="' + imageUrl + '" />' + item.text + '</span>');
-            		}
-            		else if (color) {
-            			return $('<span><span class="choice-item-color" style="background-color: ' + color + '"></span>' + item.text + '</span>');
-					}
-					else if (hint && isResult) {
-						return $('<span class="select2-option"><span>' + item.text + '</span><span class="option-hint muted float-right">' + hint + '</span></span>');
-					}
-					else {
-						return $('<span class="select2-option">' + item.text + '</span>');
-					}
-            	}
-            	catch (e) { }
+                        for (i = 0; i < len; i++) {
+                            var iconClass = (i < icons.length ? icons[i] + " " : "far ") + "fa-fw mr-2 fs-h6";
+                            html.push('<i class="' + iconClass + '" />');
+                        }
 
-            	return item.text;
+                        html.push(item.text);
+                        html.push('</span>');
+
+                        return html;
+                    }
+                    else {
+                        return $('<span class="select2-option">' + item.text + '</span>');
+                    }
+                }
+                catch (e) { }
+
+                return item.text;
             }
 
             var opts = {
-                allowClear: !!(placeholder), // assuming that a placeholder indicates nullability
+                allowClear: !!placeholder, // assuming that a placeholder indicates nullability
                 placeholder: placeholder,
-				templateResult: function (item) {
-					return renderSelectItem(item, true);
-				},
-				templateSelection: function (item) {
-					return renderSelectItem(item, false);
-				},
-				closeOnSelect: !(sel.prop('multiple') || sel.data("tags")),
-				adaptContainerCssClass: function (c) {
-					if (c.startsWith("select-"))
-						return c;
-					else
-						return null;
-				},
-				adaptDropdownCssClass: function (c) {
-					if (c.startsWith("drop-"))
-						return c;
-					else
-						return null;
-				}
-			};
+                templateResult: function (item) {
+                    return renderSelectItem(item, true);
+                },
+                templateSelection: function (item) {
+                    return renderSelectItem(item, false);
+                },
+                closeOnSelect: !sel.prop('multiple'), //|| sel.data("tags"),
+                adaptContainerCssClass: function (c) {
+                    if (_.str.startsWith(c, "select-"))
+                        return c;
+                    else
+                        return null;
+                },
+                adaptDropdownCssClass: function (c) {
+                    if (_.str.startsWith("drop-"))
+                        return c;
+                    else
+                        return null;
+                },
+                matcher: function (params, data) {
+                    // If there are no search terms, return all of the data
+                    if ($.trim(params.term) === '') {
+                        return data;
+                    }
 
-			if (!options.lazy && sel.data("select-url")) {
-				opts.lazy = {
-					url: sel.data("select-url"),
-					loaded: sel.data("select-loaded")
-				}
-			}
+                    // Do not display the item if there is no 'text' property
+                    if (typeof data.text === 'undefined') {
+                        return null;
+                    }
 
-			if (!options.init && sel.data("select-init-text") && sel.data("select-selected-id")) {
-				opts.init = {
-					id: sel.data("select-selected-id"),
-					text: sel.data("select-init-text")
-				}
-			}
+                    if (data.text.indexOf(params.term) > -1) {
+                        return data;
+                    }
 
-			if ($.isPlainObject(options)) {
-				opts = $.extend({}, opts, options);
-			}
+                    var terms = $(data.element).data("terms");
+                    if (terms) {
+                        terms = _.isArray(terms) ? terms : [terms];
+                        if (terms.length > 0) {
+                            for (var i = 0; i < terms.length; i++) {
+                                if (terms[i].indexOf(params.term) > -1) {
+                                    return data;
+                                }
+                            }
+                        }
+                    }
 
-			if (opts.lazy && opts.lazy.url) {
-				// url specified: load data remotely (lazily on first open)...
-				opts.dataAdapter = $.fn.select2.amd.require('select2/data/lazyAdapter');
-			}
-			else if (opts.ajax && opts.init && opts.init.text && sel.find('option[value="' + opts.init.text + '"]').length === 0) {
-				// In AJAX mode: add initial option when missing
-				sel.append('<option value="' + opts.init.id + '" selected>' + opts.init.text + '</option>');
-			}
+                    return null;
+                }
+            };
 
-			sel.select2(opts);
+            if (!options.lazy && sel.data("select-url")) {
+                opts.lazy = {
+                    url: sel.data("select-url"),
+                    loaded: sel.data("select-loaded")
+                };
+            }
 
-			if (sel.hasClass("autowidth")) {
+            if (!options.init && sel.data("select-init-text") && sel.data("select-selected-id")) {
+                opts.init = {
+                    id: sel.data("select-selected-id"),
+                    text: sel.data("select-init-text")
+                };
+            }
+
+            if ($.isPlainObject(options)) {
+                opts = $.extend({}, opts, options);
+            }
+
+            if (opts.lazy && opts.lazy.url) {
+                // url specified: load data remotely (lazily on first open)...
+                opts.dataAdapter = $.fn.select2.amd.require('select2/data/lazyAdapter');
+            }
+            else if (opts.ajax && opts.init && opts.init.text && sel.find('option[value="' + opts.init.text + '"]').length === 0) {
+                // In AJAX mode: add initial option when missing
+                sel.append('<option value="' + opts.init.id + '" selected>' + opts.init.text + '</option>');
+            }
+
+            sel.select2(opts);
+
+            if (sel.hasClass("autowidth")) {
                 // move special "autowidth" class to plugin container,
-            	// so we are able to omit min-width per css
+                // so we are able to omit min-width per css
                 sel.data("select2").$container.addClass("autowidth");
             }
 
-			function getPlaceholder() {
-				return options.placeholder ||
-					sel.attr("placeholder") ||
-					sel.data("placeholder") ||
-					sel.data("select-placeholder");
+            function getPlaceholder() {
+                return options.placeholder ||
+                    sel.attr("placeholder") ||
+                    sel.data("placeholder") ||
+                    sel.data("select-placeholder");
             }
 
         });
 
-    }
+    };
 
 })(jQuery, window, document);

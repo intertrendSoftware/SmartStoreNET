@@ -5,14 +5,44 @@
 	var _commonPluginFactories = [
 		// panel toggling
 		function (ctx) {
-			ctx.find('input[type=checkbox][data-toggler-for]').each(function (i, el) {
+            ctx.find('input[type=checkbox][data-toggler-for]').each(function (i, el) {
 				SmartStore.Admin.togglePanel(el, false);
 			});
 		},
 		// select2
 		function (ctx) {
 			ctx.find("select:not(.noskin)").selectWrapper();
-		},
+        },
+        // Range slider
+        function (ctx) {
+            return;
+            ctx.find("input[type=range]:not(.noskin)").rangeslider({
+                polyfill: false,
+                onInit: function () {
+                    $rangeEl = this.$range;
+                    // add value label to handle
+                    var $handle = $rangeEl.find('.rangeslider__handle');
+                    var handleValue = '<div class="rangeslider__handle__value">' + this.value + '</div>';
+                    $handle.append(handleValue);
+
+                    // get range index labels 
+                    var markers = this.$element.data('markers');
+                    if (markers) {
+                        markers = markers.split(',');
+
+                        // add labels
+                        $rangeEl.append('<div class="rangeslider__labels"></div>');
+                        $(markers).each(function (index, value) {
+                            $rangeEl.find('.rangeslider__labels').append('<span class="rangeslider__labels__label">' + value.trim() + '</span>');
+                        })
+                    }
+                },
+                onSlide: function (position, value) {
+                    var $handle = this.$range.find('.rangeslider__handle__value');
+                    $handle.text(this.value);
+                },
+            });
+        },
 		// tooltips
 		function (ctx) {
 			ctx.find(".cph").tooltip({
@@ -24,7 +54,7 @@
 		},
 		// switch
 		function (ctx) {
-			ctx.find(".adminData > input[type=checkbox], .multi-store-setting-control > input[type=checkbox]").each(function (i, el) {
+            ctx.find(".adminData > input[type=checkbox], .multi-store-setting-control > input[type=checkbox], .switcher > input[type=checkbox]").each(function (i, el) {
 				var wrap = $(el)
 					.wrap('<label class="switch"></label>')
 					.after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>');
@@ -54,8 +84,8 @@
 		},
 		// ColorPicker
 		function (ctx) {
-			ctx.find(".sm-colorbox").colorpicker({ fallbackColor: false, color: false });
-		},
+			ctx.find(".sm-colorbox").colorpicker({ fallbackColor: false, color: false, align: SmartStore.globalization.culture.isRTL ? 'left' : 'right' });
+        }
 	];
 
 
@@ -82,7 +112,8 @@
         });
 
         $("#page").tooltip({
-            selector: "a[rel=tooltip], .tooltip-toggle"
+            selector: "a[rel=tooltip], .tooltip-toggle",
+            trigger: 'hover'
         });
 
         // Temp only
@@ -127,57 +158,21 @@
         var sectionHeader = $('.section-header');
         var sectionHeaderHasButtons = undefined;
 
-        $(window).on("scroll resize", function (e) {
-            if (sectionHeaderHasButtons === undefined) {
-                sectionHeaderHasButtons = sectionHeader.find(".options").children().length > 0;
-            }
-            if (sectionHeaderHasButtons === true) {
-            	var y = $(this).scrollTop();
-                sectionHeader.toggleClass("sticky", y >= navbarHeight);
-            }
-        }).trigger('resize');
+        if (!sectionHeader.hasClass('nofix')) {
+            $(window).on("scroll resize", function (e) {
+                if (sectionHeaderHasButtons === undefined) {
+                    sectionHeaderHasButtons = sectionHeader.find(".options").children().length > 0;
+                }
+                if (sectionHeaderHasButtons === true) {
+                    var y = $(this).scrollTop();
+                    sectionHeader.toggleClass("sticky", y >= navbarHeight);
+                }
+            }).trigger('resize');
+        }
 
         $(window).on('load', function () {
-
         	// swap classes onload and domready
         	html.removeClass("loading").addClass("loaded");
-
-        	// make #content fit into viewspace
-        	var fitContentToWindow = function (initial) {
-        		var content = $('#content');
-
-        		if (!content.length)
-        			return;
-
-        		var height = initialHeight = content.height(),
-                             outerHeight,
-                             winHeight = $(document).height(),
-                             top,
-                             offset;
-
-        		if (initial === true) {
-        			top = content.offset().top;
-        			offset = content.outerHeight(false) - content.height();
-        			if ($('html').hasClass('wkit')) offset += 2; // dont know why!
-        			content.data("initial-height", initialHeight)
-                                       .data("initial-top", top)
-                                       .data("initial-offset", offset);
-        		}
-        		else {
-        			top = content.data("initial-top");
-        			offset = content.data("initial-offset");
-        			initialHeight = content.data("initial-height");
-        		}
-
-        		content.css("min-height", Math.max(initialHeight, winHeight - offset - top) + "px");
-
-			};
-
-			if (!$('body').is('.popup.bare')) {
-				fitContentToWindow(true);
-				$(window).on("resize", fitContentToWindow);
-			}
-
         });
 
     });

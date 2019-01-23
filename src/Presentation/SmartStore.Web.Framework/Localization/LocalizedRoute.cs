@@ -124,15 +124,14 @@ namespace SmartStore.Web.Framework.Localization
             if (data != null && DataSettings.DatabaseIsInstalled() && SeoFriendlyUrlsForLanguagesEnabled)
             {
                 var helper = new LocalizedUrlHelper(requestContext.HttpContext.Request, true);
-                string cultureCode;
-                if (helper.IsLocalizedUrl(out cultureCode))
-                {
+				if (helper.IsLocalizedUrl(out string cultureCode))
+				{
 					if (!requestContext.RouteData.Values.ContainsKey("StripInvalidSeoCode"))
 					{
 						data.VirtualPath = String.Concat(cultureCode, "/", data.VirtualPath).TrimEnd('/');
 					}
-                }
-            }
+				}
+			}
 
             return data;
         }
@@ -161,8 +160,9 @@ namespace SmartStore.Web.Framework.Localization
 					}
 					catch { }
 				}
-                    
-                return _seoFriendlyUrlsForLanguagesEnabled ?? false;
+                
+				// Assume is enabled on very first request to prevent IIS 404 with localized URLs
+                return _seoFriendlyUrlsForLanguagesEnabled ?? true;
             }
         }
 

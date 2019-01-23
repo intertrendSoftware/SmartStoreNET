@@ -181,7 +181,9 @@
     <Compile Include="Collections\Querystring.cs" />
     <Compile Include="Collections\TopologicalSorter.cs" />
     <Compile Include="Collections\TreeNodeBase.cs" />
+    <Compile Include="ComponentModel\FastInvoker.cs" />
     <Compile Include="ComponentModel\MiniMapper.cs" />
+    <Compile Include="Collections\ReferenceEqualityComparer.cs" />
     <Compile Include="ComponentModel\TypeConversion\BooleanConverter.cs" />
     <Compile Include="ComponentModel\TypeConversion\DictionaryConverter.cs" />
     <Compile Include="ComponentModel\TypeConversion\EmailAddressConverter.cs" />
@@ -198,7 +200,6 @@
     <Compile Include="Data\Hooks\HookableAttribute.cs" />
     <Compile Include="Data\Hooks\HookMetadata.cs" />
     <Compile Include="Data\Hooks\ImportantAttribute.cs" />
-    <Compile Include="Data\Hooks\DbLoadHook.cs" />
     <Compile Include="Data\Hooks\DbSaveHook.cs" />
     <Compile Include="Data\Hooks\DefaultDbHookHandler.cs" />
     <Compile Include="Data\Hooks\HookedEntity.cs" />
@@ -209,13 +210,16 @@
     <Compile Include="Data\IDbContextExtensions.cs" />
     <Compile Include="Data\ITransaction.cs" />
     <Compile Include="Domain\Catalog\CategoryNode.cs" />
+    <Compile Include="Domain\Catalog\PriceDisplayStyle.cs" />
     <Compile Include="Domain\Catalog\ProductAttributeOption.cs" />
     <Compile Include="Domain\Catalog\ProductAttributeOptionsSet.cs" />
     <Compile Include="Domain\Catalog\QuantiyControlType.cs" />
     <Compile Include="Domain\Catalog\IPagingOptions.cs" />
     <Compile Include="Domain\Catalog\PriceDisplayType.cs" />
+    <Compile Include="Domain\Common\PerformanceSettings.cs" />
     <Compile Include="Domain\Customers\CustomerNumberVisibility.cs" />
     <Compile Include="Domain\Customers\CustomerNumberMethod.cs" />
+    <Compile Include="Domain\Customers\PrivacySettings.cs" />
     <Compile Include="Domain\Customers\WalletHistory.cs" />
     <Compile Include="Domain\Customers\WalletPostingReason.cs" />
     <Compile Include="Domain\DataExchange\DataExchangeEnums.cs" />
@@ -230,6 +234,10 @@
     <Compile Include="Domain\DataExchange\ExportEnums.cs" />
     <Compile Include="Domain\DataExchange\ExportFilter.cs" />
     <Compile Include="Domain\DataExchange\ExportProfile.cs" />
+    <Compile Include="Domain\Forums\ForumDateFilter.cs" />
+    <Compile Include="Domain\Forums\ForumPostVote.cs" />
+    <Compile Include="Domain\Forums\ForumTopicSorting.cs" />
+    <Compile Include="Domain\Localization\LocalizedPropertyCollection.cs" />
     <Compile Include="Domain\Media\MediaStorage.cs" />
     <Compile Include="Domain\Media\IHasMedia.cs" />
     <Compile Include="Domain\Messages\EmailAttachmentStorageLocation.cs" />
@@ -239,11 +247,13 @@
     <Compile Include="Domain\Payments\CapturePaymentReason.cs" />
     <Compile Include="Domain\Payments\PaymentMethod.cs" />
     <Compile Include="Domain\Seo\CanonicalHostNameRule.cs" />
+    <Compile Include="Domain\Seo\UrlRecordCollection.cs" />
+    <Compile Include="Domain\Tasks\ScheduleTaskHistory.cs" />
     <Compile Include="Domain\Tax\AuxiliaryServicesTaxType.cs" />
     <Compile Include="Events\CommonMessages\AppStartedEvent.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\IOExtensions.cs" />
-    <Compile Include="Extensions\DecimalExtensions.cs" />
+    <Compile Include="Extensions\NumericExtensions.cs" />
     <Compile Include="Data\IQueryableExtensions.cs" />
     <Compile Include="Extensions\RegexExtensions.cs" />
     <Compile Include="Extensions\RouteExtensions.cs" />
@@ -258,6 +268,8 @@
     <Compile Include="Infrastructure\ApplicationEnvironment.cs" />
     <Compile Include="Infrastructure\IApplicationEnvironment.cs" />
     <Compile Include="IO\ImageHeader.cs" />
+    <Compile Include="IO\SymLink\FileSystemInfoExtensions.cs" />
+    <Compile Include="IO\SymLink\SymbolicLink.cs" />
     <Compile Include="IO\VirtualPath\DefaultVirtualPathProvider.cs" />
     <Compile Include="IO\VirtualPath\IVirtualFolder.cs" />
     <Compile Include="IO\VirtualPath\IVirtualPathProvider.cs" />
@@ -279,6 +291,7 @@
     <Compile Include="Logging\log4net\Log4netLoggerFactory.cs" />
     <Compile Include="Logging\log4net\SmartFileAppender.cs" />
     <Compile Include="Logging\LoggingModule.cs" />
+    <Compile Include="Money.cs" />
     <Compile Include="Plugins\IConfigurable.cs" />
     <Compile Include="Plugins\PluginManager.Cache.cs" />
     <Compile Include="Plugins\Providers\DependentWidgetsAttribute.cs" />
@@ -456,7 +469,6 @@
     <Compile Include="Search\IndexProviderBase.cs" />
     <Compile Include="Search\Events\IndexSegmentProcessedEvent.cs" />
     <Compile Include="Search\ISearchAlias.cs" />
-    <Compile Include="Search\ISearchBits.cs" />
     <Compile Include="Search\ISearchEngine.cs" />
     <Compile Include="Search\Filter\ISearchFilter.cs" />
     <Compile Include="Search\ISearchHit.cs" />
@@ -466,7 +478,8 @@
     <Compile Include="Search\SearchDocumentType.cs" />
     <Compile Include="Search\SearchEnums.cs" />
     <Compile Include="Search\SearchQuery.cs" />
-    <Compile Include="Search\SearchSettings.cs" />
+    <Compile Include="Search\Settings\ForumSearchSettings.cs" />
+    <Compile Include="Search\Settings\SearchSettings.cs" />
     <Compile Include="Search\SearchSort.cs" />
     <Compile Include="Security\SmartStorePrincipal.cs" />
     <Compile Include="Templating\DefaultTemplateManager.cs" />
@@ -515,7 +528,6 @@
     <Compile Include="Domain\Forums\Forum.cs" />
     <Compile Include="Domain\Forums\ForumGroup.cs" />
     <Compile Include="Domain\Forums\ForumPost.cs" />
-    <Compile Include="Domain\Forums\ForumSearchType.cs" />
     <Compile Include="Domain\Forums\ForumSettings.cs" />
     <Compile Include="Domain\Forums\ForumSubscription.cs" />
     <Compile Include="Domain\Forums\ForumTopic.cs" />

@@ -34,7 +34,11 @@
             if ($.fn.tooltip === undefined)
                 return;
             if (!Modernizr.touchevents) {
-                ctx.tooltip({ selector: '[data-toggle=tooltip], .tooltip-toggle', animation: false });
+                ctx.tooltip({
+                    selector: '[data-toggle=tooltip], .tooltip-toggle',
+                    animation: false,
+                    trigger: 'hover'
+                });
             }
         },
         // touch spin
@@ -61,28 +65,30 @@
                 var url = newsletterContainer.data("subscription-url");
 
                 newsletterContainer.find('#newsletter-subscribe-button').on("click", function () {
-
                     var email = $("#newsletter-email").val();
                     var subscribe = 'true';
                     var resultDisplay = $("#newsletter-result-block");
+					var elemGdprConsent = $(".footer-newsletter #GdprConsent")
+					var gdprConsent = elemGdprConsent.length == 0 ? null : elemGdprConsent.is(':checked');
 
                     if ($('#newsletter-unsubscribe').is(':checked')) {
                         subscribe = 'false';
                     }
-		    
+
                     $.ajax({
                         cache: false,
                         type: "POST",
                         url: url,
-                        data: { "subscribe": subscribe, "email": email },
-                        success: function (data) {
+						data: { "subscribe": subscribe, "email": email, "GdprConsent": subscribe == 'true' ? gdprConsent : true },
+						success: function (data) {
                             resultDisplay.html(data.Result);
                             if (data.Success) {
                                 $('#newsletter-subscribe-block').hide();
                                 resultDisplay.removeClass("alert-danger d-none").addClass("alert-success d-block");
                             }
-                            else {
-                                resultDisplay.removeClass("alert-success d-none").addClass("alert-danger d-block").fadeIn("slow").delay(2000).fadeOut("slow");
+							else {
+								if (data.Result != "")
+									resultDisplay.removeClass("alert-success d-none").addClass("alert-danger d-block").fadeIn("slow").delay(2000).fadeOut("slow");
                             }
                         },
                         error:function (xhr, ajaxOptions, thrownError){
@@ -103,7 +109,7 @@
 
         		list.slick({
 					infinite: false,
-					rtl: $("body").attr("dir") == "rtl",
+					rtl: $("html").attr("dir") == "rtl",
         			dots: true,
         			cssEase: 'ease-in-out',
         			speed: 300,
@@ -156,17 +162,16 @@
     // on document ready
     // TODO: reorganize > public.globalinit.js
     $(function () {
-        // Notify subscribers about page/content width change
-        if (window.EventBroker) {
-        	var currentContentWidth = $('#content').width();
-        	$(window).on('resize', function () {
-        		var contentWidth = $('#content').width();
-        		if (contentWidth !== currentContentWidth) {
-        			currentContentWidth = contentWidth;
-        			console.debug("Grid tier changed: " + viewport.current());
-        			EventBroker.publish("page.resized", viewport);
-        		}
-        	});
+        // Init reveal on scroll with AOS library
+        if (typeof AOS !== 'undefined') {
+            AOS.init({ once: true, duration: 1000 });
+        }
+
+        if (SmartStore.parallax !== undefined && !$('body').hasClass('no-parallax')) {
+            SmartStore.parallax.init({
+                context: document.body,
+                selector: '.parallax'
+            });
         }
         
         applyCommonPlugins($("body"));

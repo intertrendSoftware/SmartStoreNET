@@ -102,7 +102,7 @@ namespace SmartStore.Web.Models.Catalog
         public string DeliveryTimeName { get; set; }
         public string DeliveryTimeHexValue { get; set; }
 		public bool DisplayDeliveryTime { get; set; }
-        public string QuantityUnitName { get; set; }
+        public LocalizedValue<string> QuantityUnitName { get; set; }
         public bool DisplayProductReviews { get; set; }
 		public bool IsShipEnabled { get; set; }
 		public bool DisplayDeliveryTimeAccordingToStock { get; set; }
@@ -112,8 +112,10 @@ namespace SmartStore.Web.Models.Catalog
 		public bool BundlePerItemShipping { get; set; }
 		public bool BundlePerItemPricing { get; set; }
 		public bool BundlePerItemShoppingCart { get; set; }
-
-		public ProductVariantAttributeCombination SelectedCombination { get; set; }
+        public bool DisplayTextForZeroPrices { get; set; }
+        public PriceDisplayStyle PriceDisplayStyle { get; set; }
+        
+        public ProductVariantAttributeCombination SelectedCombination { get; set; }
 
         public IList<ManufacturerOverviewModel> Manufacturers { get; set; }
         public int ReviewCount { get; set; }
@@ -167,7 +169,7 @@ namespace SmartStore.Web.Models.Catalog
 
             public int MinOrderAmount { get; set; }
             public int MaxOrderAmount { get; set; }
-			public string QuantityUnitName { get; set; }
+			public LocalizedValue<string> QuantityUnitName { get; set; }
             public int QuantityStep { get; set; }
             public bool HideQuantityControl { get; set; }
             public QuantityControlType QuantiyControlType { get; set; }

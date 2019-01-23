@@ -33,6 +33,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -42,6 +43,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'EFMigrations|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -51,6 +53,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'PluginDev|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -60,6 +63,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -143,9 +147,11 @@
     <Compile Include="Mapping\DataExchange\ExportDeploymentMap.cs" />
     <Compile Include="Mapping\Directory\QuantityUnitMap.cs" />
     <Compile Include="Mapping\DataExchange\ExportProfileMap.cs" />
+    <Compile Include="Mapping\Forums\ForumPostVoteMap.cs" />
     <Compile Include="Mapping\Media\MediaStorageMap.cs" />
     <Compile Include="Mapping\Messages\QueuedEmailAttachmentMap.cs" />
     <Compile Include="Mapping\Payments\PaymentMethodMap.cs" />
+    <Compile Include="Mapping\Tasks\ScheduleTaskHistoryMap.cs" />
     <Compile Include="Migrations\201403112331027_Initial.cs" />
     <Compile Include="Migrations\201403112331027_Initial.Designer.cs">
       <DependentUpon>201403112331027_Initial.cs</DependentUpon>
@@ -569,6 +575,82 @@
     <Compile Include="Migrations\201804090744324_ForceSslForAllPages.cs" />
     <Compile Include="Migrations\201804090744324_ForceSslForAllPages.Designer.cs">
       <DependentUpon>201804090744324_ForceSslForAllPages.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201804200835273_V310Resources.cs" />
+    <Compile Include="Migrations\201804200835273_V310Resources.Designer.cs">
+      <DependentUpon>201804200835273_V310Resources.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201804252356096_TopicSlugs.cs" />
+    <Compile Include="Migrations\201804252356096_TopicSlugs.Designer.cs">
+      <DependentUpon>201804252356096_TopicSlugs.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805250724399_V315Resources.cs" />
+    <Compile Include="Migrations\201805250724399_V315Resources.Designer.cs">
+      <DependentUpon>201805250724399_V315Resources.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806051221399_RefundReturnRequests.cs" />
+    <Compile Include="Migrations\201806051221399_RefundReturnRequests.Designer.cs">
+      <DependentUpon>201806051221399_RefundReturnRequests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806231547270_ScheduleTaskHistory.cs" />
+    <Compile Include="Migrations\201806231547270_ScheduleTaskHistory.Designer.cs">
+      <DependentUpon>201806231547270_ScheduleTaskHistory.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807051830375_MoveCustomerFields.cs" />
+    <Compile Include="Migrations\201807051830375_MoveCustomerFields.Designer.cs">
+      <DependentUpon>201807051830375_MoveCustomerFields.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807122120062_TopicAcl.cs" />
+    <Compile Include="Migrations\201807122120062_TopicAcl.Designer.cs">
+      <DependentUpon>201807122120062_TopicAcl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807191020207_OrderItemDeliveryTime.cs" />
+    <Compile Include="Migrations\201807191020207_OrderItemDeliveryTime.Designer.cs">
+      <DependentUpon>201807191020207_OrderItemDeliveryTime.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807201157391_DownloadVersions.cs" />
+    <Compile Include="Migrations\201807201157391_DownloadVersions.Designer.cs">
+      <DependentUpon>201807201157391_DownloadVersions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807311708428_ProductPreviewPicture.cs" />
+    <Compile Include="Migrations\201807311708428_ProductPreviewPicture.Designer.cs">
+      <DependentUpon>201807311708428_ProductPreviewPicture.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201808051818238_Merge4.cs" />
+    <Compile Include="Migrations\201808051818238_Merge4.Designer.cs">
+      <DependentUpon>201808051818238_Merge4.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809171309522_NewsletterSubscriptionLanguage.cs" />
+    <Compile Include="Migrations\201809171309522_NewsletterSubscriptionLanguage.Designer.cs">
+      <DependentUpon>201809171309522_NewsletterSubscriptionLanguage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809261026134_ForumGroupAcl.cs" />
+    <Compile Include="Migrations\201809261026134_ForumGroupAcl.Designer.cs">
+      <DependentUpon>201809261026134_ForumGroupAcl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810011954195_ForumPostVote.cs" />
+    <Compile Include="Migrations\201810011954195_ForumPostVote.Designer.cs">
+      <DependentUpon>201810011954195_ForumPostVote.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810231214068_DataExchangeEnhancements.cs" />
+    <Compile Include="Migrations\201810231214068_DataExchangeEnhancements.Designer.cs">
+      <DependentUpon>201810231214068_DataExchangeEnhancements.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201811061745204_IsSystemProductIndex.cs" />
+    <Compile Include="Migrations\201811061745204_IsSystemProductIndex.Designer.cs">
+      <DependentUpon>201811061745204_IsSystemProductIndex.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201811082148279_LocalizedPropertyKeyGroupIndex.cs" />
+    <Compile Include="Migrations\201811082148279_LocalizedPropertyKeyGroupIndex.Designer.cs">
+      <DependentUpon>201811082148279_LocalizedPropertyKeyGroupIndex.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201811161142587_TaskHistoryErrorLength.cs" />
+    <Compile Include="Migrations\201811161142587_TaskHistoryErrorLength.Designer.cs">
+      <DependentUpon>201811161142587_TaskHistoryErrorLength.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201811202204501_ProductIndexSeekExport.cs" />
+    <Compile Include="Migrations\201811202204501_ProductIndexSeekExport.Designer.cs">
+      <DependentUpon>201811202204501_ProductIndexSeekExport.cs</DependentUpon>
     </Compile>
     <Compile Include="ObjectContextBase.SaveChanges.cs" />
     <Compile Include="Setup\Builder\ActivityLogTypeMigrator.cs" />
@@ -1030,6 +1112,63 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201804090744324_ForceSslForAllPages.resx">
       <DependentUpon>201804090744324_ForceSslForAllPages.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804200835273_V310Resources.resx">
+      <DependentUpon>201804200835273_V310Resources.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804252356096_TopicSlugs.resx">
+      <DependentUpon>201804252356096_TopicSlugs.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805250724399_V315Resources.resx">
+      <DependentUpon>201805250724399_V315Resources.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806051221399_RefundReturnRequests.resx">
+      <DependentUpon>201806051221399_RefundReturnRequests.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806231547270_ScheduleTaskHistory.resx">
+      <DependentUpon>201806231547270_ScheduleTaskHistory.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807051830375_MoveCustomerFields.resx">
+      <DependentUpon>201807051830375_MoveCustomerFields.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807122120062_TopicAcl.resx">
+      <DependentUpon>201807122120062_TopicAcl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807191020207_OrderItemDeliveryTime.resx">
+      <DependentUpon>201807191020207_OrderItemDeliveryTime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807201157391_DownloadVersions.resx">
+      <DependentUpon>201807201157391_DownloadVersions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807311708428_ProductPreviewPicture.resx">
+      <DependentUpon>201807311708428_ProductPreviewPicture.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808051818238_Merge4.resx">
+      <DependentUpon>201808051818238_Merge4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809171309522_NewsletterSubscriptionLanguage.resx">
+      <DependentUpon>201809171309522_NewsletterSubscriptionLanguage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809261026134_ForumGroupAcl.resx">
+      <DependentUpon>201809261026134_ForumGroupAcl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810011954195_ForumPostVote.resx">
+      <DependentUpon>201810011954195_ForumPostVote.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810231214068_DataExchangeEnhancements.resx">
+      <DependentUpon>201810231214068_DataExchangeEnhancements.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201811061745204_IsSystemProductIndex.resx">
+      <DependentUpon>201811061745204_IsSystemProductIndex.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201811082148279_LocalizedPropertyKeyGroupIndex.resx">
+      <DependentUpon>201811082148279_LocalizedPropertyKeyGroupIndex.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201811161142587_TaskHistoryErrorLength.resx">
+      <DependentUpon>201811161142587_TaskHistoryErrorLength.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201811202204501_ProductIndexSeekExport.resx">
+      <DependentUpon>201811202204501_ProductIndexSeekExport.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Sql\Indexes.sql" />
     <EmbeddedResource Include="Sql\StoredProcedures.sql" />

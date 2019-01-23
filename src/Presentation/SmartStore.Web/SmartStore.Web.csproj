@@ -123,13 +123,11 @@
       <HintPath>..\..\packages\EntityFramework.SqlServerCompact.6.2.0\lib\net45\EntityFramework.SqlServerCompact.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FluentValidation, Version=6.4.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\FluentValidation.6.4.1\lib\Net45\FluentValidation.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="FluentValidation, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7de548da2fbae0f0, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentValidation.7.4.0\lib\net45\FluentValidation.dll</HintPath>
     </Reference>
-    <Reference Include="FluentValidation.Mvc, Version=6.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\FluentValidation.MVC5.6.4.0\lib\Net45\FluentValidation.Mvc.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="FluentValidation.Mvc, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7de548da2fbae0f0, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentValidation.Mvc5.7.4.0\lib\net45\FluentValidation.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="JavaScriptEngineSwitcher.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
       <HintPath>..\..\packages\JavaScriptEngineSwitcher.Core.2.4.0\lib\net45\JavaScriptEngineSwitcher.Core.dll</HintPath>
@@ -341,7 +339,6 @@
     <Compile Include="Models\Boards\EditForumTopicModel.cs" />
     <Compile Include="Models\Boards\ForumTopicPageModel.cs" />
     <Compile Include="Models\Boards\LastPostModel.cs" />
-    <Compile Include="Models\Boards\SearchModel.cs" />
     <Compile Include="Models\Boards\TopicMoveModel.cs" />
     <Compile Include="Models\Catalog\BackInStockSubscribeModel.cs" />
     <Compile Include="Models\Catalog\CategoryModel.cs" />
@@ -350,7 +347,7 @@
     <Compile Include="Models\Catalog\ProductAskQuestionModel.cs" />
     <Compile Include="Models\Catalog\ProductSummaryModel.cs" />
     <Compile Include="Models\Catalog\ManufacturerOverviewModel.cs" />
-    <Compile Include="Models\Catalog\SearchBoxModel.cs" />
+    <Compile Include="Models\Search\SearchBoxModel.cs" />
     <Compile Include="Models\Catalog\ProductsByTagModel.cs" />
     <Compile Include="Models\Catalog\PopularProductTagsModel.cs" />
     <Compile Include="Models\Catalog\ProductTagModel.cs" />
@@ -360,7 +357,6 @@
     <Compile Include="Models\Catalog\ManufacturerModel.cs" />
     <Compile Include="Models\Catalog\ManufacturerNavigationModel.cs" />
     <Compile Include="Models\Catalog\ProductDetailsModel.cs" />
-    <Compile Include="Models\CheckoutBillingAddressModel.cs" />
     <Compile Include="Models\Checkout\CheckoutShippingAddressModel.cs" />
     <Compile Include="Models\Checkout\CheckoutProgressModel.cs" />
     <Compile Include="Models\Checkout\CheckoutBillingAddressModel.cs" />
@@ -370,10 +366,13 @@
     <Compile Include="Models\Checkout\CheckoutConfirmModel.cs" />
     <Compile Include="Models\Checkout\CheckoutCompletedModel.cs" />
     <Compile Include="Models\Checkout\UpdateSectionJsonModel.cs" />
+    <Compile Include="Models\Common\ConsentModel.cs" />
     <Compile Include="Models\Entity\EntityPickerModel.cs" />
     <Compile Include="Models\Common\CommentModel.cs" />
+    <Compile Include="Models\Boards\ForumSearchResultModel.cs" />
     <Compile Include="Models\Search\ISearchResultModel.cs" />
     <Compile Include="Models\Search\SearchResultModel.cs" />
+    <Compile Include="Models\Search\SearchResultModelBase.cs" />
     <Compile Include="Models\ShoppingCart\ButtonPaymentMethodModel.cs" />
     <Compile Include="Models\ShoppingCart\OffCanvasCartModel.cs" />
     <Compile Include="Models\Topics\TopicWidgetModel.cs" />
@@ -401,7 +400,6 @@
     <Compile Include="Models\News\NewsItemModel.cs" />
     <Compile Include="Models\Customer\AccountActivationModel.cs" />
     <Compile Include="Models\Newsletter\SubscriptionActivationModel.cs" />
-    <Compile Include="Models\Newsletter\NewsletterBoxModel.cs" />
     <Compile Include="Models\Customer\ChangePasswordModel.cs" />
     <Compile Include="Models\Customer\PasswordRecoveryConfirmModel.cs" />
     <Compile Include="Models\Customer\PaswordRecoveryModel.cs" />
@@ -445,23 +443,6 @@
     <Compile Include="Models\ShoppingCart\ShoppingCartModel.cs" />
     <Compile Include="Models\Topics\TopicModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Validators\Blogs\BlogPostValidator.cs" />
-    <Compile Include="Validators\Boards\EditForumPostValidator.cs" />
-    <Compile Include="Validators\Boards\EditForumTopicValidator.cs" />
-    <Compile Include="Validators\Catalog\ProductAskQuestionValidator.cs" />
-    <Compile Include="Validators\Catalog\ProductEmailAFriendValidator.cs" />
-    <Compile Include="Validators\Catalog\ProductReviewsValidator.cs" />
-    <Compile Include="Validators\Common\AddressValidator.cs" />
-    <Compile Include="Validators\Install\InstallValidator.cs" />
-    <Compile Include="Validators\News\NewsItemValidator.cs" />
-    <Compile Include="Validators\Customer\PasswordRecoveryConfirmValidator.cs" />
-    <Compile Include="Validators\Customer\PasswordRecoveryValidator.cs" />
-    <Compile Include="Validators\PrivateMessages\SendPrivateMessageValidator.cs" />
-    <Compile Include="Validators\ShoppingCart\WishlistEmailAFriendValidator.cs" />
-    <Compile Include="Validators\Customer\ChangePasswordValidator.cs" />
-    <Compile Include="Validators\Customer\RegisterValidator.cs" />
-    <Compile Include="Validators\Customer\CustomerInfoValidator.cs" />
-    <Compile Include="Validators\Common\ContactUsValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="404.html" />
@@ -541,11 +522,6 @@
     <Content Include="App_Data\Localization\Installation\installation.en.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_Data\Samples\0000785-apple-iphone.png" />
-    <Content Include="App_Data\Samples\0000786-apple-iphone.png" />
-    <Content Include="App_Data\Samples\0000787-apple-iphone.jpg" />
-    <Content Include="App_Data\Samples\0000788-apple-iphone.png" />
-    <Content Include="App_Data\Samples\0000789-apple-iphone.jpg" />
     <Content Include="App_Data\Samples\0000904_samsung_125.jpeg" />
     <Content Include="App_Data\Samples\0000930_spiegel-bestseller.png" />
     <Content Include="App_Data\Samples\0000932_uberman-der-roman.jpeg" />
@@ -590,11 +566,9 @@
     <Content Include="App_Data\Samples\category_sports.jpg" />
     <Content Include="App_Data\Samples\category_sunglasses.jpg" />
     <Content Include="App_Data\Samples\category_watches.png" />
-    <Content Include="App_Data\Samples\clouds.png" />
     <Content Include="App_Data\Samples\company_logo.png" />
     <Content Include="App_Data\Samples\emblem_library.png" />
     <Content Include="App_Data\Samples\gift-card.jpg" />
-    <Content Include="App_Data\Samples\iphone.png" />
     <Content Include="App_Data\Samples\manufacturer-android.png" />
     <Content Include="App_Data\Samples\manufacturer-blackberry.png" />
     <Content Include="App_Data\Samples\manufacturer-canon.png" />
@@ -626,8 +600,6 @@
     <Content Include="App_Data\Samples\manufacturer_ubisoft.png" />
     <Content Include="App_Data\Samples\manufacturer_wb.png" />
     <Content Include="App_Data\Samples\manufacturer_wilson.png" />
-    <Content Include="App_Data\Samples\music.png" />
-    <Content Include="App_Data\Samples\packshot-net.png" />
     <Content Include="App_Data\Samples\productCustomFlakSunglasses_black_white.jpg" />
     <Content Include="App_Data\Samples\products_airpods_gold.jpg" />
     <Content Include="App_Data\Samples\products_airpods_lightblue.jpg" />
@@ -881,8 +853,26 @@
     <Content Include="Content\fontastic\fonts\fontastic.svg" />
     <Content Include="Content\placeholder.txt" />
     <Content Include="Content\print-rtl.css" />
+    <Content Include="Content\vendors\aos\js\aos.js" />
     <Content Include="Content\vendors\drift\Drift.js" />
     <Content Include="Content\vendors\drift\Drift.min.js" />
+    <Content Include="Content\vendors\fa5\css\all.css" />
+    <Content Include="Content\vendors\fa5\css\all.min.css" />
+    <Content Include="Content\vendors\fa5\css\brands.css" />
+    <Content Include="Content\vendors\fa5\css\brands.min.css" />
+    <Content Include="Content\vendors\fa5\css\fontawesome.css" />
+    <Content Include="Content\vendors\fa5\css\fontawesome.min.css" />
+    <Content Include="Content\vendors\fa5\css\regular.css" />
+    <Content Include="Content\vendors\fa5\css\regular.min.css" />
+    <Content Include="Content\vendors\fa5\css\solid.css" />
+    <Content Include="Content\vendors\fa5\css\solid.min.css" />
+    <Content Include="Content\vendors\fa5\css\svg-with-js.css" />
+    <Content Include="Content\vendors\fa5\css\svg-with-js.min.css" />
+    <Content Include="Content\vendors\fa5\css\v4-shims.css" />
+    <Content Include="Content\vendors\fa5\css\v4-shims.min.css" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-brands-400.svg" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-regular-400.svg" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-solid-900.svg" />
     <Content Include="Content\vendors\fileuploader\images\loading.gif" />
     <Content Include="Content\vendors\fileuploader\images\progressbar.gif" />
     <Content Include="Content\vendors\fileuploader\jquery.fileupload-fp.js" />
@@ -912,8 +902,6 @@
     <Content Include="Content\Images\default-image.png" />
     <Content Include="Content\Images\grippy.png" />
     <Content Include="Content\Images\sad.png" />
-    <Content Include="Content\Images\smartstore.net-200-black.png" />
-    <Content Include="Content\Images\smartstore.net-200-white.png" />
     <Content Include="Content\print.css" />
     <Content Include="Content\vendors\colorpicker\js\bootstrap-colorpicker-globalinit.js" />
     <Content Include="Content\vendors\colorpicker\js\bootstrap-colorpicker.js" />
@@ -1029,6 +1017,45 @@
     <Content Include="Content\shared\_rtl.scss" />
     <Content Include="App_Data\widgetzones.json" />
     <Content Include="Content\skinning\_rtl.scss" />
+    <Content Include="Content\skinning\_summernote.scss" />
+    <Content Include="Content\vendors\aos\scss\aos.scss" />
+    <Content Include="Content\vendors\aos\scss\_animations.scss" />
+    <Content Include="Content\vendors\aos\scss\_easing.scss" />
+    <Content Include="Content\vendors\aos\scss\_core.scss" />
+    <Content Include="Content\bs4\scss\utilities\_shadows.scss" />
+    <Content Include="Content\shared\_rangeslider.scss" />
+    <Content Include="Content\vendors\fa5\scss\brands.scss" />
+    <Content Include="Content\vendors\fa5\scss\fontawesome.scss" />
+    <Content Include="Content\vendors\fa5\scss\regular.scss" />
+    <Content Include="Content\vendors\fa5\scss\solid.scss" />
+    <Content Include="Content\vendors\fa5\scss\v4-shims.scss" />
+    <Content Include="Content\vendors\fa5\scss\_animated.scss" />
+    <Content Include="Content\vendors\fa5\scss\_bordered-pulled.scss" />
+    <Content Include="Content\vendors\fa5\scss\_core.scss" />
+    <Content Include="Content\vendors\fa5\scss\_fixed-width.scss" />
+    <Content Include="Content\vendors\fa5\scss\_icons.scss" />
+    <Content Include="Content\vendors\fa5\scss\_larger.scss" />
+    <Content Include="Content\vendors\fa5\scss\_list.scss" />
+    <Content Include="Content\vendors\fa5\scss\_mixins.scss" />
+    <Content Include="Content\vendors\fa5\scss\_rotated-flipped.scss" />
+    <Content Include="Content\vendors\fa5\scss\_screen-reader.scss" />
+    <Content Include="Content\vendors\fa5\scss\_shims.scss" />
+    <Content Include="Content\vendors\fa5\scss\_stacked.scss" />
+    <Content Include="Content\vendors\fa5\scss\_variables.scss" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-brands-400.eot" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-brands-400.ttf" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-brands-400.woff" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-brands-400.woff2" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-regular-400.eot" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-regular-400.ttf" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-regular-400.woff" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-regular-400.woff2" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-solid-900.eot" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-solid-900.ttf" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-solid-900.woff" />
+    <Content Include="Content\vendors\fa5\webfonts\fa-solid-900.woff2" />
+    <Content Include="Content\shared\_fa.scss" />
+    <Content Include="App_Data\icons.json" />
     <None Include="Content\vendors\x-editable\README.txt" />
     <Content Include="favicon.ico" />
     <Content Include="favicon.readme.txt" />
@@ -1075,7 +1102,6 @@
     <Content Include="Content\bs4\scss\mixins\_list-group.scss" />
     <Content Include="Content\bs4\scss\mixins\_lists.scss" />
     <Content Include="Content\bs4\scss\mixins\_nav-divider.scss" />
-    <Content Include="Content\bs4\scss\mixins\_navbar-align.scss" />
     <Content Include="Content\bs4\scss\mixins\_pagination.scss" />
     <Content Include="Content\bs4\scss\mixins\_reset-text.scss" />
     <Content Include="Content\bs4\scss\mixins\_resize.scss" />
@@ -1137,7 +1163,6 @@
     <Content Include="Content\bs4\scss\_utilities.scss" />
     <Content Include="Content\bs4\scss\_variables.scss" />
     <Content Include="Content\shared\_alert.scss" />
-    <Content Include="Content\shared\_animate.scss" />
     <Content Include="Content\shared\_buttons.scss" />
     <Content Include="Content\shared\_card.scss" />
     <Content Include="Content\shared\_choice.scss" />
@@ -1173,6 +1198,9 @@
     <Content Include="Content\vendors\jquery\jquery.validate.unobtrusive.js" />
     <Content Include="Content\vendors\jquery\jquery.validate.unobtrusive.min.js" />
     <Content Include="Content\vendors\modernizr\modernizr.js" />
+    <Content Include="Scripts\smartstore.rangeslider.js" />
+    <Content Include="Scripts\smartstore.keynav.js" />
+    <Content Include="Scripts\smartstore.parallax.js" />
     <Content Include="Scripts\smartstore.offcanvas.js" />
     <Content Include="Scripts\public.offcanvas-cart.js" />
     <Content Include="Scripts\public.offcanvas-menu.js" />
@@ -1219,6 +1247,7 @@
     <Content Include="Themes\Flex\Content\images\star-off.png" />
     <Content Include="Themes\Flex\Content\images\star-on-12.png" />
     <Content Include="Themes\Flex\Content\images\star-on.png" />
+    <Content Include="Plugins\Web.config" />
     <None Include="Themes\Flex\Content\compiled\theme.css" />
     <Content Include="Themes\Flex\Content\images\grippy.png" />
     <Content Include="Themes\Flex\Content\_megamenu.scss" />
@@ -1229,7 +1258,6 @@
     <Content Include="Content\Images\star-on.png" />
     <Content Include="Content\editors\BBEditor\ed.js" />
     <Content Include="Content\Images\ajax_loader_small.gif" />
-    <Content Include="Content\Images\default-avatar.jpg" />
     <Content Include="Content\Images\flags\ad.png" />
     <Content Include="Content\Images\flags\ae.png" />
     <Content Include="Content\Images\flags\af.png" />
@@ -1559,9 +1587,8 @@
     <Content Include="Views\Boards\Partials\_ActiveTopics.cshtml" />
     <Content Include="Views\Boards\Partials\_CreateUpdatePost.cshtml" />
     <Content Include="Views\Boards\Partials\_CreateUpdateTopic.cshtml" />
-    <Content Include="Views\Boards\Partials\_ForumGroupPartial.cshtml" />
+    <Content Include="Views\Boards\Partials\ForumGroup.cshtml" />
     <Content Include="Views\Boards\Partials\_ForumPost.cshtml" />
-    <Content Include="Views\Boards\Partials\_SearchBox.cshtml" />
     <Content Include="Views\Catalog\Partials\CategoryMenu.cshtml" />
     <Content Include="Views\Catalog\CategoryTemplate.ProductsInGridOrLines.cshtml" />
     <Content Include="Views\Catalog\CompareProducts.cshtml" />
@@ -1591,11 +1618,9 @@
     <Content Include="Views\Common\Partials\Footer.cshtml" />
     <Content Include="Views\Common\Partials\JavaScriptDisabledWarning.cshtml" />
     <Content Include="Views\Common\Partials\LanguageSelector.cshtml" />
-    <Content Include="Views\Common\List.cshtml" />
     <Content Include="Views\Common\Partials\Menu.cshtml" />
     <Content Include="Views\Common\PdfReceiptFooter.cshtml" />
     <Content Include="Views\Common\PdfReceiptHeader.cshtml" />
-    <Content Include="Views\Common\Settings.cshtml" />
     <Content Include="Views\Common\Partials\ShopBar.cshtml" />
     <Content Include="Views\Common\Partials\StoreThemeSelector.cshtml" />
     <Content Include="Views\Common\Partials\TaxTypeSelector.cshtml" />
@@ -1629,7 +1654,6 @@
     <Content Include="Views\News\Partials\HomePageNews.cshtml" />
     <Content Include="Views\News\List.cshtml" />
     <Content Include="Views\News\NewsItem.cshtml" />
-    <Content Include="Views\Newsletter\Partials\NewsletterBox.cshtml" />
     <Content Include="Views\Newsletter\SubscriptionActivation.cshtml" />
     <Content Include="Views\Order\Details.cshtml" />
     <Content Include="Views\Order\Details.Print.cshtml" />
@@ -1786,6 +1810,24 @@
     <Content Include="Content\shared\_rtl-bs4.scss" />
     <Content Include="Views\Shared\DisplayTemplates\DateTime.cshtml" />
     <Content Include="Themes\Flex\Content\_fonts.scss" />
+    <Content Include="Views\ShoppingCart\Partials\_RefreshCartScript.cshtml" />
+    <Content Include="Views\Common\Partials\CookieConsentBadge.cshtml" />
+    <Content Include="Views\Common\Partials\GdprConsent.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Byte.cshtml" />
+    <Content Include="Views\Boards\Partials\Filters.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Html.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Liquid.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Picture.cshtml" />
+    <Content Include="Views\Boards\Partials\InstantSearch.cshtml" />
+    <Content Include="Views\Boards\Partials\SearchHits.cshtml" />
+    <Content Include="Views\Shared\Partials\Customer.Avatar.cshtml" />
+    <Content Include="Views\Shared\Layouts\_Layout.Bare.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Range.cshtml" />
+    <Content Include="Themes\Flex\Content\_accordion.scss">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Shared\Partials\FontAwesomeIcon.cshtml" />
+    <Content Include="Views\Shared\Partials\_Assets.cshtml" />
     <None Include="Web.EFMigrations.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

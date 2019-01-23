@@ -210,6 +210,10 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         color: $text-muted;
         font-weight: 400;
     }
+    .badge {
+        font-size: 100%;
+        font-weight: initial;
+    }
 }
 
 .pd-price-block + .pd-price-block {
@@ -335,8 +339,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     }
     &:after {
         display: inline-block;
-        font-family: FontAwesome;
-        content: "\f067"; // plus
+        @include fontawesome-font("\f067", regular);
         padding: 0 0.2rem;
     }
     &:last-child:after {

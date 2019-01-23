@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 using SmartStore.Collections;
 using SmartStore.Core.Caching;
 using SmartStore.Core.Data;
@@ -32,11 +33,13 @@ using SmartStore.Services.Security;
 using SmartStore.Services.Seo;
 using SmartStore.Services.Tax;
 using SmartStore.Services.Topics;
+using SmartStore.Web.Framework;
+using SmartStore.Web.Framework.Security;
 using SmartStore.Web.Framework.UI;
-using SmartStore.Web.Framework.UI.Captcha;
 using SmartStore.Web.Infrastructure.Cache;
 using SmartStore.Web.Models.Catalog;
 using SmartStore.Web.Models.Media;
+using SmartStore.Core.Domain.Common;
 
 namespace SmartStore.Web.Controllers
 {
@@ -65,6 +68,7 @@ namespace SmartStore.Web.Controllers
 		private readonly CustomerSettings _customerSettings;
 		private readonly CaptchaSettings _captchaSettings;
 		private readonly TaxSettings _taxSettings;
+		private readonly PerformanceSettings _performanceSettings;
 		private readonly IMeasureService _measureService;
         private readonly IQuantityUnitService _quantityUnitService;
 		private readonly MeasureSettings _measureSettings;
@@ -79,6 +83,8 @@ namespace SmartStore.Web.Controllers
 		private readonly HttpRequestBase _httpRequest;
 		private readonly UrlHelper _urlHelper;
 		private readonly ProductUrlHelper _productUrlHelper;
+		private readonly ILocalizedEntityService _localizedEntityService;
+		private readonly IUrlRecordService _urlRecordService;
 
 		public CatalogHelper(
 			ICommonServices services,
@@ -106,6 +112,7 @@ namespace SmartStore.Web.Controllers
             IQuantityUnitService quantityUnitService,
 			MeasureSettings measureSettings,
 			TaxSettings taxSettings,
+			PerformanceSettings performanceSettings,
 			IDeliveryTimeService deliveryTimeService,
 			ISettingService settingService,
 			Lazy<IMenuPublisher> _menuPublisher,
@@ -117,7 +124,9 @@ namespace SmartStore.Web.Controllers
 			ISiteMapService siteMapService,
 			HttpRequestBase httpRequest,
 			UrlHelper urlHelper,
-			ProductUrlHelper productUrlHelper)
+			ProductUrlHelper productUrlHelper,
+			ILocalizedEntityService localizedEntityService,
+			IUrlRecordService urlRecordService)
 		{
 			this._services = services;
 			this._categoryService = categoryService;
@@ -141,6 +150,7 @@ namespace SmartStore.Web.Controllers
             this._quantityUnitService = quantityUnitService;
 			this._measureSettings = measureSettings;
 			this._taxSettings = taxSettings;
+			this._performanceSettings = performanceSettings;
 			this._deliveryTimeService = deliveryTimeService;
 			this._settingService = settingService;
 			this._mediaSettings = mediaSettings;
@@ -156,6 +166,8 @@ namespace SmartStore.Web.Controllers
 			this._httpRequest = httpRequest;
 			this._urlHelper = urlHelper;
 			this._productUrlHelper = productUrlHelper;
+			this._localizedEntityService = localizedEntityService;
+			this._urlRecordService = urlRecordService;
 
 			T = NullLocalizer.Instance;
 		}
@@ -208,8 +220,10 @@ namespace SmartStore.Web.Controllers
 					IsAssociatedProduct = isAssociatedProduct,
 					CompareEnabled = !isAssociatedProduct && _catalogSettings.CompareProductsEnabled,
 					TellAFriendEnabled = !isAssociatedProduct && _catalogSettings.EmailAFriendEnabled,
-					AskQuestionEnabled = !isAssociatedProduct && _catalogSettings.AskQuestionEnabled
-				};
+					AskQuestionEnabled = !isAssociatedProduct && _catalogSettings.AskQuestionEnabled,
+                    PriceDisplayStyle = _catalogSettings.PriceDisplayStyle,
+                    DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices
+                };
 
 				// Social share code
 				if (_catalogSettings.ShowShareButton && _catalogSettings.PageShareCode.HasValue())
@@ -386,7 +400,13 @@ namespace SmartStore.Web.Controllers
 
 				// pictures
 				var pictures = _pictureService.GetPicturesByProductId(product.Id);
-				PrepareProductDetailsPictureModel(model.DetailsPictureModel, pictures, model.Name, combinationPictureIds, isAssociatedProduct, productBundleItem, combination);
+
+                if (product.HasPreviewPicture && pictures.Count > 1)
+                {
+                    pictures.RemoveAt(0);
+                }
+
+                PrepareProductDetailsPictureModel(model.DetailsPictureModel, pictures, model.Name, combinationPictureIds, isAssociatedProduct, productBundleItem, combination);
 
 				return model;
 			}
@@ -418,7 +438,7 @@ namespace SmartStore.Web.Controllers
 
 			var reviews = query
 				.OrderByDescending(x => x.CreatedOnUtc)
-				.Take(take)
+				.Take(() => take)
 				.ToList();
 
 			foreach (var review in reviews)
@@ -574,8 +594,8 @@ namespace SmartStore.Web.Controllers
 					}
 
 					if (defaultPicture == null)
-					{
-						model.GalleryStartIndex = 0;
+					{    
+                        model.GalleryStartIndex = 0;
 						defaultPicture = pictures.First();
 					}
 				}
@@ -725,7 +745,7 @@ namespace SmartStore.Web.Controllers
 					{
 						ProductBundleItemAttributeFilter attributeFilter = null;
 
-						if (productBundleItem.FilterOut(pvaValue, out attributeFilter))
+						if (productBundleItem?.Item?.FilterOut(pvaValue, out attributeFilter) ?? false)
 							continue;
 
 						if (preSelectedValueId == 0 && attributeFilter != null && attributeFilter.IsPreSelected)
@@ -969,9 +989,9 @@ namespace SmartStore.Web.Controllers
             }
             else
             {
-				var topic = _topicService.Value.GetTopicBySystemName("ShippingInfo", store.Id);
+				var shippingInfoUrl = _urlHelper.TopicUrl("ShippingInfo");
 
-				if (topic == null)
+				if (shippingInfoUrl.IsEmpty())
 				{
 					model.LegalInfo = T("Tax.LegalInfoProductDetail2",
 						product.IsTaxExempt ? "" : taxInfo,
@@ -984,7 +1004,7 @@ namespace SmartStore.Web.Controllers
 						product.IsTaxExempt ? "" : taxInfo,
 						product.IsTaxExempt ? "" : defaultTaxRate,
 						additionalShippingCosts,
-						_urlHelper.RouteUrl("Topic", new { SystemName = "shippinginfo" }));
+						shippingInfoUrl);
 				}
             }
 
@@ -1120,7 +1140,7 @@ namespace SmartStore.Web.Controllers
 
 						if (productBundleItem == null || isBundleItemPricing)
 						{
-							if (finalPriceWithoutDiscountBase != oldPriceBase && oldPriceBase > decimal.Zero)
+							if (oldPriceBase > decimal.Zero && oldPriceBase > finalPriceWithoutDiscountBase)
 							{
 								model.ProductPrice.OldPriceValue = oldPrice;
 								model.ProductPrice.OldPrice = _priceFormatter.FormatPrice(oldPrice);
@@ -1158,6 +1178,8 @@ namespace SmartStore.Web.Controllers
                                 model.ProductPrice.NoteWithDiscount = T("Products.Bundle.PriceWithDiscount.Note");
                             }
 
+                            var basePriceAdjustment = (_priceCalculationService.GetFinalPrice(product, true) - finalPriceWithDiscount) * (-1);
+
                             model.BasePriceInfo = product.GetBasePriceInfo(
                                 _localizationService, 
                                 _priceFormatter, 
@@ -1165,8 +1187,8 @@ namespace SmartStore.Web.Controllers
                                 _taxService, 
                                 _priceCalculationService,
 								customer,
-                                currency, 
-                                (product.Price - finalPriceWithDiscount) * (-1));
+                                currency,
+                                basePriceAdjustment);
 						}
 
 						// Calculate saving.

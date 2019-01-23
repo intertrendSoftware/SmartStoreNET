@@ -26,7 +26,7 @@
             @if (Model.DisplayPdfInvoice)
             {
 				<a href="@Url.Action("print", new { id = Model.Id, pdf = true })" class="btn btn-secondary btn-sm pdf-order-button" rel="nofollow">
-					<i class="fa fa-file-pdf-o"></i>
+					<i class="far fa-file-pdf"></i>
 					<span>@T("Order.GetPDFInvoice")</span>
 				</a>
             }
@@ -260,6 +260,8 @@
 									<td class="cart-summary-value">@Model.OrderTotal</td>
 								</tr>
 							</table>
+
+							@{ Html.RenderWidget("orderdetails_page_aftertotal"); }
 						</div>
 					</div>
 				</div>
@@ -292,8 +294,6 @@
 				}
 			</div>
 		}
-
-        @{ Html.RenderWidget("orderdetails_page_aftertotal"); }
 
         @if (Model.Shipments.Count > 0)
         {
@@ -370,7 +370,7 @@
 							{
 								<tr>
 									<td class="text-nowrap">@item.FriendlyCreatedOn</td>
-									<td>@Html.Raw(item.Note)</td>
+									<td dir="auto">@Html.Raw(item.Note)</td>
 								</tr>
 							}
 						</tbody>
@@ -421,7 +421,7 @@
 					</div>
 				}
 				<div class="col">
-					<a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")">@item.ProductName</a>
+					<a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" @Html.LanguageAttributes(item.ProductName)>@item.ProductName</a>
 					@if (Model.ShowSku && item.Sku.HasValue())
 					{
 						<div class="cart-item-sku small">
@@ -449,6 +449,8 @@
 			<span class="price">@item.SubTotal</span>
 		</div>
 	</div>
+
+    Html.RenderWidget("orderdetails_page_after_item", item);
 }
 
 @helper BundleProducts(OrderDetailsModel.OrderItemModel parentItem)
@@ -470,11 +472,11 @@
 							}
 							@if (item.VisibleIndividually)
 							{
-								<a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")">@item.ProductName</a>
+								<a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" dir="auto">@item.ProductName</a>
 							}
 							else
 							{
-								<span class="cart-item-link">@item.ProductName</span>
+								<span class="cart-item-link" dir="auto">@item.ProductName</span>
 							}
 							@if (item.AttributeInfo.HasValue())
 							{
@@ -500,4 +502,6 @@
 			</div>
 		}
 	}
+
+    Html.RenderWidget("orderdetails_page_after_item", parentItem);
 }

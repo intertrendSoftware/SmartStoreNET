@@ -87,6 +87,12 @@ namespace SmartStore.Services.Messages
 			// Create and assign model
 			var model = messageContext.Model = new TemplateModel();
 
+			// Do not create message if the template does not exist, is not authorized or not active.
+			if (messageContext.MessageTemplate == null)
+			{
+				return new CreateMessageResult { Model = model, MessageContext = messageContext };
+			}
+
 			// Add all global template model parts
 			_modelProvider.AddGlobalModelParts(messageContext);
 
@@ -181,7 +187,7 @@ namespace SmartStore.Services.Messages
 			{
 				parsed = RenderTemplate(email, ctx, required);
 
-				if (required || parsed != null)
+				if (required || parsed.HasValue())
 				{
 					return parsed.Convert<EmailAddress>();
 				}
@@ -357,14 +363,15 @@ namespace SmartStore.Services.Messages
 					throw new ArgumentException("'MessageTemplateName' must not be empty if 'MessageTemplate' is null.", nameof(ctx));
 				}
 
-				ctx.MessageTemplate = GetActiveMessageTemplate(ctx.MessageTemplateName, ctx.Store.Id);
-				if (ctx.MessageTemplate == null)
+				ctx.MessageTemplate = _messageTemplateService.GetMessageTemplateByName(ctx.MessageTemplateName, ctx.Store.Id);
+
+				if (ctx.MessageTemplate != null && !ctx.TestMode && !ctx.MessageTemplate.IsActive)
 				{
-					throw new FileNotFoundException("The message template '{0}' does not exist.".FormatInvariant(ctx.MessageTemplateName));
+					ctx.MessageTemplate = null;
 				}
 			}
 
-			if (ctx.EmailAccount == null)
+			if (ctx.EmailAccount == null && ctx.MessageTemplate != null)
 			{
 				ctx.EmailAccount = GetEmailAccountOfMessageTemplate(ctx.MessageTemplate, ctx.Language.Id);
 			}			
@@ -376,20 +383,12 @@ namespace SmartStore.Services.Messages
 				parts = bagParts.Concat(parts.Except(bagParts));
 			}		
 
-			modelParts = parts.ToArray();
-		}
-
-		protected MessageTemplate GetActiveMessageTemplate(string messageTemplateName, int storeId)
-		{
-			var messageTemplate = _messageTemplateService.GetMessageTemplateByName(messageTemplateName, storeId);
-			if (messageTemplate == null || !messageTemplate.IsActive)
-				return null;
-
-			return messageTemplate;
+			modelParts = parts.Where(x => x != null).ToArray();
 		}
 
 		protected EmailAccount GetEmailAccountOfMessageTemplate(MessageTemplate messageTemplate, int languageId)
 		{
+			// Note that the email account to be used can be specified separately for each language, that's why we use GetLocalized here.
 			var accountId = messageTemplate.GetLocalized(x => x.EmailAccountId, languageId);
 			var account = _emailAccountService.GetEmailAccountById(accountId);
 
@@ -628,7 +627,7 @@ namespace SmartStore.Services.Messages
 			{
 				// Fetch a random one
 				var skip = new Random().Next(count);
-				result = query.OrderBy(x => x.Id).Skip(skip).FirstOrDefault();
+				result = query.OrderBy(x => x.Id).Skip(() => skip).FirstOrDefault();
 			}
 			else
 			{

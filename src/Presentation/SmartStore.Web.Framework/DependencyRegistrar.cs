@@ -199,8 +199,8 @@ namespace SmartStore.Web.Framework
 			builder.RegisterType<CustomerReportService>().As<ICustomerReportService>().InstancePerRequest();
 
 			builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerRequest();
-
 			builder.RegisterType<AclService>().As<IAclService>().InstancePerRequest();
+			builder.RegisterType<GdprTool>().As<IGdprTool>().InstancePerRequest();
 
 			builder.RegisterType<GeoCountryLookup>().As<IGeoCountryLookup>().InstancePerRequest();
 			builder.RegisterType<CountryService>().As<ICountryService>().InstancePerRequest();
@@ -361,14 +361,14 @@ namespace SmartStore.Web.Framework
 			builder.Register(x => (IEfDataProvider)x.Resolve<DataProviderFactory>().LoadDataProvider()).As<IEfDataProvider>().InstancePerDependency();
 
 			builder.RegisterType<DefaultDbHookHandler>().As<IDbHookHandler>().InstancePerRequest();
-
+			
 			builder.RegisterType<EfDbCache>().As<IDbCache>().SingleInstance();
 
 			if (DataSettings.DatabaseIsInstalled())
 			{
 				// register DB Hooks (only when app was installed properly)
 
-				Func<Type, Type> findHookedType = (t) => 
+				Type findHookedType(Type t)
 				{
 					var x = t;
 					while (x != null)
@@ -381,7 +381,7 @@ namespace SmartStore.Web.Framework
 					}
 
 					return typeof(BaseEntity);
-				};
+				}
 
 				var hooks = _typeFinder.FindClassesOfType<IDbHook>(ignoreInactivePlugins: true);
 				foreach (var hook in hooks)
@@ -395,7 +395,7 @@ namespace SmartStore.Web.Framework
 						{
 							m.For(em => em.HookedType, hookedType);
 							m.For(em => em.ImplType, hook);
-							m.For(em => em.IsLoadHook, typeof(IDbLoadHook).IsAssignableFrom(hook));
+							m.For(em => em.IsLoadHook, false);
 							m.For(em => em.Important, hook.HasAttribute<ImportantAttribute>(false));
 						});
 				}
@@ -415,7 +415,7 @@ namespace SmartStore.Web.Framework
 						}
 						catch
 						{
-							//return new SmartObjectContext();
+							// return new SmartObjectContext();
 							return null;
 						}
 
@@ -573,14 +573,23 @@ namespace SmartStore.Web.Framework
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
+            // General.
 			builder.RegisterType<DefaultIndexManager>().As<IIndexManager>().InstancePerRequest();
-			builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().InstancePerRequest();
-			builder.RegisterType<LinqCatalogSearchService>().Named<ICatalogSearchService>("linq").InstancePerRequest();
-			builder.RegisterType<CatalogSearchQueryFactory>().As<ICatalogSearchQueryFactory>().InstancePerRequest();
-			builder.RegisterType<CatalogSearchQueryAliasMapper>().As<ICatalogSearchQueryAliasMapper>().InstancePerRequest();
-			builder.RegisterType<FacetUrlHelper>().InstancePerRequest();
-			builder.RegisterType<FacetTemplateProvider>().As<IFacetTemplateProvider>().InstancePerRequest();
-		}
+            builder.RegisterType<FacetUrlHelper>().InstancePerRequest();
+            builder.RegisterType<FacetTemplateProvider>().As<IFacetTemplateProvider>().InstancePerRequest();
+
+            // Catalog.
+            builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().InstancePerRequest();
+            builder.RegisterType<LinqCatalogSearchService>().Named<ICatalogSearchService>("linq").InstancePerRequest();
+            builder.RegisterType<CatalogSearchQueryFactory>().As<ICatalogSearchQueryFactory>().InstancePerRequest();
+            builder.RegisterType<CatalogSearchQueryAliasMapper>().As<ICatalogSearchQueryAliasMapper>().InstancePerRequest();
+
+            // Forum.
+            builder.RegisterType<ForumSearchService>().As<IForumSearchService>().InstancePerRequest();
+            builder.RegisterType<LinqForumSearchService>().Named<IForumSearchService>("linq").InstancePerRequest();
+            builder.RegisterType<ForumSearchQueryFactory>().As<IForumSearchQueryFactory>().InstancePerRequest();
+            builder.RegisterType<ForumSearchQueryAliasMapper>().As<IForumSearchQueryAliasMapper>().InstancePerRequest();
+        }
 	}
 
 	public class EventModule : Module
@@ -691,6 +700,7 @@ namespace SmartStore.Web.Framework
 			{
 				pageHelperRegistration.PropertiesAutowired(PropertyWiringOptions.None);
 				builder.RegisterType<HandleExceptionFilter>().AsActionFilterFor<SmartController>(-100);
+				builder.RegisterType<CookieConsentFilter>().AsActionFilterFor<PublicControllerBase>().InstancePerRequest();
 			}
 		}
 
@@ -818,6 +828,7 @@ namespace SmartStore.Web.Framework
 			builder.RegisterType<WidgetProvider>().As<IWidgetProvider>().InstancePerRequest();
 			builder.RegisterType<MenuPublisher>().As<IMenuPublisher>().InstancePerRequest();
 			builder.RegisterType<DefaultBreadcrumb>().As<IBreadcrumb>().InstancePerRequest();
+			builder.RegisterType<IconExplorer>().As<IIconExplorer>().SingleInstance();
 
 			// Sitemaps
 			builder.RegisterType<SiteMapService>().As<ISiteMapService>().InstancePerRequest();

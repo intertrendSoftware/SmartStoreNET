@@ -3,6 +3,14 @@
 @using SmartStore.Admin.Models.DataExchange
 @model ExportProfileModel
 
+@if (!Model.Provider.IsFileBasedExport)
+{
+	<div class="alert alert-info alert-dismissible">
+		@Html.Raw(T("Admin.DataExchange.Export.NonFileBasedExport.Note"))
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+	</div>
+}
+
 <table class="adminContent">
 	<tr>
 		<td class="adminTitle">
@@ -32,16 +40,19 @@
 			<td class="adminData">
 				<div>
 					<button id="FileNamePatternExampleButton" type="button" class="btn btn-sm btn-secondary mr-3">
-						<i class="fa fa-refresh"></i>
+						<i class="fa fa-sync"></i>
 						<span>@T("Admin.DataExchange.Export.Deployment.UpdateExampleFileName")</span>
 					</button>
 					<span id="FileNamePatternExample">@Model.FileNamePatternExample</span>
 				</div>
 				<div>
-					<div class="mt-3">
-						<a id="FileNamePatternDescriptionLink" href="javascript:void(0)">@T("Admin.DataExchange.Export.Deployment.ShowPlaceholder")&hellip;</a>
+					<div class="mt-2">
+						<button id="FileNamePatternDescriptionLink" type="button" class="btn btn-outline-light btn-sm font-weight-normal">
+                            <span>@T("Admin.DataExchange.Export.Deployment.ShowPlaceholder")</span>
+                            <i class="fa fa-chevron-down"></i>
+						</button>
 					</div>
-					<div id="FileNamePatternDescription" class="d-none mt-3">
+					<div id="FileNamePatternDescription" class="hide mt-2">
 						@FileNamePatternDescription()
 					</div>
 				</div>
@@ -93,7 +104,7 @@
 @if (Model.Provider.IsFileBasedExport)
 {
 	<div class="admin-config-group">
-		<div class="head">@T("Admin.DataExchange.Export.Deployment.ProfilesTitle")</div>
+		<div class="title">@T("Admin.DataExchange.Export.Deployment.ProfilesTitle")</div>
 	</div>
 
 	<div class="alert alert-info alert-dismissible">
@@ -109,7 +120,7 @@
 		</div>
 	}
 
-	if (Model.Deployments.Count > 0)
+	if (Model.Deployments.Any())
 	{
 		<div class="table-responsive">
 			<table id="export-deployment-list" class="table admin-table profile-list">
@@ -133,7 +144,7 @@
 									<a href="@Url.Action("EditDeployment", new { id = deployment.Id })">@deployment.Name</a>
 								</div>
 								<div class="muted">
-									<i class="fa @(deployment.DeploymentType.GetIconClass())"></i>&nbsp;@deployment.DeploymentTypeName
+									<i class="@(deployment.DeploymentType.GetIconClass())"></i>&nbsp;@deployment.DeploymentTypeName
 								</div>
 							</td>
 							<td>
@@ -192,12 +203,6 @@
 		<i class="fa fa-plus"></i>
 		<span>@T("Admin.DataExchange.AddNewProfile")</span>
 	</a>
-}
-else
-{
-	<div class="alert alert-info">
-		@Html.Raw(T("Admin.DataExchange.Export.NonFileBasedExport.Note"))
-	</div>
 }
 
 @{Html.SmartStore().Window()
@@ -261,15 +266,18 @@ else
 
 		// show/hide file name pattern descriptions
 		$('#FileNamePatternDescriptionLink').click(function () {
-			var descriptions = $('#FileNamePatternDescription');
-			$('#FileNamePatternDescriptionLink').html((descriptions.is(':visible') ? @T("Admin.DataExchange.Export.Deployment.ShowPlaceholder").JsText : @T("Admin.DataExchange.Export.Deployment.HidePlaceholder").JsText) + '…');
-			descriptions.toggleClass("d-none");
+            var descriptions = $('#FileNamePatternDescription'),
+                isVisible = descriptions.is(':visible');
+
+            descriptions.slideToggle();
+            $(this).find('span').html(isVisible ? @T("Admin.DataExchange.Export.Deployment.ShowPlaceholder").JsText : @T("Admin.DataExchange.Export.Deployment.HidePlaceholder").JsText);
+            $(this).find('i').removeClass(isVisible ? 'fa-chevron-up' : 'fa-chevron-down').addClass(isVisible ? 'fa-chevron-down' : 'fa-chevron-up');
 		});
 
 		// delete deployment
 		$('#export-deployment-list').find('.delete-depoyment').click(function () {
 			$(this).doPostData({
-				ask: '@T("Admin.Common.AskToProceed").JsText'
+				ask: @T("Admin.Common.AskToProceed").JsText
 			});
 		});
 

@@ -36,16 +36,35 @@
 							</div>
 						{% endif %}						
 					</div>
-					{% if product.DeliveryTime %}
+					{% if item.BundleItems %}
+						<div class="mb-2">
+							{% for bundleItem in item.BundleItems %}
+								<div class="text-xs mb-1">
+									<div>
+										{% if bundleItem.Quantity %}
+											<span>{{ bundleItem.Quantity }}&nbsp;&#215;</span>
+										{% endif %}
+										<span>{{ bundleItem.Product.Name }}</span>
+									</div>
+									{% if bundleItem.AttributeDescription %}
+										<div class="text-muted" style="line-height: 1.3">
+											{{ bundleItem.AttributeDescription }}
+										</div>
+									{% endif %}
+								</div>
+							{% endfor %}
+						</div>
+					{% endif %}
+					{% if item.DisplayDeliveryTime && item.DeliveryTime %}
 						<div class="text-sm">
-							{{ 'Products.DeliveryTime' | T }} <span style="color: {{ product.DeliveryTime.Color }}">{{ product.DeliveryTime.Name }}</span>
+							{{ 'Products.DeliveryTime' | T }} <span style="color: {{ item.DeliveryTime.Color }}">{{ item.DeliveryTime.Name }}</span>
 						</div>
 					{% endif %}
 					{% if item.AttributeDescription %}
 						<div class="text-xs text-muted mt-2" style="line-height: 1.3">
 							{{ item.AttributeDescription }}
 						</div>
-					{% endif %}		
+					{% endif %}
 				</td>
 				<td class="text-sm" style="border-top: 1px solid #eceeef; padding-{{_right}}: 0" nowrap>
 					{{ item.UnitPrice }}
@@ -118,7 +137,6 @@
 						</tr>
 					{% endfor %}
 				{% endif %}
-				</tr>
 				
 				<!-- Tax -->
 				{% if totals.Tax %}
@@ -145,18 +163,15 @@
 						</tr>
 					{% endfor %}
 				{% endif %}
-				</tr>
 				
 				<!-- Redeemed Reward Points-->
+				             
 				{% if totals.RedeemedRewardPoints %}
-					{% for rp in totals.RedeemedRewardPoints %}
-						<tr>
-							<td class="text-sm" width="60%" style="padding-top: 5px" nowrap>{{ rp.Title }}:</td>
-							<td class="text-sm text-right" width="40%" style="padding-top: 5px" nowrap>{{ rp.Amount }}</td>
-						</tr>
-					{% endfor %}
+					<tr>
+						<td class="text-sm" width="60%" style="padding-top: 5px" nowrap>{{ totals.RedeemedRewardPoints.Title }}:</td>
+						<td class="text-sm text-right" width="40%" style="padding-top: 5px" nowrap>{{ totals.RedeemedRewardPoints.Amount }}</td>
+					</tr>
 				{% endif %}
-				</tr>
 				
 				<!-- Rounding Difference -->
 				{% if totals.RoundingDiff %}

@@ -367,20 +367,17 @@ namespace SmartStore.Web.Framework.UI
 						writer.RenderBeginTag("img");
 						writer.RenderEndTag(); // img
 					}
-					//writer.WriteEncodedText(item.Text);
+
+					// Caption
+					writer.AddAttribute("class", "tab-caption");
+					writer.RenderBeginTag("span");
+					writer.WriteEncodedText(item.Text);
+					writer.RenderEndTag();
 
 					// Badge
 					if (item.BadgeText.HasValue())
 					{
-						//writer.Write("&nbsp;");
-
-						// caption
-						writer.AddAttribute("class", "tab-caption");
-						writer.RenderBeginTag("span");
-						writer.WriteEncodedText(item.Text);
-						writer.RenderEndTag(); // span > badge
-
-						// label/badge
+						// Label/badge
 						temp = "ml-2 badge";
 						temp += " badge-" + item.BadgeStyle.ToString().ToLower();
 						if (base.Component.Position == TabsPosition.Left)
@@ -392,12 +389,8 @@ namespace SmartStore.Web.Framework.UI
 						writer.WriteEncodedText(item.BadgeText);
 						writer.RenderEndTag(); // span > badge
 					}
-					else
-					{
-						writer.WriteEncodedText(item.Text);
-					}
 
-					// nav link short summary for collapsed state
+					// Nav link short summary for collapsed state
 					if (this.Component.IsResponsive && item.Summary.HasValue())
 					{
 						writer.AddAttribute("class", "nav-link-summary");

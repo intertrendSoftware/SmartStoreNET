@@ -1,9 +1,10 @@
-﻿using System.Web.Mvc;
+﻿using FluentValidation;
 using FluentValidation.Attributes;
+using SmartStore.Core.Domain.Customers;
 using SmartStore.Services.Localization;
 using SmartStore.Web.Framework;
 using SmartStore.Web.Framework.Modelling;
-using SmartStore.Web.Validators.Catalog;
+using System.Web.Mvc;
 
 namespace SmartStore.Web.Models.Catalog
 {
@@ -21,8 +22,9 @@ namespace SmartStore.Web.Models.Catalog
         [AllowHtml]
         [SmartResourceDisplayName("Account.Fields.FullName")]
         public string SenderName { get; set; }
+		public bool SenderNameRequired { get; set; }
 
-        [AllowHtml]
+		[AllowHtml]
         [SmartResourceDisplayName("Account.Fields.Phone")]
         public string SenderPhone { get; set; }
 
@@ -31,5 +33,20 @@ namespace SmartStore.Web.Models.Catalog
         public string Question { get; set; }
 
         public bool DisplayCaptcha { get; set; }
+    }
+
+    public class ProductAskQuestionValidator : AbstractValidator<ProductAskQuestionModel>
+    {
+        public ProductAskQuestionValidator(PrivacySettings privacySettings)
+        {
+            RuleFor(x => x.SenderEmail).NotEmpty();
+            RuleFor(x => x.SenderEmail).EmailAddress();
+            RuleFor(x => x.Question).NotEmpty();
+
+            if (privacySettings.FullNameOnProductRequestRequired)
+            {
+                RuleFor(x => x.SenderName).NotEmpty();
+            }
+        }
     }
 }

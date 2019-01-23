@@ -28,12 +28,9 @@ namespace SmartStore.Admin.Models.Customers
         public string SearchUsername { get; set; }
         public bool UsernamesEnabled { get; set; }
 
-        [SmartResourceDisplayName("Admin.Customers.Customers.List.SearchFirstName")]
-        [AllowHtml]
-        public string SearchFirstName { get; set; }
-        [SmartResourceDisplayName("Admin.Customers.Customers.List.SearchLastName")]
-        [AllowHtml]
-        public string SearchLastName { get; set; }
+		[SmartResourceDisplayName("Admin.Customers.Customers.List.SearchTerm")]
+		[AllowHtml]
+		public string SearchTerm { get; set; }
 
 
         [SmartResourceDisplayName("Admin.Customers.Customers.List.SearchDateOfBirth")]
@@ -44,11 +41,6 @@ namespace SmartStore.Admin.Models.Customers
         public string SearchMonthOfBirth { get; set; }
         public bool DateOfBirthEnabled { get; set; }
 
-
-
-        [SmartResourceDisplayName("Admin.Customers.Customers.List.SearchCompany")]
-        [AllowHtml]
-        public string SearchCompany { get; set; }
         public bool CompanyEnabled { get; set; }
 
         [SmartResourceDisplayName("Admin.Customers.Customers.List.SearchPhone")]
@@ -60,5 +52,8 @@ namespace SmartStore.Admin.Models.Customers
         [AllowHtml]
         public string SearchZipPostalCode { get; set; }
         public bool ZipPostalCodeEnabled { get; set; }
-    }
+
+		[SmartResourceDisplayName("Admin.Customers.Customers.List.SearchDeletedOnly")]
+		public bool SearchDeletedOnly { get; set; }
+	}
 }

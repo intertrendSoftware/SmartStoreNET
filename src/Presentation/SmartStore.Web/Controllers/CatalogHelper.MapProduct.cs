@@ -22,6 +22,8 @@ using SmartStore.Services.Media;
 using SmartStore.Services.Search;
 using SmartStore.Services.Security;
 using SmartStore.Services.Seo;
+using SmartStore.Utilities;
+using SmartStore.Web.Framework;
 using SmartStore.Web.Framework.UI;
 using SmartStore.Web.Infrastructure.Cache;
 using SmartStore.Web.Models.Catalog;
@@ -158,18 +160,56 @@ namespace SmartStore.Web.Controllers
 			{
 				settings = new ProductSummaryMappingSettings();
 			}
-
+			
 			using (_services.Chronometer.Step("MapProductSummaryModel"))
 			{
+				var model = new ProductSummaryModel(products)
+				{
+					ViewMode = settings.ViewMode,
+					GridColumnSpan = _catalogSettings.GridStyleListColumnSpan,
+					ShowSku = _catalogSettings.ShowProductSku,
+					ShowWeight = _catalogSettings.ShowWeight,
+					ShowDimensions = settings.MapDimensions,
+					ShowLegalInfo = settings.MapLegalInfo,
+					ShowDescription = settings.MapShortDescription,
+					ShowFullDescription = settings.MapFullDescription,
+					ShowRatings = settings.MapReviews,
+					ShowDeliveryTimes = settings.MapDeliveryTimes,
+					ShowPrice = settings.MapPrices,
+					ShowBasePrice = settings.MapPrices && _catalogSettings.ShowBasePriceInProductLists && settings.ViewMode != ProductSummaryViewMode.Mini,
+					ShowShippingSurcharge = settings.MapPrices && settings.ViewMode != ProductSummaryViewMode.Mini,
+					ShowButtons = settings.ViewMode != ProductSummaryViewMode.Mini,
+					ShowBrand = settings.MapManufacturers,
+					ForceRedirectionAfterAddingToCart = settings.ForceRedirectionAfterAddingToCart,
+					CompareEnabled = _catalogSettings.CompareProductsEnabled,
+					WishlistEnabled = _permissionService.Value.Authorize(StandardPermissionProvider.EnableWishlist),
+					BuyEnabled = !_catalogSettings.HideBuyButtonInLists,
+					ThumbSize = settings.ThumbnailSize,
+					ShowDiscountBadge = _catalogSettings.ShowDiscountSign,
+					ShowNewBadge = _catalogSettings.LabelAsNewForMaxDays.HasValue
+				};
+
+				if (products.Count == 0)
+				{
+					// No products, stop here.
+					return model;
+				}
+
 				// PERF!!
 				var store = _services.StoreContext.CurrentStore;
 				var customer = _services.WorkContext.CurrentCustomer;
 				var currency = _services.WorkContext.WorkingCurrency;
+				var language = _services.WorkContext.WorkingLanguage;
 				var allowPrices = _services.Permissions.Authorize(StandardPermissionProvider.DisplayPrices);
 				var sllowShoppingCart = _services.Permissions.Authorize(StandardPermissionProvider.EnableShoppingCart);
 				var allowWishlist = _services.Permissions.Authorize(StandardPermissionProvider.EnableWishlist);
 				var taxDisplayType = _services.WorkContext.GetTaxDisplayTypeFor(customer, store.Id);
 				var cachedManufacturerModels = new Dictionary<int, ManufacturerOverviewModel>();
+				var prefetchTranslations = settings.PrefetchTranslations == true || (settings.PrefetchTranslations == null && _performanceSettings.AlwaysPrefetchTranslations);
+				var prefetchSlugs = settings.PrefetchUrlSlugs == true || (settings.PrefetchUrlSlugs == null && _performanceSettings.AlwaysPrefetchUrlSlugs);
+				var allProductIds = prefetchSlugs || prefetchTranslations ? products.Select(x => x.Id).ToArray() : new int[0];
+
+				//var productIds = products.Select(x => x.Id).ToArray();
 
 				string taxInfo = T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT");
 				var legalInfo = "";
@@ -186,15 +226,21 @@ namespace SmartStore.Web.Controllers
 				
 				if (settings.MapLegalInfo)
 				{
-					if (_topicService.Value.GetTopicBySystemName("ShippingInfo", store.Id) == null)
-					{
-						legalInfo = T("Tax.LegalInfoShort2").Text.FormatInvariant(taxInfo);
-					}
-					else
-					{
-						var shippingInfoLink = _urlHelper.RouteUrl("Topic", new { SystemName = "shippinginfo" });
-						legalInfo = T("Tax.LegalInfoShort").Text.FormatInvariant(taxInfo, shippingInfoLink);
-					}
+					var shippingInfoUrl = _urlHelper.TopicUrl("shippinginfo");
+                    legalInfo = shippingInfoUrl.HasValue()
+                        ? T("Tax.LegalInfoShort").Text.FormatInvariant(taxInfo, shippingInfoUrl)
+                        : T("Tax.LegalInfoShort2").Text.FormatInvariant(taxInfo);
+				}
+
+				if (prefetchSlugs)
+				{
+					_urlRecordService.PrefetchUrlRecords(nameof(Product), new[] { language.Id, 0 }, allProductIds);
+				}
+
+				if (prefetchTranslations)
+				{
+					// Prefetch all delivery time translations
+					_localizedEntityService.PrefetchLocalizedProperties(nameof(DeliveryTime), language.Id, null);
 				}
 
 				using (var scope = new DbContextScope(ctx: _services.DbContext, autoCommit: false, validateOnSave: false))
@@ -211,6 +257,21 @@ namespace SmartStore.Web.Controllers
 					if (settings.MapAttributes || settings.MapColorAttributes)
 					{
 						batchContext.Attributes.LoadAll();
+
+						if (prefetchTranslations)
+						{
+							// Prefetch all product attribute translations
+							PrefetchTranslations(
+								nameof(ProductAttribute),
+								language.Id,
+								batchContext.Attributes.SelectMany(x => x.Value).Select(x => x.ProductAttribute));
+
+							// Prefetch all variant attribute value translations
+							PrefetchTranslations(
+								nameof(ProductVariantAttributeValue),
+								language.Id,
+								batchContext.Attributes.SelectMany(x => x.Value).SelectMany(x => x.ProductVariantAttributeValues));
+						}
 					}
 
 					if (settings.MapManufacturers)
@@ -221,42 +282,25 @@ namespace SmartStore.Web.Controllers
 					if (settings.MapSpecificationAttributes)
 					{
 						batchContext.SpecificationAttributes.LoadAll();
-					}
 
-					if (settings.MapPictures)
-					{
-						//var pids = products.Where(x => x.MainPictureId.HasValue).Select(x => x.MainPictureId.Value);
-						//var pis = ((Services.Media.PictureService)_pictureService).GetPictureInfos(pids, model.ThumbSize ?? 250);
-					}
+						if (prefetchTranslations)
+						{
+							// Prefetch all spec attribute option translations
+							PrefetchTranslations(
+								nameof(SpecificationAttributeOption), 
+								language.Id,
+								batchContext.SpecificationAttributes.SelectMany(x => x.Value).Select(x => x.SpecificationAttributeOption));
 
-					var model = new ProductSummaryModel(products)
-					{
-						ViewMode = settings.ViewMode,
-						GridColumnSpan = _catalogSettings.GridStyleListColumnSpan,
-						ShowSku = _catalogSettings.ShowProductSku,
-						ShowWeight = _catalogSettings.ShowWeight,
-						ShowDimensions = settings.MapDimensions,
-						ShowLegalInfo = settings.MapLegalInfo,
-						ShowDescription = settings.MapShortDescription,
-						ShowFullDescription = settings.MapFullDescription,
-						ShowRatings = settings.MapReviews,
-						ShowDeliveryTimes = settings.MapDeliveryTimes,
-						ShowPrice = settings.MapPrices,
-						ShowBasePrice = settings.MapPrices && _catalogSettings.ShowBasePriceInProductLists && settings.ViewMode != ProductSummaryViewMode.Mini,
-						ShowShippingSurcharge = settings.MapPrices && settings.ViewMode != ProductSummaryViewMode.Mini,
-						ShowButtons = settings.ViewMode != ProductSummaryViewMode.Mini,
-						ShowBrand = settings.MapManufacturers,
-						ForceRedirectionAfterAddingToCart = settings.ForceRedirectionAfterAddingToCart,
-						CompareEnabled = _catalogSettings.CompareProductsEnabled,
-						WishlistEnabled = _permissionService.Value.Authorize(StandardPermissionProvider.EnableWishlist),
-						BuyEnabled = !_catalogSettings.HideBuyButtonInLists,
-						ThumbSize = settings.ThumbnailSize,
-						ShowDiscountBadge = _catalogSettings.ShowDiscountSign,
-						ShowNewBadge = _catalogSettings.LabelAsNewForMaxDays.HasValue
-					};
+							// Prefetch all spec attribute translations
+							PrefetchTranslations(
+								nameof(SpecificationAttribute),
+								language.Id,
+								batchContext.SpecificationAttributes.SelectMany(x => x.Value).Select(x => x.SpecificationAttributeOption.SpecificationAttribute));
+						}
+					}
 
 					// If a size has been set in the view, we use it in priority
-					int thumbSize = model.ThumbSize.HasValue ? model.ThumbSize.Value : _mediaSettings.ProductThumbPictureSize;
+					int thumbSize = model.ThumbSize ?? _mediaSettings.ProductThumbPictureSize;
 
 					var mapItemContext = new MapProductSummaryItemContext
 					{
@@ -288,12 +332,20 @@ namespace SmartStore.Web.Controllers
 					batchContext.Clear();
 
 					// don't show stuff without data at all
-					model.ShowDescription = model.ShowDescription && model.Items.Any(x => x.ShortDescription.Value.HasValue());
+					model.ShowDescription = model.ShowDescription && model.Items.Any(x => x.ShortDescription?.Value?.HasValue() == true);
 					model.ShowBrand = model.ShowBrand && model.Items.Any(x => x.Manufacturer != null);
 
 					return model;
 				}
 			}		
+		}
+
+		private void PrefetchTranslations(string keyGroup, int languageId, IEnumerable<BaseEntity> entities)
+		{
+			if (entities.Any())
+			{
+				_localizedEntityService.PrefetchLocalizedProperties(keyGroup, languageId, entities.Select(x => x.Id).Distinct().ToArray());
+			}	
 		}
 
 		private void MapProductSummaryItem(Product product, MapProductSummaryItemContext ctx)
@@ -475,30 +527,23 @@ namespace SmartStore.Web.Controllers
 					item.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
 				}
 
-				if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
-				{
-					item.DisplayDeliveryTimeAccordingToStock = product.StockQuantity > 0 || (product.StockQuantity <= 0 && _catalogSettings.DeliveryTimeIdForEmptyStock.HasValue);
-				}
-				else
-				{
-					item.DisplayDeliveryTimeAccordingToStock = true;
-				}
+                item.DisplayDeliveryTimeAccordingToStock = product.ManageInventoryMethod == ManageInventoryMethod.ManageStock
+                    ? product.StockQuantity > 0 || (product.StockQuantity <= 0 && _catalogSettings.DeliveryTimeIdForEmptyStock.HasValue)
+                    : true;
 
 				if (product.DisplayStockAvailability && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
 				{
 					if (product.StockQuantity > 0)
 					{
-						if (product.DisplayStockQuantity)
-							item.StockAvailablity = T("Products.Availability.InStockWithQuantity", product.StockQuantity);
-						else
-							item.StockAvailablity = T("Products.Availability.InStock");
+                        item.StockAvailablity = product.DisplayStockQuantity
+                            ? T("Products.Availability.InStockWithQuantity", product.StockQuantity)
+                            : T("Products.Availability.InStock");
 					}
 					else
 					{
-						if (product.BackorderMode == BackorderMode.NoBackorders || product.BackorderMode == BackorderMode.AllowQtyBelow0)
-							item.StockAvailablity = T("Products.Availability.OutOfStock");
-						else if (product.BackorderMode == BackorderMode.AllowQtyBelow0AndNotifyCustomer)
-							item.StockAvailablity = T("Products.Availability.Backordering");
+                        item.StockAvailablity = product.BackorderMode == BackorderMode.NoBackorders || product.BackorderMode == BackorderMode.AllowQtyBelow0
+                            ? T("Products.Availability.OutOfStock")
+                            : T("Products.Availability.Backordering");
 					}
 				}
 
@@ -523,7 +568,10 @@ namespace SmartStore.Web.Controllers
 				{
 					item.TransportSurcharge = ctx.Resources["Common.AdditionalShippingSurcharge"].Text.FormatCurrent(_priceFormatter.FormatPrice(addShippingPrice, true, false));
 				}
-			}
+
+                item.PriceDisplayStyle = _catalogSettings.PriceDisplayStyle;
+                item.DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices;
+            }
 
 			if (model.ShowWeight && contextProduct.Weight > 0)
 			{
@@ -539,8 +587,8 @@ namespace SmartStore.Web.Controllers
 					Style = BadgeStyle.Success
 				});
 			}
-
-			model.Items.Add(item);
+            
+            model.Items.Add(item);
 		}
 
 		/// <param name="contextProduct">The product or the first associated product of a group.</param>
@@ -554,7 +602,7 @@ namespace SmartStore.Web.Controllers
 			var finalPriceBase = decimal.Zero;
 			var finalPrice = decimal.Zero;
 			var displayPrice = decimal.Zero;
-			ICollection<Product> associatedProducts = null;
+            ICollection<Product> associatedProducts = null;
 
 			var priceModel = new ProductSummaryModel.PriceModel();
 			item.Price = priceModel;
@@ -584,11 +632,7 @@ namespace SmartStore.Web.Controllers
 						.ThenBy(x => x.DisplayOrder);
 
 					ctx.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
-
-					if (ctx.GroupedProducts.Any())
-					{
-						ctx.BatchContext.AppliedDiscounts.Collect(allAssociatedProducts.Select(x => x.Id));
-					}
+                    ctx.AssociatedProductBatchContext = _dataExporter.Value.CreateProductExportContext(allAssociatedProducts, ctx.Customer, null, null, false);
 				}
 
 				associatedProducts = ctx.GroupedProducts[product.Id];
@@ -606,7 +650,7 @@ namespace SmartStore.Web.Controllers
 				priceModel.AvailableForPreOrder = product.AvailableForPreOrder;
 			}
 
-			// Return if no pricing at all.
+			// Return if there's no pricing at all.
 			if (contextProduct == null || contextProduct.CustomerEntersPrice || !ctx.AllowPrices || _catalogSettings.PriceDisplayType == PriceDisplayType.Hide)
 			{
 				return finalPrice;
@@ -626,14 +670,16 @@ namespace SmartStore.Web.Controllers
 				return finalPrice;
 			}
 
-			// Calculate prices.
+            // Calculate prices.
+            var batchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
+
 			if (_catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice)
 			{
-				displayPrice = _priceCalculationService.GetPreselectedPrice(contextProduct, ctx.Customer, ctx.Currency, ctx.BatchContext);
+				displayPrice = _priceCalculationService.GetPreselectedPrice(contextProduct, ctx.Customer, ctx.Currency, batchContext);
 			}
 			else if (_catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes)
 			{
-				displayPrice = _priceCalculationService.GetFinalPrice(contextProduct, null, ctx.Customer, decimal.Zero, false, 1, null, ctx.BatchContext);
+				displayPrice = _priceCalculationService.GetFinalPrice(contextProduct, null, ctx.Customer, decimal.Zero, false, 1, null, batchContext);
 			}
 			else
 			{
@@ -641,11 +687,11 @@ namespace SmartStore.Web.Controllers
 				if (product.ProductType == ProductType.GroupedProduct)
 				{
 					displayFromMessage = true;
-					displayPrice = _priceCalculationService.GetLowestPrice(product, ctx.Customer, ctx.BatchContext, associatedProducts, out contextProduct) ?? decimal.Zero;
+					displayPrice = _priceCalculationService.GetLowestPrice(product, ctx.Customer, batchContext, associatedProducts, out contextProduct) ?? decimal.Zero;
 				}
 				else
 				{
-					displayPrice = _priceCalculationService.GetLowestPrice(product, ctx.Customer, ctx.BatchContext, out displayFromMessage);
+					displayPrice = _priceCalculationService.GetLowestPrice(product, ctx.Customer, batchContext, out displayFromMessage);
 				}
 			}
 
@@ -660,7 +706,7 @@ namespace SmartStore.Web.Controllers
 				? string.Format(ctx.Resources["Products.PriceRangeFrom"], _priceFormatter.FormatPrice(finalPrice))
 				: _priceFormatter.FormatPrice(finalPrice);
 
-			priceModel.HasDiscount = finalPriceBase != oldPriceBase && oldPriceBase > decimal.Zero;
+			priceModel.HasDiscount = oldPriceBase > decimal.Zero && oldPriceBase > finalPriceBase;
 			if (priceModel.HasDiscount)
 			{
 				priceModel.RegularPriceValue = oldPrice;
@@ -668,46 +714,42 @@ namespace SmartStore.Web.Controllers
 			}
 
 			// Calculate saving.
-			if (finalPrice > 0)
-			{
-				var finalPriceWithDiscount = _priceCalculationService.GetFinalPrice(contextProduct, null, ctx.Customer, decimal.Zero, true, 1, null, ctx.BatchContext);
-				finalPriceWithDiscount = _taxService.GetProductPrice(contextProduct, finalPriceWithDiscount, out taxRate);
-				finalPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithDiscount, ctx.Currency);
+			var finalPriceWithDiscount = _priceCalculationService.GetFinalPrice(contextProduct, null, ctx.Customer, decimal.Zero, true, 1, null, ctx.BatchContext);
+			finalPriceWithDiscount = _taxService.GetProductPrice(contextProduct, finalPriceWithDiscount, out taxRate);
+			finalPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithDiscount, ctx.Currency);
 
-				var finalPriceWithoutDiscount = finalPrice;
-				if (_catalogSettings.PriceDisplayType != PriceDisplayType.PriceWithoutDiscountsAndAttributes)
+			var finalPriceWithoutDiscount = finalPrice;
+			if (_catalogSettings.PriceDisplayType != PriceDisplayType.PriceWithoutDiscountsAndAttributes)
+			{
+				finalPriceWithoutDiscount = _priceCalculationService.GetFinalPrice(contextProduct, null, ctx.Customer, decimal.Zero, false, 1, null, ctx.BatchContext);
+				finalPriceWithoutDiscount = _taxService.GetProductPrice(contextProduct, finalPriceWithoutDiscount, out taxRate);
+				finalPriceWithoutDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithoutDiscount, ctx.Currency);
+			}
+
+			// Discounted price has priority over the old price (avoids differing percentage discount in product lists and detail page).
+			var regularPrice = finalPriceWithDiscount < finalPriceWithoutDiscount
+				? finalPriceWithoutDiscount
+				: oldPrice;
+
+			if (regularPrice > 0 && regularPrice > finalPriceWithDiscount)
+			{
+				priceModel.HasDiscount = true;
+				priceModel.SavingPercent = (float)((regularPrice - finalPriceWithDiscount) / regularPrice) * 100;
+				priceModel.SavingAmount = _priceFormatter.FormatPrice(regularPrice - finalPriceWithDiscount, true, false);
+
+				if (!priceModel.RegularPriceValue.HasValue)
 				{
-					finalPriceWithoutDiscount = _priceCalculationService.GetFinalPrice(contextProduct, null, ctx.Customer, decimal.Zero, false, 1, null, ctx.BatchContext);
-					finalPriceWithoutDiscount = _taxService.GetProductPrice(contextProduct, finalPriceWithoutDiscount, out taxRate);
-					finalPriceWithoutDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithoutDiscount, ctx.Currency);
+					priceModel.RegularPriceValue = regularPrice;
+					priceModel.RegularPrice = _priceFormatter.FormatPrice(regularPrice);
 				}
 
-				// Discounted price has priority over the old price (avoids differing percentage discount in product lists and detail page).
-				//var regularPrice = Math.Max(finalPriceWithoutDiscount, oldPrice);
-				var regularPrice = finalPriceWithDiscount < finalPriceWithoutDiscount
-					? finalPriceWithoutDiscount
-					: oldPrice;
-
-				if (regularPrice > 0 && regularPrice > finalPriceWithDiscount)
+				if (ctx.Model.ShowDiscountBadge)
 				{
-					priceModel.HasDiscount = true;
-					priceModel.SavingPercent = (float)((regularPrice - finalPriceWithDiscount) / regularPrice) * 100;
-					priceModel.SavingAmount = _priceFormatter.FormatPrice(regularPrice - finalPriceWithDiscount, true, false);
-
-					if (!priceModel.RegularPriceValue.HasValue)
+					item.Badges.Add(new ProductSummaryModel.Badge
 					{
-						priceModel.RegularPriceValue = regularPrice;
-						priceModel.RegularPrice = _priceFormatter.FormatPrice(regularPrice);
-					}
-
-					if (ctx.Model.ShowDiscountBadge)
-					{
-						item.Badges.Add(new ProductSummaryModel.Badge
-						{
-							Label = T("Products.SavingBadgeLabel", priceModel.SavingPercent.ToString("N0")),
-							Style = BadgeStyle.Danger
-						});
-					}
+						Label = T("Products.SavingBadgeLabel", priceModel.SavingPercent.ToString("N0")),
+						Style = BadgeStyle.Danger
+					});
 				}
 			}
 
@@ -745,7 +787,8 @@ namespace SmartStore.Web.Controllers
 			public ProductSummaryModel Model { get; set; }
 			public ProductSummaryMappingSettings Settings { get; set; }
 			public ProductExportContext BatchContext { get; set; }
-			public Multimap<int, Product> GroupedProducts { get; set; }
+            public ProductExportContext AssociatedProductBatchContext { get; set; }
+            public Multimap<int, Product> GroupedProducts { get; set; }
 			public Dictionary<int, ManufacturerOverviewModel> CachedManufacturerModels { get; set; }
 			public IDictionary<int, PictureInfo> PictureInfos { get; set; }
 			public Dictionary<string, LocalizedString> Resources { get; set; }
@@ -787,5 +830,8 @@ namespace SmartStore.Web.Controllers
 
 		public bool ForceRedirectionAfterAddingToCart { get; set; }
 		public int? ThumbnailSize { get; set; }	
+
+		public bool? PrefetchTranslations { get; set; }
+		public bool? PrefetchUrlSlugs { get; set; }
 	}
 }

@@ -83,7 +83,7 @@
 						<!-- Bundle Items -->
 						@if (Model.ProductType == ProductType.BundledProduct)
 						{
-							<div class="pd-bundle-container pd-group card card-shadow">
+							<div class="pd-bundle-container pd-group card shadow-sm">
 								@{ Html.RenderPartial("Product.Bundle", Model); }
 							</div>
 						}
@@ -117,7 +117,7 @@
 						@if (Model.DisplayAdminLink)
 						{
 							<a class="btn btn-secondary btn-flat btn-edit-product" href="@Url.Action("Edit", "Product", new { id = Model.Id, area = "admin" })" target="admin-product" rel="nofollow">
-								<i class="fa fa-gear"></i>
+								<i class="fa fa-cog"></i>
 								<span>@T("Common.Catalog.EditProduct")</span>
 							</a>
 						}
@@ -183,7 +183,7 @@
             galleryStartIndex: @(Model.DetailsPictureModel.GalleryStartIndex),
             enableZoom: toBool('@(Model.DetailsPictureModel.DefaultPictureZoomEnabled)')
         };
-
+		
     	$('#pd-form').productDetail(settings);
     });
 </script>

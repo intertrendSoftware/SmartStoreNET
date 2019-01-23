@@ -44,7 +44,7 @@ namespace SmartStore.Web.Infrastructure
 
 		public override string Name
 		{
-			get { return SiteMapName; }
+			get => SiteMapName;
 		}
 
 		public override bool ApplyPermissions
@@ -101,6 +101,7 @@ namespace SmartStore.Web.Infrastructure
 											.VisibleIndividuallyOnly(true)
 											.WithCategoryIds(null, categoryIds.ToArray())
 											.HasStoreId(Services.StoreContext.CurrentStoreIdIfMultiStoreMode)
+											.BuildFacetMap(false)
 											.BuildHits(false);
 
 										node.Value.ElementsCount = _catalogSearchService.Search(context).TotalHitsCount;
@@ -172,7 +173,7 @@ namespace SmartStore.Web.Infrastructure
 
 	public class CatalogSiteMapInvalidationConsumer : IConsumer<CategoryTreeChangedEvent>
 	{
-		private readonly ISiteMap _siteMap;
+		private readonly Lazy<ISiteMapService> _siteMapService;
 		private readonly ICommonServices _services;
 		private readonly CatalogSettings _catalogSettings;
 
@@ -180,13 +181,18 @@ namespace SmartStore.Web.Infrastructure
 		private bool _countsResetted = false;
 
 		public CatalogSiteMapInvalidationConsumer(
-			ISiteMapService siteMapService,
+			Lazy<ISiteMapService> siteMapService,
 			ICommonServices services,
 			CatalogSettings catalogSettings)
 		{
-			_siteMap = siteMapService.GetSiteMap("catalog");
+			_siteMapService = siteMapService;
 			_services = services;
 			_catalogSettings = catalogSettings;
+		}
+
+		private ISiteMap GetSiteMap()
+		{
+			return _siteMapService.Value.GetSiteMap("catalog");
 		}
 
 		public void HandleEvent(CategoryTreeChangedEvent eventMessage)
@@ -207,7 +213,7 @@ namespace SmartStore.Web.Infrastructure
 		{
 			if (condition && !_invalidated)
 			{
-				_siteMap.ClearCache();
+				GetSiteMap().ClearCache();
 				_invalidated = true;
 			}
 		}
@@ -216,7 +222,7 @@ namespace SmartStore.Web.Infrastructure
 		{
 			if (!_countsResetted && _catalogSettings.ShowCategoryProductNumber)
 			{
-				var allCachedTrees = _siteMap.GetAllCachedTrees();
+				var allCachedTrees = GetSiteMap().GetAllCachedTrees();
 				foreach (var kvp in allCachedTrees)
 				{
 					bool dirty = false;

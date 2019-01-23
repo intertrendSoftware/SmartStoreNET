@@ -4,7 +4,7 @@
 			"name": "Admin.ContentManagement.Homepage",
 			"zones": [
 				"home_page_top",
-				"home_page_after_intro", 
+				"home_page_after_intro",
 				"home_page_after_categories",
 				"home_page_after_products",
 				"home_page_after_bestsellers",
@@ -16,23 +16,23 @@
 			]
 		},
 		{
-			"name": "Global",
-			"zones": [
-				"main_column_before",
-				"main_column_after",
-				"body_start_html_tag_after",
-				"content_before",
-				"after_teaser",
-				"aside_left_before",
-				"aside_left_after",
-				"aside_right_before",
-				"aside_right_after",
-				"content_after",
-				"body_end_html_tag_before",
-				"head_html_tag"
-			]
+			"name": "Admin.Common.Global",
+      "zones": [
+        "main_column_before",
+        "main_column_after",
+        "body_start_html_tag_after",
+        "content_before",
+        "teaser",
+        "aside_left_before",
+        "aside_left_after",
+        "aside_right_before",
+        "aside_right_after",
+        "content_after",
+        "body_end_html_tag_before",
+        "head_html_tag",
+        "footer_before"
+      ]
 		},
-
 		{
 			"name": "Admin.ContentManagement.Blog",
 			"zones": [
@@ -45,7 +45,14 @@
 			]
 		},
 		{
-			"name": "News",
+			"name": "Admin.ContentManagement.Topics",
+			"zones": [
+				"topic_body_before",
+				"topic_body_after"
+			]
+		},
+		{
+			"name": "Admin.Common.News",
 			"zones": [
 				"newslist_page_before_items",
 				"newslist_page_after_items",
@@ -88,7 +95,7 @@
 			]
 		},
 		{
-			"name": "Navigation",
+			"name": "Admin.Common.Navigation",
 			"zones": [
 				"header_menu_top",
 				"header_menu_before",
@@ -112,7 +119,7 @@
 			]
 		},
 		{
-			"name": "PDF",
+			"name": "Admin.Common.PDF",
 			"zones": [
 				"invoice_footer_before",
 				"invoice_footer_after",
@@ -126,6 +133,7 @@
 				"invoice_lines_before",
 				"invoice_checkoutattributes_before",
 				"invoice_ordertotals_before",
+				"invoice_aftertotal",
 				"invoice_ordernotes_before",
 				"invoice_bottom",
 				"pdfcatalog_cover_top",
@@ -150,17 +158,19 @@
 			]
 		},
 		{
-			"name": "Footer",
-			"zones": [
-				"footer_top",
-				"footer_bottom",
-				"footer_col_1_after",
-				"footer_col_1_before",
-				"footer_col_2_after",
-				"footer_col_2_before",
-				"footer_col_3_after",
-				"footer_col_3_before"
-			]
+			"name": "Admin.Common.Footer",
+      "zones": [
+        "footer_top",
+        "footer_bottom",
+        "footer_col_1_after",
+        "footer_col_1_before",
+        "footer_col_2_after",
+        "footer_col_2_before",
+        "footer_col_3_after",
+        "footer_col_3_before",
+        "footer_col_4_after",
+        "footer_col_4_before"
+      ]
 		},
 		{
 			"name": "Common.Misc",
@@ -187,7 +197,11 @@
 				"recently_added_products_top",
 				"wishlist_items_top",
 				"offcanvas_wishlist_items_after",
-				"offcanvas_compare_items_after"
+				"offcanvas_compare_items_after",
+				"returnrequest_wish_before",
+				"returnrequest_wish_after",
+				"returnrequest_top",
+				"returnrequest_bottom"
 			]
 		},
 		{
