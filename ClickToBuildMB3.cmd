@@ -1,6 +1,6 @@
 @echo off
 cls
-echo Building SmartStoreMB3.NET...   											
+echo Building SmartInstructorNET3.NET...   											
 
 call buildmb3.bat /t:Deploy
 
